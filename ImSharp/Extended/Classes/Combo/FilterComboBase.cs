@@ -275,7 +275,7 @@ public abstract class FilterComboBase<TCacheItem> : FilterComboBase
         if (Im.Window.Appearing)
             Im.Keyboard.SetFocusHere();
 
-        var ret = Filter.DrawFilter("Filter..."u8, new Vector2(width, Im.Style.FrameHeight));
+        var ret = Filter.DrawFilter("筛选..."u8, new Vector2(width, Im.Style.FrameHeight));
         // Remove the spacing after the filter.
         Im.Cursor.Y -= Im.Style.ItemSpacing.Y;
 

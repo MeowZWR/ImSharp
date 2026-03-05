@@ -190,10 +190,10 @@ public static partial class ImEx
             return;
 
         content();
-        var buttonSize   = Math.Max(size.X / 5, Im.Font.CalculateButtonSize("Understood"u8).X);
+        var buttonSize   = Math.Max(size.X / 5, Im.Font.CalculateButtonSize("已了解"u8).X);
         var buttonCenter = (size.X - buttonSize) / 2 - Im.Style.WindowPadding.X;
         Im.Cursor.Position = new Vector2(buttonCenter, size.Y - 1.75f * Im.Style.FrameHeight);
-        if (Im.Button("Understood"u8, new Vector2(buttonSize, 0)))
+        if (Im.Button("已了解"u8, new Vector2(buttonSize, 0)))
             Im.Popup.CloseCurrent();
     }
 }
