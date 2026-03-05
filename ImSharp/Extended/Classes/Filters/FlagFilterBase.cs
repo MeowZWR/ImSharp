@@ -92,7 +92,7 @@ public abstract class FlagFilterBase<TCacheItem, TEnum> : IFilter<TCacheItem>
     protected virtual bool OnMiddleClick()
     {
         if (FilterValue.HasFlag(AllFlags))
-            Im.Tooltip.OnHover("Middle-click to clear filters.\n"u8);
+            Im.Tooltip.OnHover("中键点击清除筛选。\n"u8);
         if (!Im.Item.MiddleClicked())
             return false;
 
@@ -123,7 +123,7 @@ public abstract class FlagFilterBase<TCacheItem, TEnum> : IFilter<TCacheItem>
             }
         }
 
-        Im.Tooltip.OnHover("Right-click to turn all other filters off (when this is on) or on (when this is off)."u8);
+        Im.Tooltip.OnHover("右键点击关闭所有其他筛选（当此筛选开启时）或开启（当此筛选关闭时）。"u8);
         return ret;
     }
 

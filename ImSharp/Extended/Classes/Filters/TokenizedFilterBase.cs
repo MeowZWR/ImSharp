@@ -166,7 +166,7 @@ public abstract class TokenizedFilter<TTokenType, TCacheItem, TToken> : IFilter<
     protected virtual bool OnMiddleClick()
     {
         if (Text.Length > 0)
-            Im.Tooltip.OnHover("\nMiddle-click to clear filters."u8);
+            Im.Tooltip.OnHover("\n中键点击清除筛选。"u8);
         if (!Im.Item.MiddleClicked())
             return false;
 

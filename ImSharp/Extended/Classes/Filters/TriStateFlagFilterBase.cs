@@ -129,7 +129,7 @@ public abstract class TriStateFlagFilterBase<TCacheItem, TEnum> : IFilter<TCache
     protected virtual bool OnMiddleClick()
     {
         if (FilterValue.HasFlag(AllFlags))
-            Im.Tooltip.OnHover("Middle-click to clear filters.\n"u8);
+            Im.Tooltip.OnHover("中键点击清除筛选。\n"u8);
         if (!Im.Item.MiddleClicked())
             return false;
 
