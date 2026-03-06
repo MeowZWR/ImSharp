@@ -13,7 +13,7 @@ public abstract class YesNoColumn<TCacheItem> : TriStateFlagColumn<YesNoFlag, TC
         => ImGuiColor.CheckMark.Get();
 
     /// <summary> The label to display for the tri-state checkbox filter. </summary>
-    public StringU8 FilterLabel { get; init; } = new("Enabled"u8);
+    public StringU8 FilterLabel { get; init; } = new("启用"u8);
 
     /// <summary> Create a new YesNoColumn. </summary>
     protected YesNoColumn()

@@ -30,7 +30,7 @@ public static class YesNoFlagExtensions
 public abstract class YesNoFilter<TCacheItem> : TriStateFlagFilterBase<TCacheItem, YesNoFlag>
 {
     /// <summary> The default label for the filter. </summary>
-    public static readonly StringU8 EnabledString = new("Enabled"u8);
+    public static readonly StringU8 EnabledString = new("启用"u8);
 
     /// <summary> The basic data for the filter. </summary>
     private readonly (YesNoFlag On, YesNoFlag Off, StringU8 Name)[] _enumData = [(YesNoFlag.Yes, YesNoFlag.No, EnabledString)];
