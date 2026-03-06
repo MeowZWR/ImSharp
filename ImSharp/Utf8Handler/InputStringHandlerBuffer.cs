@@ -68,6 +68,6 @@ public unsafe struct InputStringHandlerBuffer : IStringHandlerBuffer
             Buffer[newLength] = 0;
         }
 
-        return Im.Item.DeactivatedAfterEdit;
+        return Im.Item.DeactivatedAfterEdit || Im.Item.Deactivated && Im.Keyboard.IsPressed(Key.Enter);
     }
 }
