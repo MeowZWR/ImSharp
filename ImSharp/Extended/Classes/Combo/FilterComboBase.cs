@@ -38,7 +38,11 @@ public abstract class FilterComboBase()
     /// <summary> The alignment of the text inside the preview button. </summary>
     public Vector2 PreviewAlignment { get; set; }
 
+    /// <summary> The desired lifespan for the cache for this combo. </summary>
     public TimeSpan CacheLifetime { get; init; } = TimeSpan.FromSeconds(10);
+
+    /// <summary> Whether the cache should always be set dirty when the popup is closed. </summary>
+    public bool DirtyCacheOnClosingPopup { get; set; } = false;
 
     /// <summary> The maximum number of items to display in the expanded combo list. </summary>
     public int MaximumItems { get; init; } = 12;
@@ -204,6 +208,9 @@ public abstract class FilterComboBase<TCacheItem> : FilterComboBase
             using var popup = Im.Combo.DrawPopup(id, boundingBox, flags);
             return DrawComboPopup(out ret);
         }
+
+        if (DirtyCacheOnClosingPopup && CacheManager.Instance.TryGetCache(id, out FilterComboBaseCache<TCacheItem>? cache))
+            cache.Dirty |= IManagedCache.DirtyFlags.Custom;
 
         ret = default;
         return false;
