@@ -160,6 +160,32 @@ public unsafe ref struct Utf8StringHandler<T> where T : IStringHandlerBuffer
     public static implicit operator Utf8StringHandler<T>(StringU8 str)
         => new(str);
 
+    #region Casts from InlineStringU8<TBacking>
+    [MethodImpl(ImSharpConfiguration.OptInl)]
+    public static implicit operator Utf8StringHandler<T>(in InlineStringU8<byte> str)
+        => FromInline(in str);
+
+    [MethodImpl(ImSharpConfiguration.OptInl)]
+    public static implicit operator Utf8StringHandler<T>(in InlineStringU8<ushort> str)
+        => FromInline(in str);
+
+    [MethodImpl(ImSharpConfiguration.OptInl)]
+    public static implicit operator Utf8StringHandler<T>(in InlineStringU8<uint> str)
+        => FromInline(in str);
+
+    [MethodImpl(ImSharpConfiguration.OptInl)]
+    public static implicit operator Utf8StringHandler<T>(in InlineStringU8<ulong> str)
+        => FromInline(in str);
+
+    [MethodImpl(ImSharpConfiguration.OptInl)]
+    public static implicit operator Utf8StringHandler<T>(in InlineStringU8<UInt128> str)
+        => FromInline(in str);
+
+    [MethodImpl(ImSharpConfiguration.OptInl)]
+    public static implicit operator Utf8StringHandler<T>(in InlineStringU8<nuint> str)
+        => FromInline(in str);
+    #endregion
+
     [MethodImpl(ImSharpConfiguration.OptInl)]
     public static implicit operator Utf8StringHandler<T>(ReadOnlySpan<char> str)
     {
@@ -192,6 +218,19 @@ public unsafe ref struct Utf8StringHandler<T> where T : IStringHandlerBuffer
     private Utf8StringHandler(StringU8 utf8)
         : this(utf8.Span)
     { }
+
+    internal static Utf8StringHandler<T> FromInline<TBacking>(in InlineStringU8<TBacking> str)
+        where TBacking : unmanaged, IBinaryInteger<TBacking>
+    {
+        var bytes = str.GetBytes(out var isNullTerminated);
+        if (isNullTerminated)
+            return new Utf8StringHandler<T>(bytes);
+
+        var handler = new Utf8StringHandler<T>(0, 1, out var shouldAppend);
+        if (shouldAppend)
+            handler.AppendFormatted(bytes);
+        return handler;
+    }
 
     public override string ToString()
         => GetSpan(out var span) ? Encoding.UTF8.GetString(span) : "<ERROR";

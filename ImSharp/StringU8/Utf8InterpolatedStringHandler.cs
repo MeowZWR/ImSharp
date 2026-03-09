@@ -7,6 +7,14 @@ public ref struct Utf8InterpolatedStringHandler
     private readonly byte[]                                 _array;
     private          Utf8.TryWriteInterpolatedStringHandler _handler;
 
+    public int Length
+    {
+        [MethodImpl(ImSharpConfiguration.OptInl)]
+        get => Utf8.TryWrite([], ref _handler, out var written)
+            ? written
+            : -1;
+    }
+
     [MethodImpl(ImSharpConfiguration.OptInl)]
     public Utf8InterpolatedStringHandler(int literalLength, int formattedCount, out bool shouldAppend)
     {
@@ -36,6 +44,30 @@ public ref struct Utf8InterpolatedStringHandler
         ImSharpConfiguration.ArrayPool.Return(_array);
         throw new InvalidOperationException(
             $"Interpolating a Utf8String using more than {ImSharpConfiguration.ArrayPoolRequestSizeLarge} bytes is not supported.");
+    }
+
+    [MethodImpl(ImSharpConfiguration.OptInl)]
+    public int WriteAndClear(scoped Span<byte> destination)
+    {
+        if (!Utf8.TryWrite([], ref _handler, out var written))
+        {
+            ImSharpConfiguration.ArrayPool.Return(_array);
+            throw new InvalidOperationException(
+                $"Interpolating a Utf8String using more than {ImSharpConfiguration.ArrayPoolRequestSizeLarge} bytes is not supported.");
+        }
+
+        if (destination.Length < written)
+        {
+            ImSharpConfiguration.ArrayPool.Return(_array);
+            throw new ArgumentException(
+                $"Interpolating a Utf8String using more than {ImSharpConfiguration.ArrayPoolRequestSizeLarge} bytes is not supported.");
+        }
+
+        if (destination.Length > written)
+            destination[written] = 0;
+        _array.AsSpan(0, written).CopyTo(destination);
+        ImSharpConfiguration.ArrayPool.Return(_array);
+        return written;
     }
 
     [MethodImpl(ImSharpConfiguration.OptInl)]

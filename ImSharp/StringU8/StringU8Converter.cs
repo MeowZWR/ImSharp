@@ -31,7 +31,20 @@ public class StringU8Converter : System.Text.Json.Serialization.JsonConverter<St
 {
     /// <inheritdoc/>
     public override StringU8 Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
-        => new(reader.ValueSpan, false);
+    {
+        var arrayPool      = ImSharpConfiguration.ArrayPool;
+        var lengthEstimate = reader.ValueSpan.Length;
+        var buffer         = arrayPool.Rent(lengthEstimate is 0 ? ImSharpConfiguration.ArrayPoolRequestSizeLarge : lengthEstimate);
+        try
+        {
+            var length = reader.CopyString(buffer);
+            return new StringU8(buffer.AsSpan(0, length), false);
+        }
+        finally
+        {
+            arrayPool.Return(buffer);
+        }
+    }
 
     /// <inheritdoc/>
     public override void Write(Utf8JsonWriter writer, StringU8 value, JsonSerializerOptions options)
