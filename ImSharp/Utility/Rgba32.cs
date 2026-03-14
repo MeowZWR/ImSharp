@@ -216,14 +216,14 @@ public readonly record struct Rgba32(uint Color) : ISpanFormattable, IUtf8SpanFo
 
         charsWritten   = 9;
         destination[0] = '#';
-        destination[1] = HexU16[(int)(Color >> 28)];
-        destination[2] = HexU16[(int)(Color >> 24) & 0xF];
-        destination[3] = HexU16[(int)(Color >> 20) & 0xF];
-        destination[4] = HexU16[(int)(Color >> 16) & 0xF];
-        destination[5] = HexU16[(int)(Color >> 12) & 0xF];
-        destination[6] = HexU16[(int)(Color >> 8) & 0xF];
-        destination[7] = HexU16[(int)(Color >> 4) & 0xF];
-        destination[8] = HexU16[(int)Color & 0xF];
+        destination[1] = HexU16[(int)(Color >> 4) & 0xF];
+        destination[2] = HexU16[(int)Color & 0xF];
+        destination[3] = HexU16[(int)(Color >> 12) & 0xF];
+        destination[4] = HexU16[(int)(Color >> 8) & 0xF];
+        destination[5] = HexU16[(int)(Color >> 20) & 0xF];
+        destination[6] = HexU16[(int)(Color >> 16) & 0xF];
+        destination[7] = HexU16[(int)(Color >> 28)];
+        destination[8] = HexU16[(int)(Color >> 24) & 0xF];
         return true;
     }
 
@@ -238,14 +238,14 @@ public readonly record struct Rgba32(uint Color) : ISpanFormattable, IUtf8SpanFo
 
         bytesWritten   = 9;
         destination[0] = (byte)'#';
-        destination[1] = HexU8[(int)(Color >> 28)];
-        destination[2] = HexU8[(int)(Color >> 24) & 0xF];
-        destination[3] = HexU8[(int)(Color >> 20) & 0xF];
-        destination[4] = HexU8[(int)(Color >> 16) & 0xF];
-        destination[5] = HexU8[(int)(Color >> 12) & 0xF];
-        destination[6] = HexU8[(int)(Color >> 8) & 0xF];
-        destination[7] = HexU8[(int)(Color >> 4) & 0xF];
-        destination[8] = HexU8[(int)Color & 0xF];
+        destination[1] = HexU8[(int)(Color >> 4) & 0xF];
+        destination[2] = HexU8[(int)Color & 0xF];
+        destination[3] = HexU8[(int)(Color >> 12) & 0xF];
+        destination[4] = HexU8[(int)(Color >> 8) & 0xF];
+        destination[5] = HexU8[(int)(Color >> 20) & 0xF];
+        destination[6] = HexU8[(int)(Color >> 16) & 0xF];
+        destination[7] = HexU8[(int)(Color >> 28)];
+        destination[8] = HexU8[(int)(Color >> 24) & 0xF];
         return true;
     }
 

@@ -28,5 +28,14 @@ public static partial class ImEx
 
         /// <summary> Whether the button should be disabled. </summary>
         public bool Disabled { get; init; } = false;
+
+        /// <summary> Push all the colors and styles contained in this configuration. </summary>
+        /// <returns> A disposable object that can be used to push further colors and styles and pops those colors after leaving scope. Use with using. </returns>
+        internal Im.ColorStyleDisposable PushColorStyle()
+            => ImStyleBorder.Frame.Push(BorderColor, Im.Style.GlobalScale, BorderColor.IsVisible)
+                .Push(ImGuiColor.Button,        ButtonColor)
+                .Push(ImGuiColor.ButtonHovered, HoveredColor)
+                .Push(ImGuiColor.ButtonActive,  ActiveColor)
+                .Push(ImGuiColor.Text,          TextColor);
     }
 }

@@ -36,6 +36,10 @@ public static partial class Im
             [LibraryImport(Version.CImGuiLibrary, EntryPoint = "ImFont_GetCharAdvance")]
             [MethodImpl(ImSharpConfiguration.Inl)]
             public static partial float GetCharAdvance(ImFont* self, ImWchar character);
+
+            [LibraryImport(Version.CImGuiLibrary, EntryPoint = "ImFont_CalcTextSizeA")]
+            [MethodImpl(ImSharpConfiguration.Inl)]
+            public static partial void CalcTextSize(ImVec2 *ret, ImFont* self, float size, float maxWidth, float wrapWidth, byte* testBegin, byte* textEnd, byte** remaining);
         }
     }
 }

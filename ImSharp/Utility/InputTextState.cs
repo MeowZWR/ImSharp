@@ -1,9 +1,11 @@
 using Microsoft.Extensions.Logging;
 
+namespace ImSharp;
+
 /// <summary> Utility to debug input text state. </summary>
 internal readonly unsafe struct InputTextState(ImGuiId id, byte* buffer, bool edited, int length) : IEquatable<InputTextState>
 {
-    private static InputTextState Store;
+    private static InputTextState _store;
 
     public ImGuiId  LastId    { get; init; } = id;
     public bool     WasActive { get; init; } = id.ActivePreviousFrame;
@@ -37,10 +39,10 @@ internal readonly unsafe struct InputTextState(ImGuiId id, byte* buffer, bool ed
     public static void Check(ImGuiId id, byte* buffer, bool edited, int length)
     {
         var s = new InputTextState(id, buffer, Im.Item.Edited, (int)length);
-        if (s != Store)
+        if (s != _store)
         {
-            Store = s;
-            Store.Log();
+            _store = s;
+            _store.Log();
         }
     }
 

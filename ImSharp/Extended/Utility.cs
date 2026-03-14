@@ -9,17 +9,19 @@ public static partial class ImEx
     public static Vector2 ScaledVector(float x, float y)
         => new(x * Im.Style.GlobalScale, y * Im.Style.GlobalScale);
 
-    /// <summary> Get a vector scaled with the current <see cref="Im.ImGuiStyle.GlobalScale"/> in X-direction and 0 in Y. </summary>
+    /// <summary> Get a vector scaled with the current <see cref="Im.ImGuiStyle.GlobalScale"/> in X-direction and unscaled in Y. </summary>
     /// <param name="x"> The unscaled X-parameter. </param>
+    /// <param name="y"> The Y-parameter. </param>
     /// <returns> The scaled vector. </returns>
-    public static Vector2 ScaledVectorX(float x)
-        => new(x * Im.Style.GlobalScale, 0);
+    public static Vector2 ScaledVectorX(float x, float y = 0)
+        => new(x * Im.Style.GlobalScale, y);
 
-    /// <summary> Get a vector scaled with the current <see cref="Im.ImGuiStyle.GlobalScale"/> in Y-direction and 0 in X. </summary>
+    /// <summary> Get a vector scaled with the current <see cref="Im.ImGuiStyle.GlobalScale"/> in Y-direction and unscaled in X. </summary>
     /// <param name="y"> The unscaled Y-parameter. </param>
+    /// <param name="x"> The X-parameter. </param>
     /// <returns> The scaled vector. </returns>
-    public static Vector2 ScaledVectorY(float y)
-        => new(0, y * Im.Style.GlobalScale);
+    public static Vector2 ScaledVectorY(float y, float x = 0)
+        => new(x, y * Im.Style.GlobalScale);
 
     /// <summary> Get a vector whose elements have the same value scaled with the current <see cref="Im.ImGuiStyle.GlobalScale"/>. </summary>
     /// <param name="x"> The unscaled X- and Y-parameter. </param>

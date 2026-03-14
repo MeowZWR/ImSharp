@@ -197,8 +197,25 @@ public static partial class Im
         /// <returns> The required size to display the text. </returns>
         public Vector2 CalculateTextSize(Utf8TextHandler text, bool hideTextAfterDashes = true, float wrapWidth = 0)
         {
-            using var font = Push(this, Pointer is not null);
-            return CalculateSize(ref text, hideTextAfterDashes, wrapWidth);
+            byte* start, end;
+            if (hideTextAfterDashes && ImEx.VisibleLabel(ref text, out var visible))
+                start = visible.Start(out end);
+            else
+                start = text.Start(out end);
+
+            if (start == end)
+                return new Vector2(0, Size);
+
+            ImVec2 size;
+            // fontSize computed as in ImGui.
+            var window       = Window.Current.Pointer;
+            var fontBaseSize = Math.Max(1, Io.Pointer->FontGlobalScale * Size * Scale);
+            var fontSize     = fontBaseSize * window->FontWindowScale;
+            if (window->ParentWindow is not null)
+                fontSize *= window->ParentWindow->FontWindowScale;
+
+            Native.ImFont.CalcTextSize(&size, Pointer, fontSize, float.MaxValue, wrapWidth, start, end, null);
+            return size;
         }
 
         /// <summary> Get the cursor advance, or width, of a single character. </summary>

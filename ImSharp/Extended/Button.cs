@@ -11,12 +11,7 @@ public static partial class ImEx
     [OverloadResolutionPriority(20)]
     public static bool Button(Utf8LabelHandler label, Utf8TextHandler tooltip = default, in ButtonConfiguration config = default)
     {
-        using var color = Im.Color.Push(ImGuiColor.Button, config.ButtonColor)
-            .Push(ImGuiColor.ButtonHovered, config.HoveredColor)
-            .Push(ImGuiColor.ButtonActive,  config.ActiveColor)
-            .Push(ImGuiColor.Text,          config.TextColor)
-            .Push(ImGuiColor.Border,        config.BorderColor);
-        using var style = Im.Style.Push(ImStyleSingle.FrameBorderThickness, Im.Style.GlobalScale, config.BorderColor.IsVisible);
+        using var style = config.PushColorStyle();
 
         bool ret;
         using (Im.Disabled(config.Disabled))
@@ -36,12 +31,7 @@ public static partial class ImEx
     [OverloadResolutionPriority(25)]
     public static bool Button(Utf8LabelHandler label, in ButtonConfiguration config = default)
     {
-        using var color = Im.Color.Push(ImGuiColor.Button, config.ButtonColor)
-            .Push(ImGuiColor.ButtonHovered, config.HoveredColor)
-            .Push(ImGuiColor.ButtonActive,  config.ActiveColor)
-            .Push(ImGuiColor.Text,          config.TextColor)
-            .Push(ImGuiColor.Border,        config.BorderColor);
-        using var style = Im.Style.Push(ImStyleSingle.FrameBorderThickness, Im.Style.GlobalScale, config.BorderColor.IsVisible);
+        using var style = config.PushColorStyle();
 
         using var _ = Im.Disabled(config.Disabled);
         return Im.Button(label, config.Size, config.Flags);

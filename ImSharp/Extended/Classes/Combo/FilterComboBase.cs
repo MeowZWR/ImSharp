@@ -204,7 +204,8 @@ public abstract class FilterComboBase<TCacheItem> : FilterComboBase
         if (Im.Popup.IsOpen(id))
         {
             SetPopupWindowSize(previewWidth);
-            style.PushX(ImStyleDouble.FramePadding, 0).Push(ImStyleDouble.WindowPadding, Vector2.Zero);
+            style.PushX(ImStyleDouble.FramePadding, 0).Push(ImStyleDouble.WindowPadding, Vector2.Zero)
+                .Push(ImStyleSingle.PopupBorderThickness, Im.Style.GlobalScale);
             using var popup = Im.Combo.DrawPopup(id, boundingBox, flags);
             return DrawComboPopup(out ret);
         }
