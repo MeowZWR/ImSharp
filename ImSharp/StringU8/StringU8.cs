@@ -203,13 +203,12 @@ public readonly partial struct StringU8 : IReadOnlyList<byte>, IEquatable<String
         }
 
         // The required space can not be larger than this.
-        var data  = ArrayPool.Rent(utf16.Length * 4 + 1);
-        var count = Encoding.UTF8.GetBytes(utf16, data);
-        var bytes = new byte[count + 1];
+        using var lease = ArrayPool.RentLease(utf16.Length * 4 + 1);
+        var       count = Encoding.UTF8.GetBytes(utf16, lease.Array);
+        var       bytes = new byte[count + 1];
         bytes[count] = 0;
-        data.AsSpan(0, count).CopyTo(bytes);
+        lease.Array.AsSpan(0, count).CopyTo(bytes);
         _value = bytes.AsMemory(0, count);
-        ArrayPool.Return(data);
     }
 
     /// <summary> Create a string from a null-terminated C-style string pointer. </summary>

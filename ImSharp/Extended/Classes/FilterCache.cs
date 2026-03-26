@@ -2,34 +2,41 @@ using ImSharp.Containers;
 
 namespace ImSharp;
 
-/// <summary> A base cache for items that are transformed for a cache and then can be filtered.  </summary>
-/// <typeparam name="TCacheItem"> The transformed, cached item type. </typeparam>
-public abstract class FilterCache<TCacheItem> : BasicCache, IReadOnlyList<TCacheItem>
+/// <summary> A type-less base cache for items that are transformed for a cache and then can be filtered.  </summary>
+public abstract class FilterCache : BasicCache
 {
+    /// <summary> Whether the cache owns the <see cref="FilterCache{TCacheItem}.UnfilteredItems"/> list and should dispose it and its content on disposal. </summary>
+    protected bool DisposeItems { get; set; } = true;
+
+    /// <summary> Whether <see cref="FilterCache{TCacheItem}.UnfilteredItems"/> is owned by this cache or not. </summary>
+    protected bool UnfilteredItemsOwned = false;
+
     /// <summary> Whether the next update should re-filter the global data. </summary>
     protected bool FilterDirty { get; set; } = true;
 
-    /// <summary> Whether the cache owns the <see cref="UnfilteredItems"/> list and should dispose it and its content on disposal. </summary>
-    protected bool DisposeItems { get; set; } = true;
+    /// <summary> The global indices of items that are currently visible according to the filters. </summary>
+    /// <remarks> Indices refer to <see cref="FilterCache{TCacheItem}.UnfilteredItems"/>. </remarks>
+    protected readonly List<int> FilteredItems = [];
 
+    /// <summary> Try to delete a single item from the list of cached items. </summary>
+    /// <param name="index"> The unfiltered, global index of the item to delete. </param>
+    /// <returns> True if the item was deleted. </returns>
+    public abstract bool DeleteSingleItem(int index);
+}
+
+/// <summary> A base cache for items that are transformed for a cache and then can be filtered.  </summary>
+/// <typeparam name="TCacheItem"> The transformed, cached item type. </typeparam>
+public abstract class FilterCache<TCacheItem> : FilterCache, IReadOnlyList<TCacheItem>
+{
     /// <summary> The pre-processed list of all available items to display. </summary>
     protected IReadOnlyList<TCacheItem> UnfilteredItems = [];
-
-    /// <summary> Whether <see cref="UnfilteredItems"/> is owned by this cache or not. </summary>
-    protected bool UnfilteredItemsOwned = false;
-
-    /// <summary> The global indices of items that are currently visible according to the filters. </summary>
-    /// <remarks> Indices refer to <see cref="UnfilteredItems"/>. </remarks>
-    protected readonly List<int> FilteredItems = [];
 
     /// <inheritdoc cref="UnfilteredItems"/>
     public IReadOnlyList<TCacheItem> AllItems
         => UnfilteredItems;
 
-    /// <summary> Try to delete a single item from the list of cached items. </summary>
-    /// <param name="index"> The unfiltered, global index of the item to delete. </param>
-    /// <returns> True if the item was deleted. </returns>
-    public bool DeleteSingleItem(int index)
+    /// <inheritdoc/>
+    public sealed override bool DeleteSingleItem(int index)
     {
         if (!UnfilteredItemsOwned || index < 0 || index >= UnfilteredItems.Count)
             return false;

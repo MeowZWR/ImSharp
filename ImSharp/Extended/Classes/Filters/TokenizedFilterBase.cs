@@ -73,7 +73,6 @@ public abstract class TokenizedFilter<TTokenType, TCacheItem, TToken> : IFilter<
 
         Text = text;
         Parse(Text);
-        InvokeEvent();
         return true;
     }
 

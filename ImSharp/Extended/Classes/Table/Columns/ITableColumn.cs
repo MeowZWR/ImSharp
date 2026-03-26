@@ -1,3 +1,5 @@
+using ImSharp.Table;
+
 namespace ImSharp;
 
 /// <summary> Interface for types that can be used to define columns for tables. </summary>
@@ -41,6 +43,10 @@ public interface ITableColumn<TCacheItem>
 
     /// <summary> Execute actions after sorting is started. </summary>
     public void PostSort();
+
+    /// <summary> Execute column-specific actions after the parent table has finished drawing. </summary>
+    /// <param name="cache"> The current table cache. </param>
+    public void PostDraw(in TableCache<TCacheItem> cache);
 
     /// <summary> Filter rows according to this column's filter. </summary>
     /// <param name="item"> The row to check. </param>

@@ -44,7 +44,7 @@ public abstract class SimpleFilterCombo<T> : FilterComboBase<SimpleCacheItem<T>>
     {
         using var color = Im.Color.Push(ImGuiColor.Text, item.TextColor);
         var       ret   = Im.Selectable(item.DisplayString, selected);
-        Im.Tooltip.OnHover(item.Tooltip);
+        Im.Tooltip.OnHover(item.Tooltip, true);
         return ret;
     }
 

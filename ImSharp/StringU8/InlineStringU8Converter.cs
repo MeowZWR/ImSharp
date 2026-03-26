@@ -1,5 +1,4 @@
 using System.Text.Json;
-using Microsoft.Extensions.Logging;
 #if HAS_NEWTONSOFT
 using JsonSerializer = Newtonsoft.Json.JsonSerializer;
 #endif
@@ -37,18 +36,12 @@ public class InlineStringU8Converter<TBacking> : System.Text.Json.Serialization.
     /// <inheritdoc/>
     public override InlineStringU8<TBacking> Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
-        var arrayPool      = ImSharpConfiguration.ArrayPool;
         var lengthEstimate = reader.ValueSpan.Length;
-        var buffer         = arrayPool.Rent(lengthEstimate is 0 ? ImSharpConfiguration.ArrayPoolRequestSizeSmall : lengthEstimate);
-        try
-        {
-            var length = reader.CopyString(buffer);
-            return new InlineStringU8<TBacking>(buffer.AsSpan(0, length));
-        }
-        finally
-        {
-            arrayPool.Return(buffer);
-        }
+        using var lease =
+            ImSharpConfiguration.ArrayPool.RentLease(lengthEstimate is 0 ? ImSharpConfiguration.ArrayPoolRequestSizeSmall : lengthEstimate);
+
+        var length = reader.CopyString(lease.Array);
+        return new InlineStringU8<TBacking>(lease.Array.AsSpan(0, length));
     }
 
     /// <inheritdoc/>

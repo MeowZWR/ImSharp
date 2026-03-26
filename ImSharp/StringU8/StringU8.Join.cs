@@ -88,16 +88,9 @@ public readonly partial struct StringU8
         if (count is 1)
             return Join((byte)separator[0], strings);
 
-        var array = ArrayPool.Rent(count);
-        try
-        {
-            Encoding.UTF8.GetBytes(separator, array);
-            return Join(array.AsSpan(0, count), strings);
-        }
-        finally
-        {
-            ArrayPool.Return(array);
-        }
+        using var lease = ArrayPool.RentLease(count);
+        Encoding.UTF8.GetBytes(separator, lease.Array);
+        return Join(lease.Span, strings);
     }
 
     /// <inheritdoc cref="Join(byte,IReadOnlyCollection{StringU8})"/>
@@ -246,19 +239,9 @@ public readonly partial struct StringU8
         if (count is 1)
             return Join((byte)separator[0], strings);
 
-        var array = ArrayPool.Rent(count);
-        try
-        {
-            Encoding.UTF8.GetBytes(separator, array);
-
-            var ret = Join(array.AsSpan(0, count), strings);
-            ArrayPool.Return(array);
-            return ret;
-        }
-        finally
-        {
-            ArrayPool.Return(array);
-        }
+        using var lease = ArrayPool.RentLease(count);
+        Encoding.UTF8.GetBytes(separator, lease.Array);
+        return Join(lease.Span, strings);
     }
 
     private static void ExchangeArray(ref byte[] array, int minSize, int copyExistingLength)

@@ -85,6 +85,8 @@ public abstract class TableBase<TCacheItem, TTableCache>
         PreDraw(cache);
         cache.Draw();
         PostDraw(cache);
+        foreach (var column in Columns)
+            column.PostDraw(cache);
     }
 
     /// <summary> The factory function that creates the cache used to draw the table. </summary>

@@ -53,10 +53,7 @@ public static partial class ImEx
         /// <returns> The size of the icon. </returns>
         [MethodImpl(ImSharpConfiguration.OptInl)]
         public static Vector2 CalculateSize<T>(T icon) where T : IIconStandIn
-        {
-            using var _ = T.Font.Push();
-            return Im.Font.CalculateSize(icon.Span, false);
-        }
+            => T.Font.CalculateTextSize(icon.Span, false);
 
         /// <summary> Draw a button with the given icon as label. </summary>
         /// <typeparam name="T"> The icon type. </typeparam>
