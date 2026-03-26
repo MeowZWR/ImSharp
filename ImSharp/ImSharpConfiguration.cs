@@ -25,7 +25,7 @@ public static unsafe class ImSharpConfiguration
         {
             var imguiContext = (Im.Native.Internal.Context*)context->ImGuiContext;
 
-            if (imguiContext != null && imguiContext->WithinFrameScope)
+            if (imguiContext is not null && imguiContext->WithinFrameScope)
                 throw new Exception("Can not set a new context while in a frame.");
         }
 

@@ -138,6 +138,10 @@ public static class TreeLine
             // Draw the item itself under the ID of the current identifier.
             using var id = Im.Id.Push(item.Identifier);
             item.Draw(localIndex);
+
+            // Remove missing parents if they have nodes between start and end.
+            if (currentDepth < hasMissingParents)
+                hasMissingParents = currentDepth;
         }
 
         // Draw lines that stretch from before the first item to after the last item.

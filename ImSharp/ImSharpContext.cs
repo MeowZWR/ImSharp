@@ -4,8 +4,8 @@ public unsafe struct ImSharpContext : IDisposable
 {
     public const long CurrentVersion = 1;
 
-    public static readonly ImSharpContext  Empty;
-    public static readonly ImSharpContext* EmptyPointer = (ImSharpContext*)Unsafe.AsPointer(ref Empty);
+    public static ImSharpContext* EmptyPointer
+        => ContextHolder.Context;
 
     public long Version;
 
@@ -29,18 +29,23 @@ public unsafe struct ImSharpContext : IDisposable
         ret->Version        = CurrentVersion;
         ret->HintBuffer     = (byte*)Marshal.AllocHGlobal(128 * 1024 - 1);
         ret->HintBufferSize = 128 * 1024 - 1;
+        ret->HintBuffer[0]  = 0;
 
         ret->InputBuffer     = (byte*)Marshal.AllocHGlobal(8 * 1024 * 1024 - 1);
         ret->InputBufferSize = 8 * 1024 * 1024 - 1;
+        ret->InputBuffer[0]  = 0;
 
         ret->LabelBuffer     = (byte*)Marshal.AllocHGlobal(128 * 1024 - 1);
         ret->LabelBufferSize = 128 * 1024 - 1;
+        ret->LabelBuffer[0]  = 0;
 
         ret->TextBuffer     = (byte*)Marshal.AllocHGlobal(4 * 1024 * 1024 - 1);
         ret->TextBufferSize = 4 * 1024 * 1024 - 1;
-        ret->ImGuiContext   = Im.Context.Pointer;
-        ret->MonoFont       = null;
-        ret->DefaultFont    = null;
+        ret->TextBuffer[0]  = 0;
+
+        ret->ImGuiContext = Im.Context.Pointer;
+        ret->MonoFont     = null;
+        ret->DefaultFont  = null;
 
         return ret;
     }
@@ -67,5 +72,22 @@ public unsafe struct ImSharpContext : IDisposable
         LabelBufferSize = 0;
         TextBufferSize  = 0;
         InputBufferSize = 0;
+    }
+
+    private static readonly EmptyContextHolder ContextHolder = new();
+
+    private sealed class EmptyContextHolder()
+    {
+        public readonly ImSharpContext* Context = Initialize();
+
+        private static ImSharpContext* Initialize()
+        {
+            var ret = (ImSharpContext*)Marshal.AllocHGlobal(sizeof(ImSharpContext));
+            *ret = default;
+            return ret;
+        }
+
+        ~EmptyContextHolder()
+            => Marshal.FreeHGlobal((nint)Context);
     }
 }
