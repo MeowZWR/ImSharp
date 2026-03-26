@@ -27,10 +27,10 @@ public static partial class ImEx
     /// <inheritdoc cref="CopyOnClickSelectable(Utf8LabelHandler,Utf8HintHandler,Utf8TextHandler)"/>
     [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     public static void CopyOnClickSelectable(Utf8LabelHandler text, Utf8HintHandler copiedText)
-        => CopyOnClickSelectable(text, copiedText, "Click to copy to clipboard."u8);
+        => CopyOnClickSelectable(text, copiedText, "点击复制到剪贴板。"u8);
 
     /// <inheritdoc cref="CopyOnClickSelectable(Utf8LabelHandler,Utf8HintHandler,Utf8TextHandler)"/>
     [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     public static void CopyOnClickSelectable(Utf8LabelHandler text)
-        => CopyOnClickSelectable(text, text.Span(), "Click to copy to clipboard."u8);
+        => CopyOnClickSelectable(text, text.Span(), "点击复制到剪贴板。"u8);
 }
