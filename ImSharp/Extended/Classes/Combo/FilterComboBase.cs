@@ -10,6 +10,7 @@ public abstract class FilterComboBase()
         AllowMouseWheel            = config.MouseWheelType;
         ComputeWidth               = config.ComputeWidth;
         MaximumItems               = config.MaximumItems;
+        DirtyCacheOnClosingPopup   = config.DirtyCacheOnClose;
         ClearFilterOnSelection     = config.ClearFilterOnSelection;
         ClearFilterOnCacheDisposal = config.ClearFilterOnCacheDisposal;
         PreviewAlignment           = config.PreviewAlignment;
@@ -21,6 +22,7 @@ public abstract class FilterComboBase()
         MouseWheelType MouseWheelType = MouseWheelType.Control,
         bool ComputeWidth = false,
         int MaximumItems = 12,
+        bool DirtyCacheOnClose = false,
         bool ClearFilterOnSelection = false,
         bool ClearFilterOnCacheDisposal = true,
         Vector2 PreviewAlignment = default,
@@ -210,8 +212,8 @@ public abstract class FilterComboBase<TCacheItem> : FilterComboBase
             return DrawComboPopup(out ret);
         }
 
-        if (DirtyCacheOnClosingPopup && CacheManager.Instance.TryGetCache(id, out FilterComboBaseCache<TCacheItem>? cache))
-            cache.Dirty |= IManagedCache.DirtyFlags.Custom;
+        if (DirtyCacheOnClosingPopup)
+            CacheManager.Instance.SetDirty(CurrentId);
 
         ret = default;
         return false;

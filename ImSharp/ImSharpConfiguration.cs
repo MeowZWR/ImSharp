@@ -14,6 +14,10 @@ public static unsafe class ImSharpConfiguration
     internal static Action<ILogger>? LoggerChanged;
     private static  bool             _contextOwned = true;
 
+    /// <summary> Whether the context has been initialized. </summary>
+    public static bool IsInitialized
+        => Context != ImSharpContext.EmptyPointer;
+
     /// <summary> Set or remove the global ImSharp context. </summary>
     /// <param name="context"> The address of the context to set. If this is null, the empty context will be set. </param>
     /// <param name="owned"> Whether the new context is owned by this assembly or not. </param>

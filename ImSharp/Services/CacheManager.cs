@@ -139,7 +139,7 @@ public class CacheManager : IDisposable
     /// <remarks> If no cache for this ID exists, this does nothing. </remarks>
     public void SetDirty(ImGuiId id)
     {
-        if (_caches.TryGetValue(id, out var pair))
+        if (_caches.TryGetValue(id, out var pair) && pair.Cache.Dirty is not IManagedCache.DirtyFlags.Dirty)
         {
             pair.Cache.Dirty |= IManagedCache.DirtyFlags.Dirty;
             Logger.LogTrace("[CacheManager] Set full dirty flag for ID {ID}.", id.Id);
