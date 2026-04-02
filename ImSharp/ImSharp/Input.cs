@@ -64,12 +64,12 @@ public static partial class Im
             text.AsSpan().CopyInto<TextStringHandlerBuffer>(out _);
             if (maxLength >= TextStringHandlerBuffer.Size)
                 maxLength = (uint)TextStringHandlerBuffer.Size;
-            if (!Text(label.Start(), TextStringHandlerBuffer.Buffer, maxLength, hint.Start(), flags))
-                return false;
+            var ret = Text(label.Start(), TextStringHandlerBuffer.Buffer, maxLength, hint.Start(), flags);
 
-            text = Encoding.UTF8.GetString(new ReadOnlySpan<byte>(TextStringHandlerBuffer.Buffer,
-                Context.Pointer->InputTextState.CurrentLengthA));
-            return true;
+            if (Item.Edited)
+                text = Encoding.UTF8.GetString(new ReadOnlySpan<byte>(TextStringHandlerBuffer.Buffer,
+                    Context.Pointer->InputTextState.CurrentLengthA));
+            return ret;
         }
 
         /// <summary> Draw a text input. </summary>
@@ -86,11 +86,13 @@ public static partial class Im
             text.Span.CopyInto<TextStringHandlerBuffer>();
             if (maxLength >= TextStringHandlerBuffer.Size)
                 maxLength = (uint)TextStringHandlerBuffer.Size;
-            if (!Text(label.Start(), TextStringHandlerBuffer.Buffer, maxLength, hint.Start(), flags))
-                return false;
+            var ret = Text(label.Start(), TextStringHandlerBuffer.Buffer, maxLength, hint.Start(), flags);
 
-            text = new StringU8(new ReadOnlySpan<byte>(TextStringHandlerBuffer.Buffer, Context.Pointer->InputTextState.CurrentLengthA), false);
-            return true;
+            if (Item.Edited)
+                text = new StringU8(new ReadOnlySpan<byte>(TextStringHandlerBuffer.Buffer, Context.Pointer->InputTextState.CurrentLengthA),
+                    false);
+
+            return ret;
         }
 
         /// <summary> Draw a text input of a specific size spanning multiple lines. </summary>
@@ -147,12 +149,13 @@ public static partial class Im
             InputTextFlags flags = InputTextFlags.None)
         {
             text.Span.CopyInto<TextStringHandlerBuffer>();
-            if (!Native.Methods.Inputs.InputTextMultiline(label.Start(), TextStringHandlerBuffer.Buffer,
-                    (ulong)TextStringHandlerBuffer.Size, size, flags, null, null))
-                return false;
+            var ret = Native.Methods.Inputs.InputTextMultiline(label.Start(), TextStringHandlerBuffer.Buffer,
+                (ulong)TextStringHandlerBuffer.Size, size, flags, null, null);
 
-            text = new StringU8(new ReadOnlySpan<byte>(TextStringHandlerBuffer.Buffer, Context.Pointer->InputTextState.CurrentLengthA), false);
-            return true;
+            if (Item.Edited)
+                text = new StringU8(new ReadOnlySpan<byte>(TextStringHandlerBuffer.Buffer, Context.Pointer->InputTextState.CurrentLengthA),
+                    false);
+            return ret;
         }
 
         /// <summary> Draw a text input of a specific size spanning multiple lines. </summary>
@@ -166,13 +169,14 @@ public static partial class Im
             InputTextFlags flags = InputTextFlags.None)
         {
             text.AsSpan().CopyInto<TextStringHandlerBuffer>(out _);
-            if (!Native.Methods.Inputs.InputTextMultiline(label.Start(), TextStringHandlerBuffer.Buffer, (ulong)TextStringHandlerBuffer.Size,
-                    size, flags, null, null))
-                return false;
+            var ret = Native.Methods.Inputs.InputTextMultiline(label.Start(), TextStringHandlerBuffer.Buffer,
+                (ulong)TextStringHandlerBuffer.Size,
+                size, flags, null, null);
 
-            text = Encoding.UTF8.GetString(new ReadOnlySpan<byte>(TextStringHandlerBuffer.Buffer,
-                Context.Pointer->InputTextState.CurrentLengthA));
-            return true;
+            if (Item.Edited)
+                text = Encoding.UTF8.GetString(new ReadOnlySpan<byte>(TextStringHandlerBuffer.Buffer,
+                    Context.Pointer->InputTextState.CurrentLengthA));
+            return ret;
         }
 
         /// <summary> Draw a text input for numerical values, with optional +/- buttons. </summary>
