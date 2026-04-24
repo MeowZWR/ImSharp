@@ -163,6 +163,19 @@ public static partial class Im
             }
         }
 
+        /// <summary> Get the bounding rectangle of the last item in screen coordinates. </summary>
+        public static unsafe Rectangle Bounds
+        {
+            [MethodImpl(ImSharpConfiguration.OptInl)]
+            get
+            {
+                ImVec2 min, max;
+                Native.Methods.Items.GetItemRectMin(&min);
+                Native.Methods.Items.GetItemRectMax(&max);
+                return new Rectangle(min, max);
+            }
+        }
+
         /// <summary> Get the size of the last item in pixels. </summary>
         public static unsafe Vector2 Size
         {
