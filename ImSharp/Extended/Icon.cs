@@ -72,6 +72,7 @@ public static partial class ImEx
             using (T.Font.Push())
             {
                 using var style = config.PushColorStyle();
+                style.PushX(ImStyleDouble.FramePadding, Im.Style.FramePadding.Y);
 
                 ret = Im.Button(icon.Span, size, config.Flags);
             }
@@ -96,6 +97,7 @@ public static partial class ImEx
             using var style = config.PushColorStyle();
             using var _     = Im.Disabled(config.Disabled);
             using var font  = T.Font.Push();
+            style.PushX(ImStyleDouble.FramePadding, Im.Style.FramePadding.Y);
             return Im.Button(icon.Span, size, config.Flags);
         }
 
@@ -126,6 +128,7 @@ public static partial class ImEx
                 using var _ = Im.Disabled(disabled);
                 using var color = Im.Color.Push(ImGuiColor.Button, buttonColor)
                     .Push(ImGuiColor.Text, textColor);
+                using var style = ImStyleDouble.FramePadding.PushX(Im.Style.FramePadding.Y);
                 ret = Im.Button(icon.Span, size, flags);
             }
 
@@ -147,7 +150,8 @@ public static partial class ImEx
             bool ret;
             using (T.Font.Push())
             {
-                using var _ = Im.Disabled(disabled);
+                using var _     = Im.Disabled(disabled);
+                using var style = ImStyleDouble.FramePadding.PushX(Im.Style.FramePadding.Y);
                 ret = Im.Button(icon.Span, size, flags);
             }
 
@@ -168,6 +172,7 @@ public static partial class ImEx
             bool ret;
             using (T.Font.Push())
             {
+                using var style = ImStyleDouble.FramePadding.PushX(Im.Style.FramePadding.Y);
                 ret = Im.Button(icon.Span, size, flags);
             }
 
@@ -191,8 +196,9 @@ public static partial class ImEx
                 size.X = Im.Style.FrameHeight;
             if (size.Y is 0)
                 size.Y = Im.Style.FrameHeight;
-            using var _    = Im.Disabled(disabled);
-            using var font = T.Font.Push();
+            using var _     = Im.Disabled(disabled);
+            using var font  = T.Font.Push();
+            using var style = ImStyleDouble.FramePadding.PushX(Im.Style.FramePadding.Y);
             return Im.Button(icon.Span, size, flags);
         }
 
@@ -204,7 +210,8 @@ public static partial class ImEx
                 size.X = Im.Style.FrameHeight;
             if (size.Y is 0)
                 size.Y = Im.Style.FrameHeight;
-            using var font = T.Font.Push();
+            using var font  = T.Font.Push();
+            using var style = ImStyleDouble.FramePadding.PushX(Im.Style.FramePadding.Y);
             return Im.Button(icon.Span, size, flags);
         }
 
