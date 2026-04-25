@@ -18,14 +18,14 @@ public class FullScreenQuadWithUniforms<TUniforms>(byte[] pixelShaderBlob, TUnif
     public override long Version
         => _version;
 
-    /// <summary> Increments this object's version, invalidating all cached renderings. Use after modifying <see cref="Uniforms"/>. </summary>
+    /// <summary> Increments this object's version, invalidating all cached renders. Use after modifying <see cref="Uniforms"/>. </summary>
     public void Update()
         => ++_version;
 
     /// <inheritdoc/>
     protected override unsafe void Dispose(bool disposing)
     {
-        CustomRenderingManager.Release(ref _uniformsBuffer);
+        CustomRenderManager.Release(ref _uniformsBuffer);
         base.Dispose(disposing);
     }
 

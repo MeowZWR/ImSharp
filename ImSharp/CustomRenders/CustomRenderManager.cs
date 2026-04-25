@@ -5,10 +5,10 @@ using TerraFX.Interop.Windows;
 namespace ImSharp;
 
 /// <summary> A manager to handle caches for custom renderable objects. </summary>
-public sealed class CustomRenderingManager : IDisposable
+public sealed class CustomRenderManager : IDisposable
 {
-    /// <summary> The custom rendering manager. </summary>
-    public static readonly CustomRenderingManager Instance = new();
+    /// <summary> The custom render manager. </summary>
+    public static readonly CustomRenderManager Instance = new();
 
     private readonly ConditionalWeakTable<ICustomRenderable, Dictionary<(uint, uint), RenderCache>> _caches = [];
 
@@ -18,13 +18,13 @@ public sealed class CustomRenderingManager : IDisposable
     public unsafe ID3D11Device* Device
         => _device;
 
-    private CustomRenderingManager()
-        => ImSharpPerFrame.Update += CheckCachedRenderings;
+    private CustomRenderManager()
+        => ImSharpPerFrame.Update += CheckCachedRenders;
 
-    ~CustomRenderingManager()
+    ~CustomRenderManager()
         => Dispose(false);
 
-    /// <summary> Dispose and remove all cached renderings. </summary>
+    /// <summary> Dispose and remove all cached renders. </summary>
     public void Dispose()
     {
         Dispose(true);
@@ -36,7 +36,7 @@ public sealed class CustomRenderingManager : IDisposable
         foreach (var (_, caches) in _caches)
             Clear(caches);
         _caches.Clear();
-        ImSharpPerFrame.Update -= CheckCachedRenderings;
+        ImSharpPerFrame.Update -= CheckCachedRenders;
         Release(ref _device);
     }
 
@@ -154,9 +154,9 @@ public sealed class CustomRenderingManager : IDisposable
         cache.ExportOutputs(outputIndex, outputs);
     }
 
-    /// <summary> Check all cached renderings for disposal. </summary>
-    /// <remarks> Any rendering that has not been retrieved for at least its <seealso cref="ICustomRenderable.KeepAliveDuration"/> frames will be disposed and removed. </remarks>
-    private void CheckCachedRenderings()
+    /// <summary> Check all cached renders for disposal. </summary>
+    /// <remarks> Any render that has not been retrieved for at least its <seealso cref="ICustomRenderable.KeepAliveDuration"/> frames will be disposed and removed. </remarks>
+    private void CheckCachedRenders()
     {
         var frame              = Im.Context.FrameCount;
         var discardRenderables = new HashSet<ICustomRenderable>(32);

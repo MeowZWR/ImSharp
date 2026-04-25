@@ -57,8 +57,8 @@ public class FullScreenQuad(byte[] pixelShaderBlob) : ICustomRenderable, IDispos
     /// <param name="disposing"> True if called explicitly, false if garbage collected. </param>
     protected virtual unsafe void Dispose(bool disposing)
     {
-        CustomRenderingManager.Release(ref _pixelShader);
-        CustomRenderingManager.Release(ref _vertexShader);
+        CustomRenderManager.Release(ref _pixelShader);
+        CustomRenderManager.Release(ref _vertexShader);
     }
 
     /// <inheritdoc/>
@@ -73,7 +73,7 @@ public class FullScreenQuad(byte[] pixelShaderBlob) : ICustomRenderable, IDispos
         ID3D11VertexShader* vertexShader;
         fixed (byte* pVertexShaderBlob = VertexShaderBlob)
         {
-            Marshal.ThrowExceptionForHR(CustomRenderingManager.Instance.Device->CreateVertexShader(pVertexShaderBlob,
+            Marshal.ThrowExceptionForHR(CustomRenderManager.Instance.Device->CreateVertexShader(pVertexShaderBlob,
                 unchecked((uint)VertexShaderBlob.Length), null, &vertexShader));
         }
 
@@ -100,7 +100,7 @@ public class FullScreenQuad(byte[] pixelShaderBlob) : ICustomRenderable, IDispos
         ID3D11PixelShader* pixelShader;
         fixed (byte* pPixelShaderBlob = PixelShaderBlob)
         {
-            Marshal.ThrowExceptionForHR(CustomRenderingManager.Instance.Device->CreatePixelShader(pPixelShaderBlob,
+            Marshal.ThrowExceptionForHR(CustomRenderManager.Instance.Device->CreatePixelShader(pPixelShaderBlob,
                 unchecked((uint)PixelShaderBlob.Length), null, &pixelShader));
         }
 
@@ -110,7 +110,7 @@ public class FullScreenQuad(byte[] pixelShaderBlob) : ICustomRenderable, IDispos
     /// <summary> Invalidates the Direct3D pixel shader object. </summary>
     /// <remarks> If using the default implementation of <see cref="CreatePixelShader"/>, this should be called only after changing <see cref="PixelShaderBlob" />. </remarks>
     protected unsafe void InvalidatePixelShader()
-        => CustomRenderingManager.Release(ref _pixelShader);
+        => CustomRenderManager.Release(ref _pixelShader);
 
     /// <summary> Creates a Direct3D constant buffer object. </summary>
     /// <param name="initialContents"> The initial contents of the buffer. May be null. </param>
@@ -136,7 +136,7 @@ public class FullScreenQuad(byte[] pixelShaderBlob) : ICustomRenderable, IDispos
             SysMemSlicePitch = 0,
         };
 
-        Marshal.ThrowExceptionForHR(CustomRenderingManager.Instance.Device->CreateBuffer(&bufferDesc,
+        Marshal.ThrowExceptionForHR(CustomRenderManager.Instance.Device->CreateBuffer(&bufferDesc,
             initialContents is not null ? &subresData : null, &uniformsBuffer));
 
         return uniformsBuffer;
