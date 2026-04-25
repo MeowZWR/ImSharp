@@ -4,11 +4,7 @@ namespace ImSharp;
 
 internal static class ResourceProvider
 {
-#if LUNA
-    private const string ResourcePrefix = "Luna.ImSharp.Resources.";
-#else
     private const string ResourcePrefix = "ImSharp.Resources.";
-#endif
 
     private static Stream GetManifestResourceStream(string name)
         => Assembly.GetExecutingAssembly().GetManifestResourceStream(ResourcePrefix + name)
