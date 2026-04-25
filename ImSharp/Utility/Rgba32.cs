@@ -62,6 +62,20 @@ public readonly record struct Rgba32(uint Color) : ISpanFormattable, IUtf8SpanFo
         : this(Im.Native.Methods.Color.ColorConvertFloat4ToU32(new ImVec4(color.X, color.Y, color.Z, 1f)).Color)
     { }
 
+    /// <summary> Convert byte values for colors into a single RGBA32 color. </summary>
+    [MethodImpl(ImSharpConfiguration.OptInl)]
+    [OverloadResolutionPriority(100)]
+    public Rgba32(byte r, byte g, byte b, byte a = 0xFF)
+        : this(r | ((uint) g << 8) | ((uint) b << 16) | ((uint) a << 24))
+    { }
+
+    /// <summary> Convert byte values for colors into a single RGBA32 color. </summary>
+    [MethodImpl(ImSharpConfiguration.OptInl)]
+    [OverloadResolutionPriority(50)]
+    public Rgba32(float r, float g, float b, float a = 1f)
+        : this(new Vector4(r, g, b, a))
+    { }
+
     /// <summary> The red-channel byte. </summary>
     public byte R
     {
