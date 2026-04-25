@@ -57,13 +57,8 @@ public class FullScreenQuad(byte[] pixelShaderBlob) : ICustomRenderable, IDispos
     /// <param name="disposing"> True if called explicitly, false if garbage collected. </param>
     protected virtual unsafe void Dispose(bool disposing)
     {
-        if (_pixelShader is not null)
-            _pixelShader->Release();
-        _pixelShader = null;
-
-        if (_vertexShader is not null)
-            _vertexShader->Release();
-        _vertexShader = null;
+        CustomRenderingManager.Release(ref _pixelShader);
+        CustomRenderingManager.Release(ref _vertexShader);
     }
 
     /// <inheritdoc/>
@@ -115,11 +110,7 @@ public class FullScreenQuad(byte[] pixelShaderBlob) : ICustomRenderable, IDispos
     /// <summary> Invalidates the Direct3D pixel shader object. </summary>
     /// <remarks> If using the default implementation of <see cref="CreatePixelShader"/>, this should be called only after changing <see cref="PixelShaderBlob" />. </remarks>
     protected unsafe void InvalidatePixelShader()
-    {
-        if (_pixelShader is not null)
-            _pixelShader->Release();
-        _pixelShader = null;
-    }
+        => CustomRenderingManager.Release(ref _pixelShader);
 
     /// <summary> Creates a Direct3D constant buffer object. </summary>
     /// <param name="initialContents"> The initial contents of the buffer. May be null. </param>

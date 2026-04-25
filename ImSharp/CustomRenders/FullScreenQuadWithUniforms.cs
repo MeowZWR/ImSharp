@@ -25,10 +25,7 @@ public class FullScreenQuadWithUniforms<TUniforms>(byte[] pixelShaderBlob, TUnif
     /// <inheritdoc/>
     protected override unsafe void Dispose(bool disposing)
     {
-        if (_uniformsBuffer is not null)
-            _uniformsBuffer->Release();
-        _uniformsBuffer = null;
-
+        CustomRenderingManager.Release(ref _uniformsBuffer);
         base.Dispose(disposing);
     }
 

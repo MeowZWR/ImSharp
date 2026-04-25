@@ -37,11 +37,7 @@ public sealed class CustomRenderingManager : IDisposable
             Clear(caches);
         _caches.Clear();
         ImSharpPerFrame.Update -= CheckCachedRenderings;
-        if (_device is not null)
-        {
-            _device->Release();
-            _device = null;
-        }
+        Release(ref _device);
     }
 
     private static void Clear(Dictionary<(uint, uint), RenderCache> caches)
@@ -52,14 +48,35 @@ public sealed class CustomRenderingManager : IDisposable
     }
 
     /// <summary> Sets the Direct3D 11 device to render on. </summary>
+    /// <param name="device"> The device. </param>
     public unsafe void SetDevice(nint device)
     {
         var           deviceUnk = (IUnknown*)device;
         ID3D11Device* newDevice;
         Marshal.ThrowExceptionForHR(deviceUnk->QueryInterface((Guid*)Unsafe.AsPointer(in IID.IID_ID3D11Device), (void**)&newDevice));
-        if (_device is not null)
-            _device->Release();
+        Release(ref _device);
         _device = newDevice;
+    }
+
+    /// <summary> Atomically sets the pointer at the given location and returns the old pointer. </summary>
+    /// <param name="location"> The location to set. </param>
+    /// <param name="newPtr"> The new pointer to write at the given location. </param>
+    /// <typeparam name="T"> The type of the pointed value. </typeparam>
+    /// <returns> The pointer that was at the given location before. </returns>
+    public static unsafe T* Exchange<T>(ref T* location, T* newPtr) where T : unmanaged
+    {
+        fixed (T** pPtr = &location)
+            return (T*)Interlocked.Exchange(ref *(nint*)pPtr, (nint)newPtr);
+    }
+
+    /// <summary> Releases and clears the COM object pointer at the given location. If it held a null pointer, this is a no-op. </summary>
+    /// <param name="location"> The location to clear. </param>
+    /// <typeparam name="T"> The type of the COM object. </typeparam>
+    public static unsafe void Release<T>(ref T* location) where T : unmanaged, IUnknown.Interface
+    {
+        var old = Exchange(ref location, null);
+        if (old is not null)
+            old->Release();
     }
 
     /// <summary> Renders an object, and returns the output in a form suitable for use as an ImGui image. </summary>
@@ -140,13 +157,13 @@ public sealed class CustomRenderingManager : IDisposable
             ID3D11RasterizerState* outputRsState;
             Marshal.ThrowExceptionForHR(_device->CreateRasterizerState(&outputRsStateDesc, &outputRsState));
             deviceContext->RSSetState(outputRsState);
-            outputRsState->Release();
+            Release(ref outputRsState);
 
             var                      outputDsStateDesc = renderable.DepthStencilState;
             ID3D11DepthStencilState* outputDsState;
             Marshal.ThrowExceptionForHR(_device->CreateDepthStencilState(&outputDsStateDesc, &outputDsState));
             deviceContext->OMSetDepthStencilState(outputDsState, 0);
-            outputDsState->Release();
+            Release(ref outputDsState);
 
             var outputRtViews = stackalloc ID3D11RenderTargetView*[cache.Outputs.Length];
             for (var i = 0; i < cache.Outputs.Length; ++i)
@@ -158,21 +175,14 @@ public sealed class CustomRenderingManager : IDisposable
         finally
         {
             deviceContext->OMSetDepthStencilState(dsState, stencilRef);
-            if (dsState is not null)
-                dsState->Release();
+            Release(ref dsState);
             deviceContext->OMSetRenderTargets(D3D11.D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT, rtViews, dsView);
             for (var i = 0; i < D3D11.D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT; ++i)
-            {
-                if (rtViews[i] is not null)
-                    rtViews[i]->Release();
-            }
-
-            if (dsView is not null)
-                dsView->Release();
+                Release(ref rtViews[i]);
+            Release(ref dsView);
             deviceContext->RSSetState(rsState);
-            if (rsState is not null)
-                rsState->Release();
-            deviceContext->Release();
+            Release(ref rsState);
+            Release(ref deviceContext);
         }
 
         cache.ExpiresAtFrame = Im.Context.FrameCount + renderable.KeepAliveDuration;
@@ -294,7 +304,7 @@ public sealed class CustomRenderingManager : IDisposable
                 }
                 catch
                 {
-                    Texture->Release();
+                    Release(ref Texture);
                     throw;
                 }
             }
@@ -302,12 +312,8 @@ public sealed class CustomRenderingManager : IDisposable
 
         public void Dispose()
         {
-            if (ShaderResourceView is not null)
-                ShaderResourceView->Release();
-            ShaderResourceView = null;
-            if (Texture is not null)
-                Texture->Release();
-            Texture = null;
+            Release(ref ShaderResourceView);
+            Release(ref Texture);
         }
 
         [MethodImpl(ImSharpConfiguration.OptInl)]
@@ -343,9 +349,7 @@ public sealed class CustomRenderingManager : IDisposable
 
         public void Dispose()
         {
-            if (DepthStencilView is not null)
-                DepthStencilView->Release();
-            DepthStencilView = null;
+            Release(ref DepthStencilView);
             Texture.Dispose();
         }
 
@@ -382,9 +386,7 @@ public sealed class CustomRenderingManager : IDisposable
 
         public void Dispose()
         {
-            if (RenderTargetView is not null)
-                RenderTargetView->Release();
-            RenderTargetView = null;
+            Release(ref RenderTargetView);
             Texture.Dispose();
         }
 
