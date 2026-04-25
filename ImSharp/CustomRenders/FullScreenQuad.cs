@@ -28,7 +28,7 @@ public class FullScreenQuad(byte[] pixelShaderBlob, string? description) : ICust
 
     /// <inheritdoc/>
     public virtual int KeepAliveDuration
-        => 2;
+        => 1;
 
     /// <inheritdoc/>
     public virtual long Version

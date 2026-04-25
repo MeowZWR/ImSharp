@@ -10,7 +10,7 @@ public interface ICustomRenderable
     /// <summary> How many outputs this object generates. This should not change over the lifetime of the object. </summary>
     public int OutputCount { get; }
 
-    /// <summary> For how many frames should renders of this object stay cached. </summary>
+    /// <summary> For how many frames should renders of this object stay cached. Zero if this object should be re-rendered every frame. </summary>
     public int KeepAliveDuration { get; }
 
     /// <summary> The version of this object. Change to invalidate all existing renders. </summary>

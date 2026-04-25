@@ -133,7 +133,7 @@ public sealed class CustomRenderManager : IDisposable
         var caches  = _caches.GetOrCreateValue(renderable);
         if (!caches.TryGetValue((width, height), out var cache))
         {
-            Logger.LogDebug("[CustomRenderManager] Creating new cache for {Renderable} at size {Width}x{Height}.", renderable, width, height);
+            Logger.LogDebug("[CustomRenderManager] Creating new cache for {Renderable:l} at size {Width}x{Height}.", renderable, width, height);
             // Cause a version mismatch on purpose to simplify the paths below.
             cache              = new RenderCache(unchecked(version - 1));
             cache.DepthStencil = new DepthStencil(_device, width, height);
@@ -147,7 +147,7 @@ public sealed class CustomRenderManager : IDisposable
             return;
         }
 
-        Logger.LogDebug("[CustomRenderManager] Rendering {Renderable} (version {OldVersion} -> {NewVersion}) at size {Width}x{Height}.",
+        Logger.LogDebug("[CustomRenderManager] Rendering {Renderable:l} (version {OldVersion} -> {NewVersion}) at size {Width}x{Height}.",
             renderable, cache.Version, version, width, height);
         cache.SetOutputCount(renderable.OutputCount, _device, width, height, renderable.GetOutputFormat);
 
@@ -191,13 +191,13 @@ public sealed class CustomRenderManager : IDisposable
         var discardSizes       = new HashSet<(uint, uint)>(16);
         foreach (var (renderable, caches) in _caches)
         {
-            var version = renderable.Version;
             discardSizes.Clear();
             foreach (var (size, cache) in caches)
             {
-                if (cache.Version != version || cache.ExpiresAtFrame <= frame)
+                // We are called at the beginning of a frame, therefore stuff that "expires at this frame" is given one more frame of grace.
+                if (cache.ExpiresAtFrame < frame)
                 {
-                    Logger.LogDebug("[CustomRenderManager] Discarding cache for {Renderable} at size {Width}x{Height}.", renderable, size.Width,
+                    Logger.LogDebug("[CustomRenderManager] Discarding cache for {Renderable:l} at size {Width}x{Height}.", renderable, size.Width,
                         size.Height);
                     cache.Dispose();
                     discardSizes.Add(size);
