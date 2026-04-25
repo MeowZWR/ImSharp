@@ -7,7 +7,7 @@ struct fs_quad_vertex
     float2 uv       : TEXCOORD0;
 };
 
-cbuffer resolution
+cbuffer resolution : register(cb0)
 {
     float2 resolution;
     float2 rcp_resolution;
