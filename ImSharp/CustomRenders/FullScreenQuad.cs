@@ -178,7 +178,7 @@ public class FullScreenQuad(byte[] pixelShaderBlob) : ICustomRenderable, IDispos
         BindPixelShader(width, height, deviceContext);
 
         deviceContext->IASetInputLayout(null);
-        deviceContext->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY.D3D10_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+        deviceContext->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY.D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
         deviceContext->IASetVertexBuffers(0, 0, null, null, null);
         deviceContext->IASetIndexBuffer(null, DXGI_FORMAT.DXGI_FORMAT_UNKNOWN, 0);
         deviceContext->Draw(4, 0);
