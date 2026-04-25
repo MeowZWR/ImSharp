@@ -5,12 +5,15 @@ namespace ImSharp;
 
 /// <summary> A full-screen quad with a custom pixel shader. </summary>
 /// <param name="pixelShaderBlob"> The pixel shader blob to use to render this quad. </param>
-public class FullScreenQuad(byte[] pixelShaderBlob) : ICustomRenderable, IDisposable
+public class FullScreenQuad(byte[] pixelShaderBlob, string? description) : ICustomRenderable, IDisposable
 {
     private static readonly byte[] VertexShaderBlob = ResourceProvider.GetManifestResourceBytes("FsQuad_vs.dxbc");
 
     /// <summary> The pixel shader blob to use to render this quad. </summary>
     protected byte[] PixelShaderBlob = pixelShaderBlob;
+
+    /// <summary> A description of this object, for debugging and logging purposes. </summary>
+    protected string? Description = description;
 
     private uint _savedWidth;
     private uint _savedHeight;
@@ -60,6 +63,10 @@ public class FullScreenQuad(byte[] pixelShaderBlob) : ICustomRenderable, IDispos
         CustomRenderManager.Release(ref _pixelShader);
         CustomRenderManager.Release(ref _vertexShader);
     }
+
+    /// <inheritdoc/>
+    public override string? ToString()
+        => Description ?? base.ToString();
 
     /// <inheritdoc/>
     public virtual DXGI_FORMAT GetOutputFormat(int outputIndex)

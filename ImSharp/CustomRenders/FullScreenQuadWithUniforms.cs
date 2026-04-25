@@ -3,8 +3,8 @@ using TerraFX.Interop.DirectX;
 
 namespace ImSharp;
 
-public class FullScreenQuadWithUniforms<TUniforms>(byte[] pixelShaderBlob, TUniforms uniforms)
-    : FullScreenQuad(pixelShaderBlob) where TUniforms : unmanaged
+public class FullScreenQuadWithUniforms<TUniforms>(byte[] pixelShaderBlob, TUniforms uniforms, string? description)
+    : FullScreenQuad(pixelShaderBlob, description) where TUniforms : unmanaged
 {
     private long _version = 0;
 

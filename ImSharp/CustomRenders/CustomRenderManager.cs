@@ -1,4 +1,5 @@
 #if HAS_TERRAFX
+using Microsoft.Extensions.Logging;
 using TerraFX.Interop.DirectX;
 using TerraFX.Interop.Windows;
 
@@ -8,9 +9,23 @@ namespace ImSharp;
 public sealed class CustomRenderManager : IDisposable
 {
     /// <summary> The custom render manager. </summary>
-    public static readonly CustomRenderManager Instance = new();
+    public static readonly CustomRenderManager Instance = new(null);
 
-    private readonly ConditionalWeakTable<ICustomRenderable, Dictionary<(uint, uint), RenderCache>> _caches = [];
+    /// <summary> A custom logger to set when the manager should not use the global logger. </summary>
+    public ILogger? CustomLogger
+    {
+        get => field;
+        set
+        {
+            field = value;
+            UpdateLogger(ImSharpConfiguration.Logger);
+        }
+    }
+
+    /// <summary> The logger the internal functions write to. </summary>
+    public ILogger Logger { get; private set; }
+
+    private readonly ConditionalWeakTable<ICustomRenderable, Dictionary<(uint Width, uint Height), RenderCache>> _caches = [];
 
     private unsafe ID3D11Device* _device;
 
@@ -18,8 +33,13 @@ public sealed class CustomRenderManager : IDisposable
     public unsafe ID3D11Device* Device
         => _device;
 
-    private CustomRenderManager()
-        => ImSharpPerFrame.Update += CheckCachedRenders;
+    private CustomRenderManager(ILogger? logger)
+    {
+        CustomLogger                       =  logger;
+        Logger                             =  CustomLogger ?? ImSharpConfiguration.Logger;
+        ImSharpPerFrame.Update             += CheckCachedRenders;
+        ImSharpConfiguration.LoggerChanged += UpdateLogger;
+    }
 
     ~CustomRenderManager()
         => Dispose(false);
@@ -36,9 +56,14 @@ public sealed class CustomRenderManager : IDisposable
         foreach (var (_, caches) in _caches)
             Clear(caches);
         _caches.Clear();
-        ImSharpPerFrame.Update -= CheckCachedRenders;
+        ImSharpPerFrame.Update             -= CheckCachedRenders;
+        ImSharpConfiguration.LoggerChanged -= UpdateLogger;
         Release(ref _device);
     }
+
+    /// <summary> Update the logger if it changes in the global configuration. </summary>
+    private void UpdateLogger(ILogger obj)
+        => Logger = CustomLogger ?? obj;
 
     private static void Clear(Dictionary<(uint, uint), RenderCache> caches)
     {
@@ -108,6 +133,7 @@ public sealed class CustomRenderManager : IDisposable
         var caches  = _caches.GetOrCreateValue(renderable);
         if (!caches.TryGetValue((width, height), out var cache))
         {
+            Logger.LogDebug("[CustomRenderManager] Creating new cache for {Renderable} at size {Width}x{Height}.", renderable, width, height);
             // Cause a version mismatch on purpose to simplify the paths below.
             cache              = new RenderCache(unchecked(version - 1));
             cache.DepthStencil = new DepthStencil(_device, width, height);
@@ -121,6 +147,8 @@ public sealed class CustomRenderManager : IDisposable
             return;
         }
 
+        Logger.LogDebug("[CustomRenderManager] Rendering {Renderable} (version {OldVersion} -> {NewVersion}) at size {Width}x{Height}.",
+            renderable, cache.Version, version, width, height);
         cache.SetOutputCount(renderable.OutputCount, _device, width, height, renderable.GetOutputFormat);
 
         using (new DeviceImmediateContext(_device, out var deviceContext))
@@ -169,6 +197,8 @@ public sealed class CustomRenderManager : IDisposable
             {
                 if (cache.Version != version || cache.ExpiresAtFrame <= frame)
                 {
+                    Logger.LogDebug("[CustomRenderManager] Discarding cache for {Renderable} at size {Width}x{Height}.", renderable, size.Width,
+                        size.Height);
                     cache.Dispose();
                     discardSizes.Add(size);
                 }
