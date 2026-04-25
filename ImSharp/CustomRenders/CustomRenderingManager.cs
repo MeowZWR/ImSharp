@@ -373,26 +373,27 @@ public sealed class CustomRenderingManager : IDisposable
 
         public Texture2D(ID3D11Device* device, uint width, uint height, DXGI_FORMAT format, D3D11_BIND_FLAG bind)
         {
+            var texDesc = new D3D11_TEXTURE2D_DESC
+            {
+                Width          = width,
+                Height         = height,
+                MipLevels      = 1,
+                ArraySize      = 1,
+                Format         = format,
+                SampleDesc     = new(1, 0),
+                Usage          = D3D11_USAGE.D3D11_USAGE_DEFAULT,
+                BindFlags      = (uint)(bind | D3D11_BIND_FLAG.D3D11_BIND_SHADER_RESOURCE),
+                CPUAccessFlags = 0,
+                MiscFlags      = 0,
+            };
+            var srvDesc = new D3D11_SHADER_RESOURCE_VIEW_DESC
+            {
+                ViewDimension = D3D_SRV_DIMENSION.D3D11_SRV_DIMENSION_TEXTURE2D,
+                Format        = format,
+            };
+
             fixed (Texture2D* pThis = &this)
             {
-                var texDesc = new D3D11_TEXTURE2D_DESC
-                {
-                    Width          = width,
-                    Height         = height,
-                    MipLevels      = 1,
-                    ArraySize      = 1,
-                    Format         = format,
-                    SampleDesc     = new(1, 0),
-                    Usage          = D3D11_USAGE.D3D11_USAGE_DEFAULT,
-                    BindFlags      = (uint)(bind | D3D11_BIND_FLAG.D3D11_BIND_SHADER_RESOURCE),
-                    CPUAccessFlags = 0,
-                    MiscFlags      = 0,
-                };
-                var srvDesc = new D3D11_SHADER_RESOURCE_VIEW_DESC
-                {
-                    ViewDimension = D3D_SRV_DIMENSION.D3D11_SRV_DIMENSION_TEXTURE2D,
-                    Format        = format,
-                };
                 Marshal.ThrowExceptionForHR(device->CreateTexture2D(&texDesc, null, &pThis->Texture));
                 try
                 {
@@ -425,17 +426,17 @@ public sealed class CustomRenderingManager : IDisposable
 
         public DepthStencil(ID3D11Device* device, uint width, uint height, DXGI_FORMAT format = DXGI_FORMAT.DXGI_FORMAT_D24_UNORM_S8_UINT)
         {
+            var dsvDesc = new D3D11_DEPTH_STENCIL_VIEW_DESC
+            {
+                ViewDimension = D3D11_DSV_DIMENSION.D3D11_DSV_DIMENSION_TEXTURE2D,
+                Format        = format,
+            };
             Texture = new Texture2D(device, width, height, format, D3D11_BIND_FLAG.D3D11_BIND_DEPTH_STENCIL);
             try
             {
-                var dsvDesc = new D3D11_DEPTH_STENCIL_VIEW_DESC
-                {
-                    ViewDimension = D3D11_DSV_DIMENSION.D3D11_DSV_DIMENSION_TEXTURE2D,
-                    Format        = format,
-                };
-                ID3D11DepthStencilView* dsv;
-                Marshal.ThrowExceptionForHR(device->CreateDepthStencilView((ID3D11Resource*)Texture.Texture, &dsvDesc, &dsv));
-                DepthStencilView = dsv;
+                fixed (DepthStencil* pThis = &this)
+                    Marshal.ThrowExceptionForHR(device->CreateDepthStencilView((ID3D11Resource*)Texture.Texture, &dsvDesc,
+                        &pThis->DepthStencilView));
             }
             catch
             {
@@ -462,17 +463,17 @@ public sealed class CustomRenderingManager : IDisposable
 
         public RenderTarget(ID3D11Device* device, uint width, uint height, DXGI_FORMAT format)
         {
+            var rtvDesc = new D3D11_RENDER_TARGET_VIEW_DESC
+            {
+                ViewDimension = D3D11_RTV_DIMENSION.D3D11_RTV_DIMENSION_TEXTURE2D,
+                Format        = format,
+            };
             Texture = new Texture2D(device, width, height, format, D3D11_BIND_FLAG.D3D11_BIND_RENDER_TARGET);
             try
             {
-                var rtvDesc = new D3D11_RENDER_TARGET_VIEW_DESC
-                {
-                    ViewDimension = D3D11_RTV_DIMENSION.D3D11_RTV_DIMENSION_TEXTURE2D,
-                    Format        = format,
-                };
-                ID3D11RenderTargetView* rtv;
-                Marshal.ThrowExceptionForHR(device->CreateRenderTargetView((ID3D11Resource*)Texture.Texture, &rtvDesc, &rtv));
-                RenderTargetView = rtv;
+                fixed (RenderTarget* pThis = &this)
+                    Marshal.ThrowExceptionForHR(device->CreateRenderTargetView((ID3D11Resource*)Texture.Texture, &rtvDesc,
+                        &pThis->RenderTargetView));
             }
             catch
             {
