@@ -123,18 +123,15 @@ public sealed class CustomRenderingManager : IDisposable
 
         cache.SetOutputCount(renderable.OutputCount, _device, width, height, renderable.GetOutputFormat);
 
-        ID3D11DeviceContext*     deviceContext;
-        ID3D11RasterizerState*   rsState;
-        ID3D11RenderTargetView** rtViews = stackalloc ID3D11RenderTargetView*[D3D11.D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT];
-        ID3D11DepthStencilView*  dsView;
-        ID3D11DepthStencilState* dsState;
-        uint                     stencilRef;
-        _device->GetImmediateContext(&deviceContext);
-        deviceContext->RSGetState(&rsState);
-        deviceContext->OMGetRenderTargets(D3D11.D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT, rtViews, &dsView);
-        deviceContext->OMGetDepthStencilState(&dsState, &stencilRef);
-        try
+        using (new DeviceImmediateContext(_device, out var deviceContext))
         {
+            // Save some state to restore it later, so we play nice with ImGui, the game itself, and other DirectX consumers in the process.
+            // Despite changing the RS (Rasterizer) Viewports, saving and restoring them seems unnecessary.
+            using var savedRsState = new SavedRasterizerState(deviceContext);
+            using var savedRtViews = new SavedRenderTargetViews(deviceContext);
+            using var savedDsState = new SavedDepthStencilState(deviceContext);
+
+            // First clear the depth/stencil and render targets, if and how the renderable wants it.
             if (renderable.ClearStrategy is { } clearStrategy)
             {
                 clearStrategy.ClearDepthStencil(deviceContext, cache.DepthStencil.DepthStencilView);
@@ -142,47 +139,14 @@ public sealed class CustomRenderingManager : IDisposable
                     clearStrategy.ClearRenderTarget(deviceContext, i, cache.Outputs[i].RenderTargetView);
             }
 
-            var viewport = new D3D11_VIEWPORT
-            {
-                TopLeftX = 0.0f,
-                TopLeftY = 0.0f,
-                Width    = width,
-                Height   = height,
-                MinDepth = 0.0f,
-                MaxDepth = 1.0f,
-            };
-            deviceContext->RSSetViewports(1, &viewport);
+            // Install our own output configuration (RS Viewports + our version of the stuff we saved earlier).
+            SetSimpleViewport(deviceContext, width, height);
+            SetRasterizerState(deviceContext, renderable.RasterizerState);
+            SetDepthStencilState(deviceContext, renderable.DepthStencilState, 0);
+            cache.SetRenderTargets(deviceContext);
 
-            var                    outputRsStateDesc = renderable.RasterizerState;
-            ID3D11RasterizerState* outputRsState;
-            Marshal.ThrowExceptionForHR(_device->CreateRasterizerState(&outputRsStateDesc, &outputRsState));
-            deviceContext->RSSetState(outputRsState);
-            Release(ref outputRsState);
-
-            var                      outputDsStateDesc = renderable.DepthStencilState;
-            ID3D11DepthStencilState* outputDsState;
-            Marshal.ThrowExceptionForHR(_device->CreateDepthStencilState(&outputDsStateDesc, &outputDsState));
-            deviceContext->OMSetDepthStencilState(outputDsState, 0);
-            Release(ref outputDsState);
-
-            var outputRtViews = stackalloc ID3D11RenderTargetView*[cache.Outputs.Length];
-            for (var i = 0; i < cache.Outputs.Length; ++i)
-                outputRtViews[i] = cache.Outputs[i].RenderTargetView;
-            deviceContext->OMSetRenderTargets((uint)cache.Outputs.Length, outputRtViews, cache.DepthStencil.DepthStencilView);
-
+            // Our output configuration and render targets are installed, now the renderable may run its own draw calls.
             renderable.Render(width, height, deviceContext);
-        }
-        finally
-        {
-            deviceContext->OMSetDepthStencilState(dsState, stencilRef);
-            Release(ref dsState);
-            deviceContext->OMSetRenderTargets(D3D11.D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT, rtViews, dsView);
-            for (var i = 0; i < D3D11.D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT; ++i)
-                Release(ref rtViews[i]);
-            Release(ref dsView);
-            deviceContext->RSSetState(rsState);
-            Release(ref rsState);
-            Release(ref deviceContext);
         }
 
         cache.ExpiresAtFrame = Im.Context.FrameCount + renderable.KeepAliveDuration;
@@ -220,6 +184,131 @@ public sealed class CustomRenderingManager : IDisposable
             _caches.Remove(renderable);
     }
 
+    private static unsafe void SetSimpleViewport(ID3D11DeviceContext* deviceContext, float width, float height)
+    {
+        var viewport = new D3D11_VIEWPORT
+        {
+            TopLeftX = 0.0f,
+            TopLeftY = 0.0f,
+            Width    = width,
+            Height   = height,
+            MinDepth = 0.0f,
+            MaxDepth = 1.0f,
+        };
+        deviceContext->RSSetViewports(1, &viewport);
+    }
+
+    private unsafe void SetRasterizerState(ID3D11DeviceContext* deviceContext, in D3D11_RASTERIZER_DESC desc)
+    {
+        ID3D11RasterizerState* rsState;
+        fixed (D3D11_RASTERIZER_DESC* pDesc = &desc)
+            Marshal.ThrowExceptionForHR(_device->CreateRasterizerState(pDesc, &rsState));
+        deviceContext->RSSetState(rsState);
+        Release(ref rsState);
+    }
+
+    private unsafe void SetDepthStencilState(ID3D11DeviceContext* deviceContext, in D3D11_DEPTH_STENCIL_DESC desc, uint stencilRef)
+    {
+        ID3D11DepthStencilState* dsState;
+        fixed (D3D11_DEPTH_STENCIL_DESC* pDesc = &desc)
+            Marshal.ThrowExceptionForHR(_device->CreateDepthStencilState(pDesc, &dsState));
+        deviceContext->OMSetDepthStencilState(dsState, stencilRef);
+        Release(ref dsState);
+    }
+
+    private unsafe ref struct DeviceImmediateContext
+    {
+        private ID3D11DeviceContext* _deviceContext;
+
+        public DeviceImmediateContext(ID3D11Device* device, out ID3D11DeviceContext* deviceContext)
+        {
+            fixed (DeviceImmediateContext* pThis = &this)
+                device->GetImmediateContext(&pThis->_deviceContext);
+            deviceContext = _deviceContext;
+        }
+
+        public void Dispose()
+            => Release(ref _deviceContext);
+    }
+
+    private unsafe ref struct SavedRasterizerState
+    {
+        private ID3D11DeviceContext*   _deviceContext;
+        private ID3D11RasterizerState* _rsState;
+
+        public SavedRasterizerState(ID3D11DeviceContext* deviceContext)
+        {
+            _deviceContext = deviceContext;
+            fixed (SavedRasterizerState* pThis = &this)
+                deviceContext->RSGetState(&pThis->_rsState);
+        }
+
+        public void Dispose()
+        {
+            _deviceContext->RSSetState(_rsState);
+            Release(ref _rsState);
+        }
+    }
+
+    private unsafe ref struct SavedRenderTargetViews
+    {
+        // Poor man's static_assert.
+        private const uint _0 = D3D11.D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT == 8 ? 0 : -666;
+
+        private ID3D11DeviceContext*    _deviceContext;
+        private ID3D11RenderTargetView* _rtView0;
+        private ID3D11RenderTargetView* _rtView1;
+        private ID3D11RenderTargetView* _rtView2;
+        private ID3D11RenderTargetView* _rtView3;
+        private ID3D11RenderTargetView* _rtView4;
+        private ID3D11RenderTargetView* _rtView5;
+        private ID3D11RenderTargetView* _rtView6;
+        private ID3D11RenderTargetView* _rtView7;
+        private ID3D11DepthStencilView* _dsView;
+
+        public SavedRenderTargetViews(ID3D11DeviceContext* deviceContext)
+        {
+            _deviceContext = deviceContext;
+            fixed (SavedRenderTargetViews* pThis = &this)
+                deviceContext->OMGetRenderTargets(8, &pThis->_rtView0, &pThis->_dsView);
+        }
+
+        public void Dispose()
+        {
+            fixed (SavedRenderTargetViews* pThis = &this)
+                _deviceContext->OMSetRenderTargets(8, &pThis->_rtView0, pThis->_dsView);
+            Release(ref _rtView0);
+            Release(ref _rtView1);
+            Release(ref _rtView2);
+            Release(ref _rtView3);
+            Release(ref _rtView4);
+            Release(ref _rtView5);
+            Release(ref _rtView6);
+            Release(ref _rtView7);
+            Release(ref _dsView);
+        }
+    }
+
+    private unsafe ref struct SavedDepthStencilState
+    {
+        private ID3D11DeviceContext*     _deviceContext;
+        private ID3D11DepthStencilState* _dsState;
+        private uint                     _stencilRef;
+
+        public SavedDepthStencilState(ID3D11DeviceContext* deviceContext)
+        {
+            _deviceContext = deviceContext;
+            fixed (SavedDepthStencilState* pThis = &this)
+                deviceContext->OMGetDepthStencilState(&pThis->_dsState, &pThis->_stencilRef);
+        }
+
+        public void Dispose()
+        {
+            _deviceContext->OMSetDepthStencilState(_dsState, _stencilRef);
+            Release(ref _dsState);
+        }
+    }
+
     private sealed class RenderCache(long version) : IDisposable
     {
         public long           Version = version;
@@ -250,6 +339,14 @@ public sealed class CustomRenderingManager : IDisposable
 
             for (var i = 0; i < outputs.Length; ++i)
                 outputs[i] = Outputs[outputIndex + i];
+        }
+
+        public unsafe void SetRenderTargets(ID3D11DeviceContext* deviceContext)
+        {
+            var outputRtViews = stackalloc ID3D11RenderTargetView*[Outputs.Length];
+            for (var i = 0; i < Outputs.Length; ++i)
+                outputRtViews[i] = Outputs[i].RenderTargetView;
+            deviceContext->OMSetRenderTargets((uint)Outputs.Length, outputRtViews, DepthStencil.DepthStencilView);
         }
 
         public unsafe void SetOutputCount(int count, ID3D11Device* device, uint width, uint height, Func<int, DXGI_FORMAT> format)

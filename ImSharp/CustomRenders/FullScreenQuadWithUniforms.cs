@@ -56,6 +56,7 @@ public class FullScreenQuadWithUniforms<TUniforms>(byte[] pixelShaderBlob, TUnif
     /// <inheritdoc/>
     protected override unsafe void BindPixelShader(uint width, uint height, ID3D11DeviceContext* deviceContext)
     {
+        // Call the default implementation, then bind the uniforms cbuffer at slot 1.
         base.BindPixelShader(width, height, deviceContext);
         var uniformsBuffer = GetOrCreateUniformsBuffer(deviceContext);
         deviceContext->PSSetConstantBuffers(1, 1, &uniformsBuffer);

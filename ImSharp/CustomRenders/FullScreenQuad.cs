@@ -173,10 +173,17 @@ public class FullScreenQuad(byte[] pixelShaderBlob) : ICustomRenderable, IDispos
     /// <inheritdoc/>
     public virtual unsafe void Render(uint width, uint height, ID3D11DeviceContext* deviceContext)
     {
+        // Bind the vertex shader (see FsQuad_vs.hlsl), no geometry shader, and the pixel shader supplied by inheritors or callers.
+        // The vertex shader takes no cbuffers, resources or samplers.
         deviceContext->VSSetShader(GetOrCreateVertexShader(), null, 0);
         deviceContext->GSSetShader(null, null, 0);
         BindPixelShader(width, height, deviceContext);
 
+        // The vertex shader takes no inputs except the vertex ID, which is managed by the system.
+        // We are drawing a triangle strip of 4 vertices starting at 0:
+        // - The vertex shader will get called with SV_VertexID = 0, 1, 2 and 3, and no other input.
+        // - One triangle will be assembled with the output of 0, 1 and 2, another with the outputs of 1, 2 and 3.
+        // - The two resulting triangles will be shaded as usual, using the inheritor/caller's pixel shader.
         deviceContext->IASetInputLayout(null);
         deviceContext->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY.D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
         deviceContext->IASetVertexBuffers(0, 0, null, null, null);
@@ -190,6 +197,7 @@ public class FullScreenQuad(byte[] pixelShaderBlob) : ICustomRenderable, IDispos
     /// <param name="deviceContext"> The device context to run commands on. </param>
     protected virtual unsafe void BindPixelShader(uint width, uint height, ID3D11DeviceContext* deviceContext)
     {
+        // This default implementation binds the pixel shader, with the resolution cbuffer at slot 0 (see FsQuad.hlsli).
         deviceContext->PSSetShader(GetOrCreatePixelShader(), null, 0);
         var resolutionBuffer = GetOrCreateResolutionBuffer(width, height, deviceContext);
         deviceContext->PSSetConstantBuffers(0, 1, &resolutionBuffer);
