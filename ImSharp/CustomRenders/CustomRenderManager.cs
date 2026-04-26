@@ -51,7 +51,7 @@ public sealed class CustomRenderManager : IDisposable
         GC.SuppressFinalize(this);
     }
 
-    private unsafe void Dispose(bool disposing)
+    private unsafe void Dispose(bool _)
     {
         foreach (var (_, caches) in _caches)
             Clear(caches);
@@ -91,7 +91,9 @@ public sealed class CustomRenderManager : IDisposable
     public static unsafe T* Exchange<T>(ref T* location, T* newPtr) where T : unmanaged
     {
         fixed (T** pPtr = &location)
+        {
             return (T*)Interlocked.Exchange(ref *(nint*)pPtr, (nint)newPtr);
+        }
     }
 
     /// <summary> Releases and clears the COM object pointer at the given location. If it held a null pointer, this is a no-op. </summary>
@@ -113,7 +115,7 @@ public sealed class CustomRenderManager : IDisposable
     public ImTextureId RenderObject(ICustomRenderable renderable, uint width, uint height, int outputIndex = 0)
     {
         ImTextureId output = default;
-        RenderObject(renderable, width, height, outputIndex, new(ref output));
+        RenderObject(renderable, width, height, outputIndex, new Span<ImTextureId>(ref output));
         return output;
     }
 
@@ -236,7 +238,9 @@ public sealed class CustomRenderManager : IDisposable
             SetRasterizerState(deviceContext, renderable.RasterizerState);
             SetDepthStencilState(deviceContext, renderable.DepthStencilState, 0);
             fixed (Pointer<ID3D11RenderTargetView>* pRtViews = &rtViews[0])
+            {
                 deviceContext->OMSetRenderTargets((uint)rtViews.Length, (ID3D11RenderTargetView**)pRtViews, dsView);
+            }
 
             // Our output configuration and render targets are installed, now the renderable may run its own draw calls.
             renderable.Render(dimensions.Width, dimensions.Height, deviceContext);
@@ -277,7 +281,8 @@ public sealed class CustomRenderManager : IDisposable
                 // We are called at the beginning of a frame, therefore stuff that "expires at this frame" is given one more frame of grace.
                 if (cache.ExpiresAtFrame < frame)
                 {
-                    Logger.LogDebug("[CustomRenderManager] Discarding cache for {Renderable:l} at size {Width}x{Height}.", renderable, size.Width,
+                    Logger.LogDebug("[CustomRenderManager] Discarding cache for {Renderable:l} at size {Width}x{Height}.", renderable,
+                        size.Width,
                         size.Height);
                     cache.Dispose();
                     discardSizes.Add(size);
@@ -312,7 +317,10 @@ public sealed class CustomRenderManager : IDisposable
     {
         ID3D11RasterizerState* rsState;
         fixed (D3D11_RASTERIZER_DESC* pDesc = &desc)
+        {
             Marshal.ThrowExceptionForHR(_device->CreateRasterizerState(pDesc, &rsState));
+        }
+
         deviceContext->RSSetState(rsState);
         Release(ref rsState);
     }
@@ -321,7 +329,10 @@ public sealed class CustomRenderManager : IDisposable
     {
         ID3D11DepthStencilState* dsState;
         fixed (D3D11_DEPTH_STENCIL_DESC* pDesc = &desc)
+        {
             Marshal.ThrowExceptionForHR(_device->CreateDepthStencilState(pDesc, &dsState));
+        }
+
         deviceContext->OMSetDepthStencilState(dsState, stencilRef);
         Release(ref dsState);
     }
@@ -333,7 +344,10 @@ public sealed class CustomRenderManager : IDisposable
         public DeviceImmediateContext(ID3D11Device* device, out ID3D11DeviceContext* deviceContext)
         {
             fixed (DeviceImmediateContext* pThis = &this)
+            {
                 device->GetImmediateContext(&pThis->_deviceContext);
+            }
+
             deviceContext = _deviceContext;
         }
 
@@ -343,14 +357,16 @@ public sealed class CustomRenderManager : IDisposable
 
     private unsafe ref struct SavedRasterizerState
     {
-        private ID3D11DeviceContext*   _deviceContext;
-        private ID3D11RasterizerState* _rsState;
+        private readonly ID3D11DeviceContext*   _deviceContext;
+        private          ID3D11RasterizerState* _rsState;
 
         public SavedRasterizerState(ID3D11DeviceContext* deviceContext)
         {
             _deviceContext = deviceContext;
             fixed (SavedRasterizerState* pThis = &this)
+            {
                 deviceContext->RSGetState(&pThis->_rsState);
+            }
         }
 
         public void Dispose()
@@ -365,28 +381,33 @@ public sealed class CustomRenderManager : IDisposable
         // Poor man's static_assert.
         private const uint _0 = D3D11.D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT == 8 ? 0 : -666;
 
-        private ID3D11DeviceContext*    _deviceContext;
-        private ID3D11RenderTargetView* _rtView0;
-        private ID3D11RenderTargetView* _rtView1;
-        private ID3D11RenderTargetView* _rtView2;
-        private ID3D11RenderTargetView* _rtView3;
-        private ID3D11RenderTargetView* _rtView4;
-        private ID3D11RenderTargetView* _rtView5;
-        private ID3D11RenderTargetView* _rtView6;
-        private ID3D11RenderTargetView* _rtView7;
-        private ID3D11DepthStencilView* _dsView;
+        private readonly ID3D11DeviceContext*    _deviceContext;
+        private          ID3D11RenderTargetView* _rtView0;
+        private          ID3D11RenderTargetView* _rtView1;
+        private          ID3D11RenderTargetView* _rtView2;
+        private          ID3D11RenderTargetView* _rtView3;
+        private          ID3D11RenderTargetView* _rtView4;
+        private          ID3D11RenderTargetView* _rtView5;
+        private          ID3D11RenderTargetView* _rtView6;
+        private          ID3D11RenderTargetView* _rtView7;
+        private          ID3D11DepthStencilView* _dsView;
 
         public SavedRenderTargetViews(ID3D11DeviceContext* deviceContext)
         {
             _deviceContext = deviceContext;
             fixed (SavedRenderTargetViews* pThis = &this)
+            {
                 deviceContext->OMGetRenderTargets(8, &pThis->_rtView0, &pThis->_dsView);
+            }
         }
 
         public void Dispose()
         {
             fixed (SavedRenderTargetViews* pThis = &this)
+            {
                 _deviceContext->OMSetRenderTargets(8, &pThis->_rtView0, pThis->_dsView);
+            }
+
             Release(ref _rtView0);
             Release(ref _rtView1);
             Release(ref _rtView2);
@@ -401,15 +422,17 @@ public sealed class CustomRenderManager : IDisposable
 
     private unsafe ref struct SavedDepthStencilState
     {
-        private ID3D11DeviceContext*     _deviceContext;
-        private ID3D11DepthStencilState* _dsState;
-        private uint                     _stencilRef;
+        private readonly ID3D11DeviceContext*     _deviceContext;
+        private          ID3D11DepthStencilState* _dsState;
+        private          uint                     _stencilRef;
 
         public SavedDepthStencilState(ID3D11DeviceContext* deviceContext)
         {
             _deviceContext = deviceContext;
             fixed (SavedDepthStencilState* pThis = &this)
+            {
                 deviceContext->OMGetDepthStencilState(&pThis->_dsState, &pThis->_stencilRef);
+            }
         }
 
         public void Dispose()
@@ -496,7 +519,7 @@ public sealed class CustomRenderManager : IDisposable
                 MipLevels      = 1,
                 ArraySize      = 1,
                 Format         = format,
-                SampleDesc     = new(1, 0),
+                SampleDesc     = new DXGI_SAMPLE_DESC(1, 0),
                 Usage          = D3D11_USAGE.D3D11_USAGE_DEFAULT,
                 BindFlags      = (uint)(bind | D3D11_BIND_FLAG.D3D11_BIND_SHADER_RESOURCE),
                 CPUAccessFlags = 0,
@@ -557,8 +580,10 @@ public sealed class CustomRenderManager : IDisposable
             try
             {
                 fixed (DepthStencil* pThis = &this)
+                {
                     Marshal.ThrowExceptionForHR(device->CreateDepthStencilView((ID3D11Resource*)Texture.Texture, &dsvDesc,
                         &pThis->DepthStencilView));
+                }
             }
             catch
             {
@@ -594,8 +619,10 @@ public sealed class CustomRenderManager : IDisposable
             try
             {
                 fixed (RenderTarget* pThis = &this)
+                {
                     Marshal.ThrowExceptionForHR(device->CreateRenderTargetView((ID3D11Resource*)Texture.Texture, &rtvDesc,
                         &pThis->RenderTargetView));
+                }
             }
             catch
             {
