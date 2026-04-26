@@ -108,7 +108,7 @@ public sealed class CustomRenderManager : IDisposable
     /// <param name="renderable"> The object to render. </param>
     /// <param name="width"> The width at which to render the object. </param>
     /// <param name="height"> The height at which to render the object. </param>
-    /// <param name="outputIndex"> If this object has multiple render outputs, the index, otherwise 0. </param>
+    /// <param name="outputIndex"> If this object has multiple render outputs, the index, otherwise 0. Pass -1 to get the depth/stencil buffer. </param>
     /// <returns> An ImGui texture ID representing the rendered object. </returns>
     public ImTextureId RenderObject(ICustomRenderable renderable, uint width, uint height, int outputIndex = 0)
     {
@@ -121,11 +121,11 @@ public sealed class CustomRenderManager : IDisposable
     /// <param name="renderable"> The object to render. </param>
     /// <param name="width"> The width at which to render the object. </param>
     /// <param name="height"> The height at which to render the object. </param>
-    /// <param name="outputIndex"> The first render output index. </param>
+    /// <param name="outputIndex"> The first render output index. Pass -1 to get the depth/stencil buffer. </param>
     /// <param name="outputs"> On return, ImGui texture IDs representing the rendered object. </param>
     public unsafe void RenderObject(ICustomRenderable renderable, uint width, uint height, int outputIndex, Span<ImTextureId> outputs)
     {
-        ArgumentOutOfRangeException.ThrowIfLessThan(outputIndex, 0);
+        ArgumentOutOfRangeException.ThrowIfLessThan(outputIndex, -1);
         if (outputs.Length > D3D11.D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT)
             throw new ArgumentException("Output count exceeds D3D11's maximum simultaneous render target count");
 
@@ -180,6 +180,86 @@ public sealed class CustomRenderManager : IDisposable
         cache.ExpiresAtFrame = Im.Context.FrameCount + renderable.KeepAliveDuration;
         cache.Version        = version;
         cache.ExportOutputs(outputIndex, outputs);
+    }
+
+    /// <summary> Renders an object onto caller-supplied outputs. </summary>
+    /// <param name="renderable"> The object to render. </param>
+    /// <param name="dsView"> The depth/stencil buffer to render onto. </param>
+    /// <param name="rtViews"> The render targets to render onto. </param>
+    public unsafe void RenderObject(ICustomRenderable renderable, ID3D11DepthStencilView* dsView,
+        params ReadOnlySpan<Pointer<ID3D11RenderTargetView>> rtViews)
+    {
+        if (rtViews.Length > D3D11.D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT)
+            throw new ArgumentException("The render target count exceeds Direct3D 11's maximum");
+
+        if (rtViews.Length != renderable.OutputCount)
+            throw new ArgumentException("The render target count does not match the renderable's output count");
+
+        var valid      = false;
+        var dimensions = (Width: uint.MaxValue, Height: uint.MaxValue);
+        foreach (var rtView in rtViews)
+        {
+            if (rtView.Value is not null)
+            {
+                valid      = true;
+                dimensions = GetDimensions(rtView.Value);
+                break;
+            }
+        }
+
+        if (!valid)
+        {
+            if (dsView is null)
+                throw new ArgumentException("All the passed render targets and the depth/stencil view are null");
+
+            dimensions = GetDimensions(dsView);
+        }
+
+        using (new DeviceImmediateContext(_device, out var deviceContext))
+        {
+            // Save some state to restore it later, so we play nice with ImGui, the game itself, and other DirectX consumers in the process.
+            // Despite changing the RS (Rasterizer) Viewports, saving and restoring them seems unnecessary.
+            using var savedRsState = new SavedRasterizerState(deviceContext);
+            using var savedRtViews = new SavedRenderTargetViews(deviceContext);
+            using var savedDsState = new SavedDepthStencilState(deviceContext);
+
+            // First clear the depth/stencil and render targets, if and how the renderable wants it.
+            if (renderable.ClearStrategy is { } clearStrategy)
+            {
+                clearStrategy.ClearDepthStencil(deviceContext, dsView);
+                for (var i = 0; i < rtViews.Length; ++i)
+                    clearStrategy.ClearRenderTarget(deviceContext, i, rtViews[i]);
+            }
+
+            // Install our own output configuration (RS Viewports + our version of the stuff we saved earlier).
+            SetSimpleViewport(deviceContext, dimensions.Width, dimensions.Height);
+            SetRasterizerState(deviceContext, renderable.RasterizerState);
+            SetDepthStencilState(deviceContext, renderable.DepthStencilState, 0);
+            fixed (Pointer<ID3D11RenderTargetView>* pRtViews = &rtViews[0])
+                deviceContext->OMSetRenderTargets((uint)rtViews.Length, (ID3D11RenderTargetView**)pRtViews, dsView);
+
+            // Our output configuration and render targets are installed, now the renderable may run its own draw calls.
+            renderable.Render(dimensions.Width, dimensions.Height, deviceContext);
+        }
+    }
+
+    private static unsafe (uint Width, uint Height) GetDimensions<T>(T* view) where T : unmanaged, ID3D11View.Interface
+    {
+        ID3D11Resource*  resource;
+        ID3D11Texture2D* texture = null;
+        view->GetResource(&resource);
+        try
+        {
+            resource->QueryInterface((Guid*)Unsafe.AsPointer(in IID.IID_ID3D11Texture2D), (void**)&texture);
+            D3D11_TEXTURE2D_DESC desc;
+            texture->GetDesc(&desc);
+            return (desc.Width, desc.Height);
+        }
+        finally
+        {
+            Release(ref texture);
+            Release(ref resource);
+        }
     }
 
     /// <summary> Check all cached renders for disposal. </summary>
@@ -367,7 +447,9 @@ public sealed class CustomRenderManager : IDisposable
             if (outputIndex + outputs.Length > Outputs.Length)
                 throw new ArgumentException("Some of the requested outputs are past the renderable's output count");
 
-            for (var i = 0; i < outputs.Length; ++i)
+            if (outputIndex is -1)
+                outputs[0] = DepthStencil;
+            for (var i = Math.Max(0, -outputIndex); i < outputs.Length; ++i)
                 outputs[i] = Outputs[outputIndex + i];
         }
 
