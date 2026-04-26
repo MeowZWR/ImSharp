@@ -484,6 +484,10 @@ public sealed class CustomRenderManager : IDisposable
         public ID3D11ShaderResourceView* ShaderResourceView;
 
         public Texture2D(ID3D11Device* device, uint width, uint height, DXGI_FORMAT format, D3D11_BIND_FLAG bind)
+            : this(device, width, height, format, bind, format)
+        { }
+
+        public Texture2D(ID3D11Device* device, uint width, uint height, DXGI_FORMAT format, D3D11_BIND_FLAG bind, DXGI_FORMAT srvFormat)
         {
             var texDesc = new D3D11_TEXTURE2D_DESC
             {
@@ -501,7 +505,7 @@ public sealed class CustomRenderManager : IDisposable
             var srvDesc = new D3D11_SHADER_RESOURCE_VIEW_DESC
             {
                 ViewDimension = D3D_SRV_DIMENSION.D3D11_SRV_DIMENSION_TEXTURE2D,
-                Format        = format,
+                Format        = srvFormat,
             };
 
             fixed (Texture2D* pThis = &this)
@@ -543,7 +547,8 @@ public sealed class CustomRenderManager : IDisposable
                 ViewDimension = D3D11_DSV_DIMENSION.D3D11_DSV_DIMENSION_TEXTURE2D,
                 Format        = DXGI_FORMAT.DXGI_FORMAT_D32_FLOAT,
             };
-            Texture = new Texture2D(device, width, height, DXGI_FORMAT.DXGI_FORMAT_R32_FLOAT, D3D11_BIND_FLAG.D3D11_BIND_DEPTH_STENCIL);
+            Texture = new Texture2D(device, width, height, DXGI_FORMAT.DXGI_FORMAT_R32_TYPELESS, D3D11_BIND_FLAG.D3D11_BIND_DEPTH_STENCIL,
+                DXGI_FORMAT.DXGI_FORMAT_R32_FLOAT);
             try
             {
                 fixed (DepthStencil* pThis = &this)
