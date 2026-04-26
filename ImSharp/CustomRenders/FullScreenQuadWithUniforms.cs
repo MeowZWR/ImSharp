@@ -3,8 +3,13 @@ using TerraFX.Interop.DirectX;
 
 namespace ImSharp;
 
-public class FullScreenQuadWithUniforms<TUniforms>(byte[] pixelShaderBlob, TUniforms uniforms, string? description)
-    : FullScreenQuad(pixelShaderBlob, description) where TUniforms : unmanaged
+/// <summary> A full-screen quad with a custom pixel shader and two constant buffers, one with resolution and reciprocal resolution, and a custom one. </summary>
+/// <param name="pixelShader"> The pixel shader to use to render this quad. </param>
+/// <param name="uniforms"> The initial value of the uniforms constant buffer. </param>
+/// <param name="description"> A description of this object, for debugging and logging purposes. </param>
+/// <typeparam name="TUniforms"> The type of the structure to store in the uniforms constant buffer. </typeparam>
+public class FullScreenQuadWithUniforms<TUniforms>(PixelShader pixelShader, TUniforms uniforms, string? description)
+    : FullScreenQuad(pixelShader, description) where TUniforms : unmanaged
 {
     private long _version = 0;
 

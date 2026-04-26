@@ -3,14 +3,15 @@ using TerraFX.Interop.DirectX;
 
 namespace ImSharp;
 
-/// <summary> A full-screen quad with a custom pixel shader. </summary>
-/// <param name="pixelShaderBlob"> The pixel shader blob to use to render this quad. </param>
-public class FullScreenQuad(byte[] pixelShaderBlob, string? description) : ICustomRenderable, IDisposable
+/// <summary> A full-screen quad with a custom pixel shader and a constant buffer with resolution and reciprocal resolution. </summary>
+/// <param name="pixelShader"> The pixel shader to use to render this quad. </param>
+/// <param name="description"> A description of this object, for debugging and logging purposes. </param>
+public class FullScreenQuad(PixelShader pixelShader, string? description) : ICustomRenderable, IDisposable
 {
-    private static readonly byte[] VertexShaderBlob = ResourceProvider.GetManifestResourceBytes("FsQuad_vs.dxbc");
+    private static readonly VertexShader VertexShader = VertexShader.FromManifestResource("FsQuad");
 
-    /// <summary> The pixel shader blob to use to render this quad. </summary>
-    protected byte[] PixelShaderBlob = pixelShaderBlob;
+    /// <summary> The pixel shader to use to render this quad. </summary>
+    protected PixelShader PixelShader = pixelShader;
 
     /// <summary> A description of this object, for debugging and logging purposes. </summary>
     protected string? Description = description;
@@ -18,9 +19,7 @@ public class FullScreenQuad(byte[] pixelShaderBlob, string? description) : ICust
     private uint _savedWidth;
     private uint _savedHeight;
 
-    private unsafe ID3D11VertexShader* _vertexShader;
-    private unsafe ID3D11PixelShader*  _pixelShader;
-    private unsafe ID3D11Buffer*       _resolutionBuffer;
+    private unsafe ID3D11Buffer* _resolutionBuffer;
 
     /// <inheritdoc/>
     public virtual int OutputCount
@@ -59,10 +58,7 @@ public class FullScreenQuad(byte[] pixelShaderBlob, string? description) : ICust
     /// <summary> Releases the resources used by this object. </summary>
     /// <param name="disposing"> True if called explicitly, false if garbage collected. </param>
     protected virtual unsafe void Dispose(bool disposing)
-    {
-        CustomRenderManager.Release(ref _pixelShader);
-        CustomRenderManager.Release(ref _vertexShader);
-    }
+        => CustomRenderManager.Release(ref _resolutionBuffer);
 
     /// <inheritdoc/>
     public override string? ToString()
@@ -71,53 +67,6 @@ public class FullScreenQuad(byte[] pixelShaderBlob, string? description) : ICust
     /// <inheritdoc/>
     public virtual DXGI_FORMAT GetOutputFormat(int outputIndex)
         => DXGI_FORMAT.DXGI_FORMAT_B8G8R8A8_UNORM;
-
-    private unsafe ID3D11VertexShader* GetOrCreateVertexShader()
-    {
-        if (_vertexShader is not null)
-            return _vertexShader;
-
-        ID3D11VertexShader* vertexShader;
-        fixed (byte* pVertexShaderBlob = VertexShaderBlob)
-        {
-            Marshal.ThrowExceptionForHR(CustomRenderManager.Instance.Device->CreateVertexShader(pVertexShaderBlob,
-                unchecked((uint)VertexShaderBlob.Length), null, &vertexShader));
-        }
-
-        _vertexShader = vertexShader;
-        return vertexShader;
-    }
-
-    /// <summary> Gets the Direct3D pixel shader object, creating it if necessary. </summary>
-    /// <returns> The pixel shader object. </returns>
-    protected unsafe ID3D11PixelShader* GetOrCreatePixelShader()
-    {
-        if (_pixelShader is not null)
-            return _pixelShader;
-
-        _pixelShader = CreatePixelShader();
-        return _pixelShader;
-    }
-
-    /// <summary> Creates the Direct3D pixel shader object. </summary>
-    /// <returns> The pixel shader object. </returns>
-    /// <remarks> This can be overridden to use Direct3D 11 class linkage features. </remarks>
-    protected virtual unsafe ID3D11PixelShader* CreatePixelShader()
-    {
-        ID3D11PixelShader* pixelShader;
-        fixed (byte* pPixelShaderBlob = PixelShaderBlob)
-        {
-            Marshal.ThrowExceptionForHR(CustomRenderManager.Instance.Device->CreatePixelShader(pPixelShaderBlob,
-                unchecked((uint)PixelShaderBlob.Length), null, &pixelShader));
-        }
-
-        return pixelShader;
-    }
-
-    /// <summary> Invalidates the Direct3D pixel shader object. </summary>
-    /// <remarks> If using the default implementation of <see cref="CreatePixelShader"/>, this should be called only after changing <see cref="PixelShaderBlob" />. </remarks>
-    protected unsafe void InvalidatePixelShader()
-        => CustomRenderManager.Release(ref _pixelShader);
 
     /// <summary> Creates a Direct3D constant buffer object. </summary>
     /// <param name="initialContents"> The initial contents of the buffer. May be null. </param>
@@ -182,7 +131,7 @@ public class FullScreenQuad(byte[] pixelShaderBlob, string? description) : ICust
     {
         // Bind the vertex shader (see FsQuad_vs.hlsl), no geometry shader, and the pixel shader supplied by inheritors or callers.
         // The vertex shader takes no cbuffers, resources or samplers.
-        deviceContext->VSSetShader(GetOrCreateVertexShader(), null, 0);
+        deviceContext->VSSetShader(VertexShader.GetOrCreateShader(), null, 0);
         deviceContext->GSSetShader(null, null, 0);
         BindPixelShader(width, height, deviceContext);
 
@@ -205,7 +154,7 @@ public class FullScreenQuad(byte[] pixelShaderBlob, string? description) : ICust
     protected virtual unsafe void BindPixelShader(uint width, uint height, ID3D11DeviceContext* deviceContext)
     {
         // This default implementation binds the pixel shader, with the resolution cbuffer at slot 0 (see FsQuad.hlsli).
-        deviceContext->PSSetShader(GetOrCreatePixelShader(), null, 0);
+        deviceContext->PSSetShader(PixelShader.GetOrCreateShader(), null, 0);
         var resolutionBuffer = GetOrCreateResolutionBuffer(width, height, deviceContext);
         deviceContext->PSSetConstantBuffers(0, 1, &resolutionBuffer);
     }
