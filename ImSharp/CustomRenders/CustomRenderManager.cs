@@ -506,6 +506,11 @@ public sealed class CustomRenderManager : IDisposable
             {
                 ViewDimension = D3D_SRV_DIMENSION.D3D11_SRV_DIMENSION_TEXTURE2D,
                 Format        = srvFormat,
+                Texture2D = new D3D11_TEX2D_SRV
+                {
+                    MostDetailedMip = 0,
+                    MipLevels       = 1,
+                },
             };
 
             fixed (Texture2D* pThis = &this)
