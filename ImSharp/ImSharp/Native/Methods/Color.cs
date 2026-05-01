@@ -42,7 +42,7 @@ public static partial class Im
 
                 [LibraryImport(Im.Version.CImGuiLibrary, EntryPoint = "igColorPicker4")]
                 [MethodImpl(ImSharpConfiguration.Inl)]
-                public static partial ImBool ColorPicker4(byte* label, float* color, ColorPickerFlags flags);
+                public static partial ImBool ColorPicker4(byte* label, float* color, ColorPickerFlags flags, float* referenceColor);
 
                 [LibraryImport(Im.Version.CImGuiLibrary, EntryPoint = "igColorButton")]
                 [MethodImpl(ImSharpConfiguration.Inl)]

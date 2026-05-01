@@ -62,6 +62,20 @@ public readonly record struct Rgba32(uint Color) : ISpanFormattable, IUtf8SpanFo
         : this(Im.Native.Methods.Color.ColorConvertFloat4ToU32(new ImVec4(color.X, color.Y, color.Z, 1f)).Color)
     { }
 
+    /// <summary> Convert byte values for colors into a single RGBA32 color. </summary>
+    [MethodImpl(ImSharpConfiguration.OptInl)]
+    [OverloadResolutionPriority(100)]
+    public Rgba32(byte r, byte g, byte b, byte a = 0xFF)
+        : this(r | ((uint) g << 8) | ((uint) b << 16) | ((uint) a << 24))
+    { }
+
+    /// <summary> Convert byte values for colors into a single RGBA32 color. </summary>
+    [MethodImpl(ImSharpConfiguration.OptInl)]
+    [OverloadResolutionPriority(50)]
+    public Rgba32(float r, float g, float b, float a = 1f)
+        : this(new Vector4(r, g, b, a))
+    { }
+
     /// <summary> The red-channel byte. </summary>
     public byte R
     {
@@ -137,6 +151,11 @@ public readonly record struct Rgba32(uint Color) : ISpanFormattable, IUtf8SpanFo
     [MethodImpl(ImSharpConfiguration.Inl)]
     public Rgba32 HalfTransparent()
         => (Color & 0x00FFFFFFu) | ((Color & 0xFE000000u) >> 1);
+
+    /// <summary> Get this color with specified alpha in [0, 1]. </summary>
+    [MethodImpl(ImSharpConfiguration.Inl)]
+    public Rgba32 WithAlpha(float alpha)
+        => (Color & 0x00FFFFFFu) | (uint)((byte)(Math.Clamp(alpha, 0, 1) * 0xFF) << 24);
 
     /// <summary> Obtain an approximation of the intensity of a color without taking into consideration the alpha value. </summary>
     /// <param name="color"> The color. </param>

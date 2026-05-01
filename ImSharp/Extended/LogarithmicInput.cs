@@ -24,14 +24,14 @@ public static partial class ImEx
         var size = new Vector2(Im.Style.FrameHeight);
         var ret  = false;
         Im.Line.SameInner();
-        if (Button("-"u8, size, isZero || isLimit ? StringU8.Empty : isOne ? "将值设置为零。"u8 : "将当前值减半。"u8, isZero || isLimit))
+        if (Button("-"u8, size, isZero || isLimit ? StringU8.Empty : isOne ? "将值设置为0。"u8 : "将当前值减半。"u8, isZero || isLimit))
         {
             outputValue = isOne ? T.AdditiveIdentity : input / (T.MultiplicativeIdentity + T.MultiplicativeIdentity);
             ret         = true;
         }
 
         Im.Line.SameInner();
-        if (Button("+"u8, size, isZero ? "将值设置为一。"u8 : "将当前值加倍。"u8))
+        if (Button("+"u8, size, isZero ? "将值设置为1."u8 : "将当前值加倍."u8))
         {
             outputValue = isZero ? T.MultiplicativeIdentity : input + input;
             ret         = true;
@@ -40,7 +40,7 @@ public static partial class ImEx
         if (lowerLimit.Equals(default))
         {
             Im.Line.SameInner();
-            if (Button("0"u8, size, isZero ? StringU8.Empty : "将值设置为零。"u8, isZero))
+            if (Button("0"u8, size, isZero ? StringU8.Empty : "将值设置为0."u8, isZero))
             {
                 outputValue = T.AdditiveIdentity;
                 ret         = true;

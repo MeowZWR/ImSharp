@@ -66,12 +66,32 @@ internal sealed class IconCheckbox<TIcon>(TIcon icon = default, Rgba32? color = 
 public static partial class ImEx
 {
     /// <inheritdoc cref="IconCheckbox{TIcon}.Draw(Utf8LabelHandler,TIcon,ref bool)"/>
+    [MethodImpl(ImSharpConfiguration.OptInl)]
     public static bool IconCheckbox<TIcon>(Utf8LabelHandler label, TIcon icon, ref bool value)
         where TIcon : unmanaged, IIconStandIn
         => ImSharp.IconCheckbox<TIcon>.Instance.Draw(label, icon, ref value);
 
     /// <inheritdoc cref="IconCheckbox{TIcon}.Draw(Utf8LabelHandler,TIcon,Rgba32,ref bool)"/>
+    [MethodImpl(ImSharpConfiguration.OptInl)]
     public static bool IconCheckbox<TIcon>(Utf8LabelHandler label, TIcon icon, Rgba32 color, ref bool value)
         where TIcon : unmanaged, IIconStandIn
         => ImSharp.IconCheckbox<TIcon>.Instance.Draw(label, icon, color, ref value);
+
+    /// <inheritdoc cref="IconCheckbox{TIcon}.Draw(Utf8LabelHandler,TIcon,ref bool)"/>
+    [MethodImpl(ImSharpConfiguration.OptInl)]
+    public static bool IconCheckbox<TIcon>(Utf8LabelHandler label, TIcon icon, bool value, out bool newValue)
+        where TIcon : unmanaged, IIconStandIn
+    {
+        newValue = value;
+        return ImSharp.IconCheckbox<TIcon>.Instance.Draw(label, icon, ref newValue);
+    }
+
+    /// <inheritdoc cref="IconCheckbox{TIcon}.Draw(Utf8LabelHandler,TIcon,Rgba32,ref bool)"/>
+    [MethodImpl(ImSharpConfiguration.OptInl)]
+    public static bool IconCheckbox<TIcon>(Utf8LabelHandler label, TIcon icon, Rgba32 color, bool value, out bool newValue)
+        where TIcon : unmanaged, IIconStandIn
+    {
+        newValue = value;
+        return ImSharp.IconCheckbox<TIcon>.Instance.Draw(label, icon, color, ref newValue);
+    }
 }

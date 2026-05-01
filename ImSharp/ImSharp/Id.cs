@@ -113,5 +113,10 @@ public static partial class Im
         [MethodImpl(ImSharpConfiguration.OptInl)]
         public static void ClearActive()
             => Native.Methods.Internal.ClearActiveId();
+
+        /// <summary> Set the currently active widget for the current window. </summary>
+        [MethodImpl(ImSharpConfiguration.OptInl)]
+        public static unsafe void SetActive(ImGuiId id)
+            => Native.Methods.Internal.SetActiveID(id, Window.Current.Pointer);
     }
 }

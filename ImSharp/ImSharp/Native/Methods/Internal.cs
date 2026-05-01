@@ -302,6 +302,10 @@ public static partial class Im
                 [LibraryImport(Version.CImGuiLibrary, EntryPoint = "igIsPopupOpen_ID")]
                 [MethodImpl(ImSharpConfiguration.Inl)]
                 public static partial ImBool IsPopupOpen(ImGuiId id, PopupQueryFlags flags);
+
+                [LibraryImport(Version.CImGuiLibrary, EntryPoint = "igColorTooltip")]
+                [MethodImpl(ImSharpConfiguration.Inl)]
+                public static partial void ColorTooltip(byte* text, float* color, ColorEditorFlags flags);
             }
         }
     }

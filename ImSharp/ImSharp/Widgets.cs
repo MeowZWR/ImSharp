@@ -36,6 +36,25 @@ public static partial class Im
     public static unsafe bool InvisibleButton(Utf8LabelHandler id, Vector2 size, ButtonFlags flags = ButtonFlags.None)
         => Native.Methods.Widgets.InvisibleButton(id.Start(), size, flags);
 
+    /// <summary> Draw a widget behaving like a button but without visuals. </summary>
+    /// <param name="id"> The id as text. If this is a UTF8 string, it HAS to be null-terminated. </param>
+    /// <param name="bounds"> The desired bounds for the button. </param>
+    /// <param name="flags"> Additional flags to control the button's behaviour. </param>
+    /// <returns> True if the button has been clicked in this frame. </returns>
+    public static bool InvisibleButton(Utf8LabelHandler id, Rectangle bounds, ButtonFlags flags = ButtonFlags.None)
+    {
+        var savedCursor = Cursor.ScreenPosition;
+        try
+        {
+            Cursor.ScreenPosition = bounds.Minimum;
+            return InvisibleButton(id, bounds.Size, flags);
+        }
+        finally
+        {
+            Cursor.ScreenPosition = savedCursor;
+        }
+    }
+
     /// <summary> Draw a square button with side-length <seealso cref="ImGuiStyle.FrameHeight"/> and an arrow shape. </summary>
     /// <param name="id"> The id as text. If this is a UTF8 string, it HAS to be null-terminated. </param>
     /// <param name="direction"> The direction of the arrow. </param>

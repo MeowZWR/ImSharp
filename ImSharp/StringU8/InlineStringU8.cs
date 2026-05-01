@@ -156,7 +156,7 @@ public struct InlineStringU8<TBacking>(TBacking value)
             return false;
 
         var bytes = this.AsReadOnlyBytes();
-        return other.SequenceEqual(bytes[..other.Length]) && (other.Length == sizeof(TBacking) || bytes[other.Length] == 0);
+        return other.SequenceEqual(bytes[..other.Length]) && (other.Length == sizeof(TBacking) || bytes[other.Length] is 0);
     }
 
     /// <summary>
@@ -171,7 +171,7 @@ public struct InlineStringU8<TBacking>(TBacking value)
             return false;
 
         var bytes = this.AsReadOnlyBytes();
-        return other.EqualsCaseInsensitive(bytes[..other.Length]) && (other.Length == sizeof(TBacking) || bytes[other.Length] == 0);
+        return other.EqualsCaseInsensitive(bytes[..other.Length]) && (other.Length == sizeof(TBacking) || bytes[other.Length] is 0);
     }
 
     /// <summary>
@@ -364,6 +364,12 @@ public struct InlineStringU8<TBacking>(TBacking value)
     public override readonly int GetHashCode()
         => Value.GetHashCode();
 
+    /// <summary> Get a (ASCII) case-insensitive hash for this string. </summary>
+    /// <returns> The hash. </returns>
+    [MethodImpl(ImSharpConfiguration.OptInl)]
+    public int GetCaseInsensitiveHashCode()
+        => Hashing.HashAsciiCaseInsensitive(this.AsReadOnlyBytes());
+
     /// <summary> Calculates the size this string will take up in pixels when drawn with the current font. </summary>
     /// <param name="hideTextAfterDashes"> Whether everything after the first ## is to be included or not. </param>
     /// <param name="wrapWidth"> The text wrap width to use for wrapping. 0 uses the current wrapping position, if any. </param>
@@ -491,7 +497,7 @@ public struct InlineStringU8<TBacking>(TBacking value)
         return new InlineStringU8<TBacking>(left.Value | (right.Value << (leftLength << 3)));
     }
 
-    public void operator +=(ReadOnlySpan<byte> other)
+    public void operator += (ReadOnlySpan<byte> other)
     {
         var length = Length;
         if (length + other.Length > Capacity)
@@ -501,7 +507,7 @@ public struct InlineStringU8<TBacking>(TBacking value)
         other.CopyTo(this.AsBytes()[length..]);
     }
 
-    public void operator +=(InlineStringU8<TBacking> other)
+    public void operator += (InlineStringU8<TBacking> other)
     {
         var length = Length;
         if (length + other.Length > Capacity)
@@ -566,4 +572,3 @@ public static class InlineStringU8Extensions
         }
     }
 }
-

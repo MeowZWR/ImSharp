@@ -177,6 +177,33 @@ public abstract class FilterComboBase<TCacheItem> : FilterComboBase
         return false;
     }
 
+    /// <summary> Attach a combo behavior to the last drawn item, without drawing the combo preview box. </summary>
+    /// <param name="label"> The label of the combo. If this is a UTF8 string, it HAS to be null-terminated. </param>
+    /// <param name="popupWidth"> The width of the combo popup. </param>
+    /// <param name="ret"> If true is returned, a newly selected item. </param>
+    /// <returns> True if a new item is selected by any means, false otherwise. </returns>
+    public virtual bool DrawBehavior(Utf8LabelHandler label, float popupWidth, [NotNullWhen(true)] out TCacheItem? ret)
+    {
+        // Push the ID and save it for this frame.
+        using var id = Im.Id.Push(ref label);
+        CurrentId = Im.Id.Current;
+
+        ImEx.SplitLabel(ref label, out _, out var idSeed);
+        var popupId     = Im.Id.Calculate("##ComboPopup"u8, idSeed);
+        var returnValue = HandleComboPopup(popupWidth, popupId, Im.Item.Bounds, out _, out ret!);
+        if (DrawMouseWheelHandling(out var ret2))
+        {
+            ret         = ret2;
+            returnValue = true;
+        }
+
+        if (returnValue)
+            return true;
+
+        ret = default;
+        return false;
+    }
+
     /// <summary> Draw the combo itself. </summary>
     /// <param name="label"> The label of the combo. If this is a UTF8 string, it HAS to be null-terminated. </param>
     /// <param name="preview"> The preview text displayed in the combo. If this is a UTF8 string, it HAS to be null-terminated. </param>
@@ -202,20 +229,39 @@ public abstract class FilterComboBase<TCacheItem> : FilterComboBase
             Im.Tooltip.OnHover(tooltipSpan, true);
         }
 
-        // If the combo is expanded, draw the filter and list.
-        if (Im.Popup.IsOpen(id))
-        {
-            SetPopupWindowSize(previewWidth);
-            style.PushX(ImStyleDouble.FramePadding, 0).Push(ImStyleDouble.WindowPadding, Vector2.Zero)
-                .Push(ImStyleSingle.PopupBorderThickness, Im.Style.GlobalScale);
-            using var popup = Im.Combo.DrawPopup(id, boundingBox, flags);
-            return DrawComboPopup(out ret);
-        }
+        var returnValue = HandleComboPopup(previewWidth, id, boundingBox, out var exit, out ret);
+        if (exit)
+            return returnValue;
 
         if (DirtyCacheOnClosingPopup)
             CacheManager.Instance.SetDirty(CurrentId);
 
         ret = default;
+        return false;
+    }
+
+    /// <summary> Draws the popup if it is open. </summary>
+    /// <param name="width"> The width of the combo popup. </param>
+    /// <param name="id"> The ID of the combo popup. </param>
+    /// <param name="boundingBox"> The screen-space bounds of the preview box. </param>
+    /// <param name="exit"> True if <see cref="DrawCombo"/> shall exit immediately after this function returns. </param>
+    /// <param name="ret"> If true is returned, a newly selected item. </param>
+    /// <returns> True if a new item is selected by any means, false otherwise. </returns>
+    protected virtual bool HandleComboPopup(float width, ImGuiId id, Rectangle boundingBox, out bool exit, [NotNullWhen(true)] out TCacheItem? ret)
+    {
+        // If the combo is expanded, draw the filter and list.
+        if (Im.Popup.IsOpen(id))
+        {
+            SetPopupWindowSize(width);
+            using var style = Im.Style.PushX(ImStyleDouble.FramePadding, 0).Push(ImStyleDouble.WindowPadding, Vector2.Zero)
+                .Push(ImStyleSingle.PopupBorderThickness, Im.Style.GlobalScale);
+            using var popup = Im.Combo.DrawPopup(id, boundingBox, Flags | ComboFlags.HeightLarge);
+            exit = true;
+            return DrawComboPopup(out ret);
+        }
+
+        ret  = default;
+        exit = false;
         return false;
     }
 

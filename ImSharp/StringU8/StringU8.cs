@@ -1,5 +1,3 @@
-using System.IO.Hashing;
-
 namespace ImSharp;
 
 /// <summary> An UTF8 string container that is not a ref-struct and is guaranteed to be null-terminated. </summary>
@@ -336,7 +334,13 @@ public readonly partial struct StringU8 : IReadOnlyList<byte>, IEquatable<String
     /// <inheritdoc/>
     [MethodImpl(ImSharpConfiguration.OptInl)]
     public override int GetHashCode()
-        => (int)Crc32.HashToUInt32(Span);
+        => Hashing.HashCaseSensitive(Span);
+
+    /// <summary> Get a (ASCII) case-insensitive hash for this string. </summary>
+    /// <returns> The hash. </returns>
+    [MethodImpl(ImSharpConfiguration.OptInl)]
+    public int GetCaseInsensitiveHashCode()
+        => Hashing.HashAsciiCaseInsensitive(Span);
 
     [MethodImpl(ImSharpConfiguration.OptInl)]
     private static ReadOnlyMemory<byte> AddNull(ReadOnlySpan<byte> data)

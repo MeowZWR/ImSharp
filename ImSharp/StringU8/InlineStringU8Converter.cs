@@ -1,5 +1,6 @@
 using System.Text.Json;
 #if HAS_NEWTONSOFT
+using Newtonsoft.Json;
 using JsonSerializer = Newtonsoft.Json.JsonSerializer;
 #endif
 
