@@ -76,6 +76,12 @@ public sealed class CustomRenderManager : IDisposable
     /// <param name="device"> The device. </param>
     public unsafe void SetDevice(nint device)
     {
+        if (device is 0)
+        {
+            Release(ref _device);
+            return;
+        }
+
         var           deviceUnk = (IUnknown*)device;
         ID3D11Device* newDevice;
         Marshal.ThrowExceptionForHR(deviceUnk->QueryInterface((Guid*)Unsafe.AsPointer(in IID.IID_ID3D11Device), (void**)&newDevice));
