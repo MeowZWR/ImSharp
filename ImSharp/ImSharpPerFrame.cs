@@ -5,11 +5,17 @@ namespace ImSharp;
 public static unsafe class ImSharpPerFrame
 {
     internal static Action? Update;
+    private static  int     _frameRan;
 
     public static void OnUpdate()
     {
+        var context = Im.ImGuiContext.Get().Pointer;
+        if (context is null || _frameRan == context->FrameCount)
+            return;
+
+        _frameRan         = context->FrameCount;
+        Im.ContextPointer = context;
         Im.StylePointer   = Im.ImGuiStyle.Get().Pointer;
-        Im.ContextPointer = Im.ImGuiContext.Get().Pointer;
         Im.IoPointer      = Im.InputOutput.Get().Pointer;
 
         // Reset the temporary frame storage every frame.
