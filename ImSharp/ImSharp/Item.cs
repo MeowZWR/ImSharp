@@ -70,6 +70,13 @@ public static partial class Im
             get => Native.Methods.Items.IsItemDeactivatedAfterEdit();
         }
 
+        /// <summary> Draw a widget behaving like a button but without visuals on top of the last drawn item. </summary>
+        /// <param name="id"> The id as text. If this is a UTF8 string, it HAS to be null-terminated. </param>
+        /// <param name="flags"> Additional flags to control the button's behaviour. </param>
+        /// <returns> True if the button has been clicked in this frame. </returns>
+        public static bool InvisibleButton(Utf8LabelHandler id, ButtonFlags flags = ButtonFlags.None)
+            => Im.InvisibleButton(id, Bounds, flags);
+
         /// <summary> Get whether the last drawn item has been clicked in this frame. </summary>
         /// <param name="button"> The button for which to check. </param>
         /// <returns> True if the item has been clicked with <paramref name="button"/>. </returns>
