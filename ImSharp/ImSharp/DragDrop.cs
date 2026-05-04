@@ -15,6 +15,10 @@ public static partial class Im
         public static DragDropTargetDisposable Target()
             => new(true);
 
+        /// <inheritdoc cref="DragDropTargetDisposable(bool,bool,bool)"/>
+        public static DragDropTargetDisposable TargetUnclipped()
+            => new(true, true, true, true);
+
         /// <inheritdoc cref="DragDropTargetDisposable(bool,bool)"/>
         public static DragDropTargetDisposable TargetViewport()
             => new(true, true);
