@@ -3,7 +3,7 @@ namespace ImSharp;
 /// <summary> A text string encoded both in UTF16 and UTF8. </summary>
 /// <param name="utf16"> The UTF16-encoded string, or null if it is lazily computed from <paramref name="utf8"/>. </param>
 /// <param name="utf8"> The UTF8-encoded string, or <seealso cref="StringU8.Null"/> if it is lazily computed from <paramref name="utf16"/>. </param>
-public struct StringPair(string? utf16, StringU8 utf8)
+public struct StringPair(string? utf16, StringU8 utf8) : ISpanFormattable, IUtf8SpanFormattable
 {
     private string? _utf16 = utf16;
 
@@ -86,4 +86,30 @@ public struct StringPair(string? utf16, StringU8 utf8)
 
     public static implicit operator ReadOnlySpan<byte>(StringPair p)
         => p.Utf8;
+
+    /// <inheritdoc/>
+    public string ToString(string? format, IFormatProvider? formatProvider)
+        => Utf16;
+
+    /// <inheritdoc/>
+    public bool TryFormat(Span<char> destination, out int charsWritten, ReadOnlySpan<char> format, IFormatProvider? provider)
+    {
+        if (Utf16.Length > destination.Length)
+        {
+            charsWritten = 0;
+            return false;
+        }
+
+        Utf16.CopyTo(destination);
+        charsWritten = Utf16.Length;
+        return true;
+    }
+
+    /// <inheritdoc/>
+    public bool TryFormat(Span<byte> destination, out int bytesWritten, ReadOnlySpan<char> format, IFormatProvider? provider)
+        => Utf8.TryFormat(destination, out bytesWritten, format, provider);
+
+    /// <inheritdoc/>
+    public override string ToString()
+        => Utf16;
 }
