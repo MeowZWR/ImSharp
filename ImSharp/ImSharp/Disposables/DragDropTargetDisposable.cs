@@ -51,6 +51,18 @@ public static partial class Im
                 WindowTarget = true;
         }
 
+        /// <summary> Open a new Drag and Drop target on the last item and close it on leaving scope. Use this if the item bound rectangle leaves the window. </summary>
+        /// <returns> A disposable object that indicates whether the target is active. Use with using. </returns>
+        /// <remarks> You can use the returned object to check for a specific payload dropping with <see cref="IsDropping(Utf8LabelHandler,DragDropTargetFlags)"/>. </remarks>
+        [MethodImpl(ImSharpConfiguration.OptInl)]
+        internal DragDropTargetDisposable(bool _, bool _2, bool _3, bool _4)
+        {
+            Success = Native.Methods.DragDrop.BeginDragDropTarget();
+            Alive   = true;
+            if (Success)
+                WindowTarget = true;
+        }
+
         /// <remarks> This is copied from a new method implemented in imgui as of october 2025. </remarks>
         [MethodImpl(ImSharpConfiguration.OptInl)]
         private static bool BeginDragDropTargetViewport(Viewport viewport)
