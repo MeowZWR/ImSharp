@@ -218,7 +218,7 @@ public abstract class FilterComboBase<TCacheItem> : FilterComboBase
         // Draw the combo itself.
         PreDrawCombo(previewWidth);
         Im.Item.SetNextWidth(previewWidth);
-        var flags = Flags | ComboFlags.HeightLarge;
+        var flags = Flags.CheckAny(ComboFlags.HeightMask) ? Flags : Flags | ComboFlags.HeightLarge;
         Im.Combo.DrawPreview(label, preview, out var id, out var boundingBox, flags, PreviewAlignment);
         PostDrawCombo(previewWidth);
 
