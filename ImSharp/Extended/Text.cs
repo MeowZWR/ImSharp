@@ -54,6 +54,18 @@ public static partial class ImEx
     /// <summary> Draw a label for the prior item, aligned to frame and offset by inner item spacing. </summary>
     /// <param name="text"> The given text. Does not have to be null-terminated. Will stop at the first occurence of '##'. </param>
     [MethodImpl(ImSharpConfiguration.Inl)]
+    public static void TextLabel(Utf8LabelHandler text)
+    {
+        Im.Line.SameInner();
+        Im.Cursor.FrameAlign();
+        if (VisibleLabel(ref text, out var visible))
+            Im.Text(visible);
+        else
+            Im.Text(""u8);
+    }
+
+    /// <inheritdoc cref="TextLabel"/>
+    [MethodImpl(ImSharpConfiguration.Inl)]
     public static void TextLabel<T>(ref Utf8StringHandler<T> text) where T : IStringHandlerBuffer
     {
         Im.Line.SameInner();

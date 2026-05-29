@@ -103,12 +103,15 @@ public static class TreeLine
             // For any item that has a non-zero depth, we need to draw a horizontal line.
             if (currentDepth is not 0)
             {
+                var parent = list[item.ParentIndex];
                 // Start point is the right-most point of the line,
                 // and we go back according to the indentation difference, which ~should~ always be 1.
                 var start = Im.Cursor.ScreenPosition + horizontalOffset;
-                var diff  = currentDepth - list[item.ParentIndex].IndentationDepth;
-                var end   = start with { X = start.X - diff * indentationWidth + lineOffset.X };
-                drawList.Line(start, end, lineColor, lineWidth);
+                var diff = parent.StartsLineTo >= 0
+                    ? currentDepth - list[item.ParentIndex].IndentationDepth
+                    : 1;
+                var end = start with { X = start.X - diff * indentationWidth + lineOffset.X };
+                drawList.Line(start, end,                            lineColor, lineWidth);
             }
 
             // If this node starts a line, draw it. 
