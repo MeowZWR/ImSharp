@@ -123,7 +123,8 @@ public static partial class Im
             Render.FrameBorder(boundingBox, default, Style.FrameRounding);
 
             if (hasPreview && preview.Start(out var end) - end < 0)
-                drawList.TextClipped(boundingBox.Minimum + Style.FramePadding, boundingBox.Maximum with { X = arrowEnd }, ref preview, null, alignment);
+                drawList.TextClipped(boundingBox.Minimum + Style.FramePadding, boundingBox.Maximum with { X = arrowEnd }, ref preview, null,
+                    alignment);
 
             if (labelSize.X > 0)
                 drawList.Text(new Vector2(boundingBox.Maximum.X + Style.ItemInnerSpacing.X, boundingBox.Minimum.Y + Style.FramePadding.Y),
@@ -225,6 +226,40 @@ public static partial class Im
                     currentValue = value;
                     ret          = true;
                 }
+            }
+
+            return ret;
+        }
+
+        /// <summary> Draw a combo over all valid entries for an Enum type using a custom string function for names. </summary>
+        /// <typeparam name="T"> The Enum type. </typeparam>
+        /// <param name="label"> The combo label as text. If this is a UTF8 string, it HAS to be null-terminated. </param>
+        /// <param name="currentValue"> The currently selected value used for the preview string and highlighting the item. </param>
+        /// <param name="toName"> The method converting the enum value to a UTF8 label string. </param>
+        /// <param name="toTooltip"> The method converting the enum value to a UTF8 tooltip string. </param>
+        /// <param name="flags"> Flags controlling the behavior of the combo. </param>
+        /// <returns> True if a new item was selected in this frame, in which case <paramref name="currentValue"/> will have changed. </returns>
+        [MethodImpl(ImSharpConfiguration.Opt)]
+        public static bool DrawEnum<T>(Utf8LabelHandler label, ref T currentValue, Func<T, StringU8> toName, Func<T, StringU8> toTooltip,
+            ComboFlags flags = ComboFlags.None) where T : unmanaged, Enum
+        {
+            var       handler = (Utf8TextHandler)toName(currentValue);
+            using var combo   = new ComboDisposable(ref label, ref handler, flags);
+            if (!combo)
+                return false;
+
+            var ret = false;
+
+            foreach (var value in EnumExtensions.get_Values<T>())
+            {
+                var equal = EqualityComparer<T>.Default.Equals(value, currentValue);
+                if (Selectable(toName(value), equal) && !equal)
+                {
+                    currentValue = value;
+                    ret          = true;
+                }
+
+                Tooltip.OnHover(toTooltip(value));
             }
 
             return ret;
