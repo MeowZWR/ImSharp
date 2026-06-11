@@ -43,7 +43,7 @@ public static partial class Im
         public TextureData GetTextureDataAsAlpha8()
         {
             var ret = new TextureData();
-            Native.ImFontAtlas.GetTexDataAsAlpha8(Pointer, (byte**)&ret.PixelData, &ret.Width, &ret.Height, &ret.BytesPerPixel);
+            Native.ImFontAtlas.GetTexDataAsAlpha8(Pointer, 0, (byte**)&ret.PixelData, &ret.Width, &ret.Height, &ret.BytesPerPixel);
             return ret;
         }
 
@@ -54,7 +54,7 @@ public static partial class Im
         public TextureData GetTextureDataAsRgba32()
         {
             var ret = new TextureData();
-            Native.ImFontAtlas.GetTexDataAsRgba32(Pointer, (byte**)&ret.PixelData, &ret.Width, &ret.Height, &ret.BytesPerPixel);
+            Native.ImFontAtlas.GetTexDataAsRgba32(Pointer, 0, (byte**)&ret.PixelData, &ret.Width, &ret.Height, &ret.BytesPerPixel);
             return ret;
         }
 

@@ -5,7 +5,7 @@ namespace ImSharp;
 public static unsafe class ImSharpPerFrame
 {
     internal static Action? Update;
-    private static  int     _frameRan;
+    private static  int     _frameRan = -1;
 
     public static void OnUpdate()
     {
