@@ -47,7 +47,7 @@ public static partial class Im
 
             [MethodImpl(ImSharpConfiguration.Inl)]
             [LibraryImport(Version.CImGuiLibrary, EntryPoint = "ImFontAtlas_SetTexID")]
-            public static partial void SetTexId(ImFontAtlas* self, ImTextureId id);
+            public static partial void SetTexId(ImFontAtlas* self, int textureIndex, ImTextureId id);
 
             [MethodImpl(ImSharpConfiguration.Inl)]
             [LibraryImport(Version.CImGuiLibrary, EntryPoint = "ImFontAtlas_GetTexDataAsAlpha8")]

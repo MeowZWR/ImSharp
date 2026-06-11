@@ -27,9 +27,10 @@ public static partial class Im
 
         /// <summary> Set the texture ID for the font atlas. </summary>
         /// <param name="id"> The desired texture ID from the graphics API. </param>
+        /// <param name="textureIndex"> The index for the texture to set. </param>
         [MethodImpl(ImSharpConfiguration.OptInl)]
-        public void SetTexId(ImTextureId id)
-            => Native.ImFontAtlas.SetTexId(Pointer, id);
+        public void SetTexId(ImTextureId id, int textureIndex = 0)
+            => Native.ImFontAtlas.SetTexId(Pointer, textureIndex, id);
 
         /// <summary> Build the font atlas. </summary>
         [MethodImpl(ImSharpConfiguration.OptInl)]
@@ -40,10 +41,10 @@ public static partial class Im
         /// <returns> The texture data. </returns>
         /// <remarks> 1 byte per pixel. </remarks>
         [MethodImpl(ImSharpConfiguration.OptInl)]
-        public TextureData GetTextureDataAsAlpha8()
+        public TextureData GetTextureDataAsAlpha8(int textureIndex = 0)
         {
             var ret = new TextureData();
-            Native.ImFontAtlas.GetTexDataAsAlpha8(Pointer, 0, (byte**)&ret.PixelData, &ret.Width, &ret.Height, &ret.BytesPerPixel);
+            Native.ImFontAtlas.GetTexDataAsAlpha8(Pointer, textureIndex, (byte**)&ret.PixelData, &ret.Width, &ret.Height, &ret.BytesPerPixel);
             return ret;
         }
 
@@ -51,10 +52,10 @@ public static partial class Im
         /// <returns> The texture data. </returns>
         /// <remarks> 4 bytes per pixel. Usually 75% wasted, prefer <seealso cref="GetTextureDataAsAlpha8"/>. </remarks>
         [MethodImpl(ImSharpConfiguration.OptInl)]
-        public TextureData GetTextureDataAsRgba32()
+        public TextureData GetTextureDataAsRgba32(int textureIndex = 0)
         {
             var ret = new TextureData();
-            Native.ImFontAtlas.GetTexDataAsRgba32(Pointer, 0, (byte**)&ret.PixelData, &ret.Width, &ret.Height, &ret.BytesPerPixel);
+            Native.ImFontAtlas.GetTexDataAsRgba32(Pointer, textureIndex, (byte**)&ret.PixelData, &ret.Width, &ret.Height, &ret.BytesPerPixel);
             return ret;
         }
 
