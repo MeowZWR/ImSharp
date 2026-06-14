@@ -5,7 +5,7 @@ public static partial class ImNodes
 {
     /// <summary> A wrapper around ImNodes style pushing. </summary>
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public ref struct StyleDisposable : IDisposable
+    public sealed class StyleDisposable : IDisposable
     {
         /// <summary> The number of ImNodes styles currently pushed using this disposable. </summary>
         public int Count { get; private set; }
@@ -77,11 +77,12 @@ public static partial class ImNodes
         /// <summary> Pop a number of ImNodes style variables. </summary>
         /// <param name="num"> The number of style variables to pop. This is clamped to the number of style variables pushed by this object. </param>
         [MethodImpl(ImSharpConfiguration.OptInl)]
-        public void Pop(int num = 1)
+        public StyleDisposable Pop(int num = 1)
         {
             num   =  Math.Min(num, Count);
             Count -= num;
             Native.Methods.Stacks.PopStyle(num);
+            return this;
         }
 
         /// <summary> Pop all pushed styles. </summary>

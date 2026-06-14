@@ -5,7 +5,7 @@ public static partial class ImNodes
 {
     /// <summary> A wrapper around ImNodes attribute flag pushing. </summary>
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public ref struct AttributeFlagDisposable : IDisposable
+    public sealed class AttributeFlagDisposable : IDisposable
     {
         /// <summary> The number of ImNodes attribute flags currently pushed using this disposable. </summary>
         public int Count { get; private set; }

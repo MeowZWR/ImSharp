@@ -5,7 +5,7 @@ public static partial class ImNodes
 {
     /// <summary> A custom node editor context and related static functions. </summary>
     /// <remarks> The non-static functionality of this class should usually not be required. Any node editor creates its own context implicitly. </remarks>
-    public unsafe class EditorContext : IDisposable
+    public sealed unsafe class EditorContext : IDisposable
     {
         /// <summary> The address of the native object. </summary>
         public Native.Internal.EditorContext* Pointer { get; private set; } = Native.Methods.Editor.Create();

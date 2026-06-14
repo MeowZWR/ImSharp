@@ -186,6 +186,11 @@ public static partial class ImNodes
             get => Pointer->Colors[(int)color];
         }
 
+        /// <summary> Create a new, empty <see cref="StyleDisposable"/> to push colors to. </summary>
+        [MethodImpl(ImSharpConfiguration.OptInl)]
+        public StyleDisposable Empty()
+            => new();
+
         /// <inheritdoc cref="StyleDisposable.Push(ImNodesStyleSingle,float)"/>
         public StyleDisposable Push(ImNodesStyleSingle type, float value)
             => new StyleDisposable().Push(type, value);

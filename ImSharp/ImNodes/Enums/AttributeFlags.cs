@@ -11,7 +11,7 @@ public enum AttributeFlags : uint
     /// <summary> Allow detaching a link by left-clicking and dragging the link at a pin it is connected to. </summary>
     /// <remarks>
     /// The user has to actually delete the link for this to work. A deleted link can be
-    /// detected by calling <seealso cref="ImNodes.Link.LinkDestroyed"/> after disposing <seealso cref="NodeEditorDisposable"/>.
+    /// detected by calling <seealso cref="ImNodes.Link.LinkDestroyed"/> after disposing <seealso cref="ImNodes.NodeEditorDisposable"/>.
     /// </remarks>
     EnableLinkDetachWithDragClick = 1 << 0,
 
@@ -21,8 +21,24 @@ public enum AttributeFlags : uint
     /// </summary>
     /// <remarks>
     /// The user has to actually delete the link for this to work. A deleted link can be
-    /// detected by calling <seealso cref="ImNodes.Link.LinkDestroyed"/> after disposing <seealso cref="NodeEditorDisposable"/>.
+    /// detected by calling <seealso cref="ImNodes.Link.LinkDestroyed"/> after disposing <seealso cref="ImNodes.NodeEditorDisposable"/>.
     /// </remarks>
     EnableLinkCreationOnSnap = 1 << 1,
+}
+
+public static class AttributeFlagsExtensions
+{
+    extension(AttributeFlags flag)
+    {
+        /// <inheritdoc cref="ImNodes.AttributeFlagDisposable.Push(AttributeFlags)"/>
+        [MethodImpl(ImSharpConfiguration.OptInl)]
+        public ImNodes.AttributeFlagDisposable Push()
+            => new ImNodes.AttributeFlagDisposable().Push(flag);
+
+        /// <inheritdoc cref="ImNodes.AttributeFlagDisposable.Push(AttributeFlags,bool)"/>
+        [MethodImpl(ImSharpConfiguration.OptInl)]
+        public ImNodes.AttributeFlagDisposable Push(bool condition)
+            => condition ? new ImNodes.AttributeFlagDisposable().Push(flag) : new ImNodes.AttributeFlagDisposable();
+    }
 }
 #endif

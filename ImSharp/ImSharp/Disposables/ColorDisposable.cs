@@ -70,7 +70,7 @@ public static partial class Im
         [MethodImpl(ImSharpConfiguration.OptInl)]
         public ColorDisposable Pop(int num = 1)
         {
-            num   =  Math.Min(num, Count);
+            num = Math.Min(num, Count);
             if (num > 0)
             {
                 Count -= num;

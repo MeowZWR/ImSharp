@@ -96,19 +96,22 @@ public static class ImNodesColorExtensions
 {
     public const int NumColors = 28;
 
-    /// <inheritdoc cref="ImNodes.ImNodes.ColorDisposableNodesColor,Rgba32,bool)"/>
-    [MethodImpl(ImSharpConfiguration.OptInl)]
-    public static ImNodes.ColorDisposable Push(this ImNodesColor type, Rgba32 color, bool condition)
-        => new ImNodes.ColorDisposable().Push(type, color, condition);
+    extension(ImNodesColor type)
+    {
+        /// <inheritdoc cref="ImNodes.ColorDisposable.Push(ImNodesColor,Rgba32,bool)"/>
+        [MethodImpl(ImSharpConfiguration.OptInl)]
+        public ImNodes.ColorDisposable Push(Rgba32 color, bool condition)
+            => new ImNodes.ColorDisposable().Push(type, color, condition);
 
-    /// <inheritdoc cref="ImNodes.ImNodes.ColorDisposableNodesColor,Rgba32?)"/>
-    [MethodImpl(ImSharpConfiguration.OptInl)]
-    public static ImNodes.ColorDisposable Push(this ImNodesColor type, Rgba32? color)
-        => new ImNodes.ColorDisposable().Push(type, color);
+        /// <inheritdoc cref="ImNodes.ColorDisposable.Push(ImNodesColor,ColorParameter)"/>
+        [MethodImpl(ImSharpConfiguration.OptInl)]
+        public ImNodes.ColorDisposable Push(ColorParameter color)
+            => color.IsDefault ? new ImNodes.ColorDisposable() : new ImNodes.ColorDisposable().Push(type, color.Color!.Value);
 
-    /// <inheritdoc cref="ImNodes.ImNodes.ColorDisposableNodesColor,Rgba32)"/>
-    [MethodImpl(ImSharpConfiguration.OptInl)]
-    public static ImNodes.ColorDisposable Push(this ImNodesColor type, Rgba32 color)
-        => new ImNodes.ColorDisposable().Push(type, color);
+        /// <inheritdoc cref="ImNodes.ColorDisposable.Push(ImNodesColor,Rgba32)"/>
+        [MethodImpl(ImSharpConfiguration.OptInl)]
+        public ImNodes.ColorDisposable Push(Rgba32 color)
+            => new ImNodes.ColorDisposable().Push(type, color);
+    }
 }
 #endif

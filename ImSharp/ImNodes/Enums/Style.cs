@@ -56,45 +56,51 @@ public enum ImNodesStyleDouble : uint
 
 public static class ImNodesStyleExtensions
 {
-    /// <inheritdoc cref="ImNodes.StyleDisposable.Push(ImNodesStyleSingle,float,bool)"/>
-    [MethodImpl(ImSharpConfiguration.OptInl)]
-    public static ImNodes.StyleDisposable Push(this ImNodesStyleSingle type, float value, bool condition)
-        => new ImNodes.StyleDisposable().Push(type, value, condition);
+    extension(ImNodesStyleSingle type)
+    {
+        /// <inheritdoc cref="ImNodes.StyleDisposable.Push(ImNodesStyleSingle,float,bool)"/>
+        [MethodImpl(ImSharpConfiguration.OptInl)]
+        public ImNodes.StyleDisposable Push(float value, bool condition)
+            => condition ? new ImNodes.StyleDisposable() : new ImNodes.StyleDisposable().Push(type, value);
 
-    /// <inheritdoc cref="ImNodes.StyleDisposable.Push(ImNodesStyleSingle,float)"/>
-    [MethodImpl(ImSharpConfiguration.OptInl)]
-    public static ImNodes.StyleDisposable Push(this ImNodesStyleSingle type, float value)
-        => new ImNodes.StyleDisposable().Push(type, value);
+        /// <inheritdoc cref="ImNodes.StyleDisposable.Push(ImNodesStyleSingle,float)"/>
+        [MethodImpl(ImSharpConfiguration.OptInl)]
+        public ImNodes.StyleDisposable Push(float value)
+            => new ImNodes.StyleDisposable().Push(type, value);
+    }
 
-    /// <inheritdoc cref="ImNodes.StyleDisposable.Push(ImNodesStyleDouble,Vector2,bool)"/>
-    [MethodImpl(ImSharpConfiguration.OptInl)]
-    public static ImNodes.StyleDisposable Push(this ImNodesStyleDouble type, Vector2 value, bool condition)
-        => new ImNodes.StyleDisposable().Push(type, value, condition);
+    extension(ImNodesStyleDouble type)
+    {
+        /// <inheritdoc cref="ImNodes.StyleDisposable.Push(ImNodesStyleDouble,Vector2,bool)"/>
+        [MethodImpl(ImSharpConfiguration.OptInl)]
+        public ImNodes.StyleDisposable Push(Vector2 value, bool condition)
+            => condition ? new ImNodes.StyleDisposable() : new ImNodes.StyleDisposable().Push(type, value);
 
-    /// <inheritdoc cref="ImNodes.StyleDisposable.Push(ImNodesStyleDouble,Vector2)"/>
-    [MethodImpl(ImSharpConfiguration.OptInl)]
-    public static ImNodes.StyleDisposable Push(this ImNodesStyleDouble type, Vector2 value)
-        => new ImNodes.StyleDisposable().Push(type, value);
+        /// <inheritdoc cref="ImNodes.StyleDisposable.Push(ImNodesStyleDouble,Vector2)"/>
+        [MethodImpl(ImSharpConfiguration.OptInl)]
+        public ImNodes.StyleDisposable Push(Vector2 value)
+            => new ImNodes.StyleDisposable().Push(type, value);
 
-    /// <inheritdoc cref="ImNodes.StyleDisposable.PushX(ImNodesStyleDouble,float,bool)"/>
-    [MethodImpl(ImSharpConfiguration.OptInl)]
-    public static ImNodes.StyleDisposable PushX(this ImNodesStyleDouble type, float value, bool condition)
-        => new ImNodes.StyleDisposable().PushX(type, value, condition);
+        /// <inheritdoc cref="ImNodes.StyleDisposable.PushX(ImNodesStyleDouble,float,bool)"/>
+        [MethodImpl(ImSharpConfiguration.OptInl)]
+        public ImNodes.StyleDisposable PushX(float value, bool condition)
+            => condition ? new ImNodes.StyleDisposable() : new ImNodes.StyleDisposable().PushX(type, value);
 
-    /// <inheritdoc cref="ImNodes.StyleDisposable.PushX(ImNodesStyleDouble,float)"/>
-    [MethodImpl(ImSharpConfiguration.OptInl)]
-    public static ImNodes.StyleDisposable PushX(this ImNodesStyleDouble type, float value)
-        => new ImNodes.StyleDisposable().PushX(type, value);
+        /// <inheritdoc cref="ImNodes.StyleDisposable.PushX(ImNodesStyleDouble,float)"/>
+        [MethodImpl(ImSharpConfiguration.OptInl)]
+        public ImNodes.StyleDisposable PushX(float value)
+            => new ImNodes.StyleDisposable().PushX(type, value);
 
-    /// <inheritdoc cref="ImNodes.StyleDisposable.PushY(ImNodesStyleDouble,float,bool)"/>
-    [MethodImpl(ImSharpConfiguration.OptInl)]
-    public static ImNodes.StyleDisposable PushY(this ImNodesStyleDouble type, float value, bool condition)
-        => new ImNodes.StyleDisposable().PushY(type, value, condition);
+        /// <inheritdoc cref="ImNodes.StyleDisposable.PushY(ImNodesStyleDouble,float,bool)"/>
+        [MethodImpl(ImSharpConfiguration.OptInl)]
+        public ImNodes.StyleDisposable PushY(float value, bool condition)
+            => condition ? new ImNodes.StyleDisposable() : new ImNodes.StyleDisposable().PushY(type, value);
 
-    /// <inheritdoc cref="ImNodes.StyleDisposable.PushY(ImNodesStyleDouble,float)"/>
-    [MethodImpl(ImSharpConfiguration.OptInl)]
-    public static ImNodes.StyleDisposable PushY(this ImNodesStyleDouble type, float value)
-        => new ImNodes.StyleDisposable().PushY(type, value);
+        /// <inheritdoc cref="ImNodes.StyleDisposable.PushY(ImNodesStyleDouble,float)"/>
+        [MethodImpl(ImSharpConfiguration.OptInl)]
+        public ImNodes.StyleDisposable PushY(float value)
+            => new ImNodes.StyleDisposable().PushY(type, value);
+    }
 }
 
 #endif

@@ -4,7 +4,7 @@ public static partial class Im
 {
     /// <summary> A wrapper around ID pushing. </summary>
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public unsafe sealed class IdDisposable : IDisposable
+    public sealed unsafe class IdDisposable : IDisposable
     {
         /// <summary> The number of IDs currently pushed using this disposable. </summary>
         public int Count { get; private set; }

@@ -5,6 +5,11 @@ public static partial class Im
     /// <summary> A wrapper class for color-related queries and actions. </summary>
     public static class Color
     {
+        /// <summary> Create a new, empty <see cref="ColorDisposable"/> to push colors to. </summary>
+        [MethodImpl(ImSharpConfiguration.OptInl)]
+        public static ColorDisposable Empty()
+            => new();
+
         /// <summary> Draw an editing panel for a given RGB color. </summary>
         /// <param name="label"> The color editor label as text. If this is a UTF8 string, it HAS to be null-terminated. </param>
         /// <param name="color"> The input / output color value. </param>
