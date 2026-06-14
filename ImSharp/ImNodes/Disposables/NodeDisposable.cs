@@ -5,7 +5,7 @@ public static partial class ImNodes
 {
     /// <summary> A wrapper around ImNodes nodes. </summary>
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public ref struct NodeDisposable : IDisposable
+    public unsafe ref struct NodeDisposable : IDisposable
     {
         /// <summary> The unique ID of the node. </summary>
         public readonly NodeId Id;
@@ -51,14 +51,24 @@ public static partial class ImNodes
         public readonly Vector2 Dimensions
         {
             [MethodImpl(ImSharpConfiguration.OptInl)]
-            get => Native.Methods.Node.GetNodeDimensions(Id);
+            get
+            {
+                ImVec2 ret;
+                Native.Methods.Node.GetNodeDimensions(&ret, Id);
+                return ret;
+            }
         }
 
         /// <summary> Get or set the position of this node in the screen space coordinate system, i.e. relative to the upper left corner of the containing window. </summary>
         public readonly Vector2 ScreenSpacePosition
         {
             [MethodImpl(ImSharpConfiguration.OptInl)]
-            get => Native.Methods.Node.GetNodeScreenSpacePos(Id);
+            get
+            {
+                ImVec2 ret;
+                Native.Methods.Node.GetNodeScreenSpacePos(&ret, Id);
+                return ret;
+            }
             [MethodImpl(ImSharpConfiguration.OptInl)]
             set => Native.Methods.Node.SetNodeScreenSpacePos(Id, value);
         }
@@ -67,7 +77,12 @@ public static partial class ImNodes
         public readonly Vector2 EditorSpacePosition
         {
             [MethodImpl(ImSharpConfiguration.OptInl)]
-            get => Native.Methods.Node.GetNodeEditorSpacePos(Id);
+            get
+            {
+                ImVec2 ret;
+                Native.Methods.Node.GetNodeEditorSpacePos(&ret, Id);
+                return ret;
+            }
             [MethodImpl(ImSharpConfiguration.OptInl)]
             set => Native.Methods.Node.SetNodeEditorSpacePos(Id, value);
         }
@@ -76,7 +91,12 @@ public static partial class ImNodes
         public readonly Vector2 GridSpacePosition
         {
             [MethodImpl(ImSharpConfiguration.OptInl)]
-            get => Native.Methods.Node.GetNodeGridSpacePos(Id);
+            get
+            {
+                ImVec2 ret;
+                Native.Methods.Node.GetNodeGridSpacePos(&ret, Id);
+                return ret;
+            }
             [MethodImpl(ImSharpConfiguration.OptInl)]
             set => Native.Methods.Node.SetNodeGridSpacePos(Id, value);
         }

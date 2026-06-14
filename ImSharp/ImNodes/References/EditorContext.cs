@@ -109,7 +109,12 @@ public static partial class ImNodes
         public static Vector2 Panning
         {
             [MethodImpl(ImSharpConfiguration.OptInl)]
-            get => Native.Methods.Editor.GetPanning();
+            get
+            {
+                ImVec2 ret;
+                Native.Methods.Editor.GetPanning(&ret);
+                return ret;
+            }
             [MethodImpl(ImSharpConfiguration.OptInl)]
             set => Native.Methods.Editor.ResetPanning(value);
         }
