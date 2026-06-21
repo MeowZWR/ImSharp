@@ -1,23 +1,22 @@
-#if IMNODES
 namespace ImSharp.ImNodes;
 
 public static partial class ImNodes
 {
     /// <summary> A writable reference to style data for ImNodes. </summary>
     /// <param name="pointer"> The native pointer to the style. </param>
-    public readonly unsafe ref struct ImNodesStyleWritable(Native.Style* pointer)
+    public readonly unsafe ref struct ImNodesStyleWritable(Internal.Style* pointer)
     {
         /// <summary> The address of the native object. </summary>
-        public readonly Native.Style* Pointer = pointer;
+        public readonly Internal.Style* Pointer = pointer;
 
         [MethodImpl(ImSharpConfiguration.OptInl)]
-        public static implicit operator ImNodesStyleWritable(Native.Style* pointer)
+        public static implicit operator ImNodesStyleWritable(Internal.Style* pointer)
             => new(pointer);
 
         /// <summary> Obtain a writeable reference to the current ImNodes style container. </summary>
         [MethodImpl(ImSharpConfiguration.Inl)]
         public static ImNodesStyleWritable Get()
-            => Native.Methods.Style.GetStyle();
+            => Api.GetStyle();
 
         /// <inheritdoc cref="ImNodesStyleFlags"/>
         public ImNodesStyleFlags Flags
@@ -225,17 +224,16 @@ public static partial class ImNodes
         /// <inheritdoc cref="Im.ImGuiStyleWritable.SetDark"/>
         [MethodImpl(ImSharpConfiguration.Inl)]
         public void SetDark()
-            => Native.Methods.Style.StyleColorsDark(Pointer);
+            => Api.StyleColorsDark(Pointer);
 
         /// <inheritdoc cref="Im.ImGuiStyleWritable.SetClassic"/>
         [MethodImpl(ImSharpConfiguration.Inl)]
         public void SetClassic()
-            => Native.Methods.Style.StyleColorsClassic(Pointer);
+            => Api.StyleColorsClassic(Pointer);
 
         /// <inheritdoc cref="Im.ImGuiStyleWritable.SetLight"/>
         [MethodImpl(ImSharpConfiguration.Inl)]
         public void SetLight()
-            => Native.Methods.Style.StyleColorsLight(Pointer);
+            => Api.StyleColorsLight(Pointer);
     }
 }
-#endif

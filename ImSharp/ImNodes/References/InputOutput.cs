@@ -1,23 +1,22 @@
-#if IMNODES
 namespace ImSharp.ImNodes;
 
 public static partial class ImNodes
 {
     /// <summary> A reference to input/output data for ImNodes. </summary>
     /// <param name="pointer"> The native pointer to the input/output data. </param>
-    public readonly unsafe ref struct InputOutput(Native.Io* pointer)
+    public readonly unsafe ref struct InputOutput(Internal.Io* pointer)
     {
         /// <summary> The address of the native object. </summary>
-        public readonly Native.Io* Pointer = pointer;
+        public readonly Internal.Io* Pointer = pointer;
 
         [MethodImpl(ImSharpConfiguration.OptInl)]
-        public static implicit operator InputOutput(Native.Io* pointer)
+        public static implicit operator InputOutput(Internal.Io* pointer)
             => new(pointer);
 
         /// <summary> Get the reference to the current input/output data for ImNodes. </summary>
         [MethodImpl(ImSharpConfiguration.Inl)]
         public static InputOutput Get()
-            => Native.Methods.Style.GetIo();
+            => Api.GetIo();
 
         /// <summary> The panning speed when dragging an element while the mouse is outside the main editor view. </summary>
         public ref float AutoPanningSpeed
@@ -67,4 +66,3 @@ public static partial class ImNodes
             };
     }
 }
-#endif

@@ -1,4 +1,3 @@
-#if IMNODES
 namespace ImSharp.ImNodes;
 
 public static partial class ImNodes
@@ -29,7 +28,7 @@ public static partial class ImNodes
         [MethodImpl(ImSharpConfiguration.OptInl)]
         public StyleDisposable Push(ImNodesStyleSingle type, float value)
         {
-            Native.Methods.Stacks.PushStyle(type, value);
+            Api.PushStyleVar(type, value);
             ++Count;
             return this;
         }
@@ -38,7 +37,7 @@ public static partial class ImNodes
         [MethodImpl(ImSharpConfiguration.OptInl)]
         public StyleDisposable Push(ImNodesStyleDouble type, Vector2 value)
         {
-            Native.Methods.Stacks.PushStyle(type, value);
+            Api.PushStyleVar(type, value);
             ++Count;
             return this;
         }
@@ -68,7 +67,6 @@ public static partial class ImNodes
         public StyleDisposable PushX(ImNodesStyleDouble type, float value)
             => Push(type, Style[type] with { X = value });
 
-        // TODO
         /// <inheritdoc cref="PushY(ImNodesStyleDouble,float,bool)"/>
         [MethodImpl(ImSharpConfiguration.OptInl)]
         public StyleDisposable PushY(ImNodesStyleDouble type, float value)
@@ -81,7 +79,7 @@ public static partial class ImNodes
         {
             num   =  Math.Min(num, Count);
             Count -= num;
-            Native.Methods.Stacks.PopStyle(num);
+            Api.PopStyle(num);
             return this;
         }
 
@@ -91,4 +89,3 @@ public static partial class ImNodes
             => Pop(Count);
     }
 }
-#endif

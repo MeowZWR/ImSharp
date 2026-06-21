@@ -1,4 +1,3 @@
-#if IMNODES
 namespace ImSharp.ImNodes;
 
 /// <summary> Color variables used in ImNodes. </summary>
@@ -94,7 +93,7 @@ public enum ImNodesColor : uint
 
 public static class ImNodesColorExtensions
 {
-    public const int NumColors = 28;
+    public const int NumColors = 29;
 
     extension(ImNodesColor type)
     {
@@ -114,4 +113,3 @@ public static class ImNodesColorExtensions
             => new ImNodes.ColorDisposable().Push(type, color);
     }
 }
-#endif

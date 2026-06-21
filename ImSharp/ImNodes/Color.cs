@@ -1,4 +1,3 @@
-#if IMNODES
 namespace ImSharp.ImNodes;
 
 public static partial class ImNodes
@@ -40,8 +39,7 @@ public static partial class ImNodes
         public static void PopUnsafe(int num = 1)
         {
             while (num-- > 0)
-                Native.Methods.Stacks.PopColorStyle();
+                Api.PopColorStyle();
         }
     }
 }
-#endif

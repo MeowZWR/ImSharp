@@ -1,4 +1,3 @@
-#if IMNODES
 namespace ImSharp.ImNodes;
 
 public static partial class ImNodes
@@ -23,7 +22,7 @@ public static partial class ImNodes
         [MethodImpl(ImSharpConfiguration.OptInl)]
         public AttributeFlagDisposable Push(AttributeFlags flag)
         {
-            Native.Methods.Stacks.PushAttribute(flag);
+            Api.PushAttributeFlag(flag);
             ++Count;
             return this;
         }
@@ -36,7 +35,7 @@ public static partial class ImNodes
             num   =  Math.Min(num, Count);
             Count -= num;
             while (num-- > 0)
-                Native.Methods.Stacks.PopAttribute();
+                Api.PopAttributeFlag();
         }
 
         /// <summary> Pop all pushed attribute flags. </summary>
@@ -45,4 +44,3 @@ public static partial class ImNodes
             => Pop(Count);
     }
 }
-#endif

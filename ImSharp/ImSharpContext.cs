@@ -2,7 +2,7 @@ namespace ImSharp;
 
 public unsafe struct ImSharpContext : IDisposable
 {
-    public const long CurrentVersion = 1;
+    public const long CurrentVersion = 2;
 
     public static ImSharpContext* EmptyPointer
         => ContextHolder.Context;
@@ -22,6 +22,7 @@ public unsafe struct ImSharpContext : IDisposable
     public void* ImGuiContext;
     public void* MonoFont;
     public void* DefaultFont;
+    public void* ImNodesContext;
 
     public static ImSharpContext* SetupDefault()
     {
@@ -47,6 +48,8 @@ public unsafe struct ImSharpContext : IDisposable
         ret->MonoFont     = null;
         ret->DefaultFont  = null;
 
+        ret->ImNodesContext = ImNodes.ImNodes.ImNodesContext.Create().Pointer;
+
         return ret;
     }
 
@@ -57,6 +60,7 @@ public unsafe struct ImSharpContext : IDisposable
         Marshal.FreeHGlobal((nint)context->TextBuffer);
         Marshal.FreeHGlobal((nint)context->InputBuffer);
         Marshal.FreeHGlobal((nint)context);
+        ((ImNodes.ImNodes.ImNodesContext)context->ImNodesContext).Destroy();
     }
 
     public void Dispose()
@@ -72,6 +76,7 @@ public unsafe struct ImSharpContext : IDisposable
         LabelBufferSize = 0;
         TextBufferSize  = 0;
         InputBufferSize = 0;
+        ImNodesContext = null;
     }
 
     private static readonly EmptyContextHolder ContextHolder = new();

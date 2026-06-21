@@ -1,4 +1,3 @@
-#if IMNODES
 namespace ImSharp.ImNodes;
 
 public static partial class ImNodes
@@ -16,7 +15,7 @@ public static partial class ImNodes
         internal NodeEditorDisposable(bool _)
         {
             Alive = true;
-            Native.Methods.Editor.BeginNodeEditor();
+            Api.BeginNodeEditor();
         }
 
         /// <summary> End the node editor on leaving scope. </summary>
@@ -27,21 +26,21 @@ public static partial class ImNodes
                 return;
 
             Alive = false;
-            Native.Methods.Editor.EndNodeEditor();
+            Api.EndNodeEditor();
         }
 
         /// <summary> Get whether this node editor is currently hovered by the mouse cursor. </summary>
         public readonly bool Hovered
         {
             [MethodImpl(ImSharpConfiguration.OptInl)]
-            get => Native.Methods.Editor.IsEditorHovered();
+            get => Api.IsEditorHovered();
         }
 
 
         /// <inheritdoc cref="MiniMap(float,Action{NodeId,nint},nint,MiniMapLocation)"/>
         [MethodImpl(ImSharpConfiguration.OptInl)]
         public readonly unsafe void MiniMap(float sizeFraction = 0.2f, MiniMapLocation location = MiniMapLocation.TopRight)
-            => Native.Methods.Editor.MiniMap(sizeFraction, location, null, nint.Zero);
+            => Api.MiniMap(sizeFraction, location, null, nint.Zero);
 
         /// <inheritdoc cref="MiniMap(float,Action{NodeId,nint},nint,MiniMapLocation)"/>
         [MethodImpl(ImSharpConfiguration.OptInl)]
@@ -49,11 +48,13 @@ public static partial class ImNodes
         public readonly unsafe void MiniMap(float sizeFraction, Action<NodeId> action, MiniMapLocation location = MiniMapLocation.TopRight)
         {
             var ptr = (delegate* unmanaged<NodeId, nint, void>)Marshal.GetFunctionPointerForDelegate(NewAction);
-            Native.Methods.Editor.MiniMap(sizeFraction, location, ptr, nint.Zero);
+            Api.MiniMap(sizeFraction, location, ptr, nint.Zero);
             return;
 
             void NewAction(NodeId nodeId, nint data)
-                => action(nodeId);
+            {
+                action(nodeId);
+            }
         }
 
         /// <summary> Add a navigable mini map to the editor. </summary>
@@ -68,7 +69,7 @@ public static partial class ImNodes
             MiniMapLocation location = MiniMapLocation.TopRight)
         {
             var ptr = (delegate* unmanaged<NodeId, nint, void>)Marshal.GetFunctionPointerForDelegate(action);
-            Native.Methods.Editor.MiniMap(sizeFraction, location, ptr, data);
+            Api.MiniMap(sizeFraction, location, ptr, data);
         }
 
         /// <inheritdoc cref="MiniMap(float,Action{NodeId,nint},nint,MiniMapLocation)"/>
@@ -76,14 +77,13 @@ public static partial class ImNodes
         [OverloadResolutionPriority(100)]
         public readonly unsafe void MiniMap(float sizeFraction, delegate* unmanaged<NodeId, nint, void> action, nint data = 0,
             MiniMapLocation location = MiniMapLocation.TopRight)
-            => Native.Methods.Editor.MiniMap(sizeFraction, location, action, data);
+            => Api.MiniMap(sizeFraction, location, action, data);
 
         /// <inheritdoc cref="MiniMap(float,Action{NodeId,nint},nint,MiniMapLocation)"/>
         [MethodImpl(ImSharpConfiguration.OptInl)]
         [OverloadResolutionPriority(100)]
         public readonly unsafe void MiniMap(float sizeFraction, delegate* unmanaged<NodeId, void*, void> action, void* data = null,
             MiniMapLocation location = MiniMapLocation.TopRight)
-            => Native.Methods.Editor.MiniMap(sizeFraction, location, (delegate* unmanaged<NodeId, nint, void>)action, (nint)data);
+            => Api.MiniMap(sizeFraction, location, (delegate* unmanaged<NodeId, nint, void>)action, (nint)data);
     }
 }
-#endif

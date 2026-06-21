@@ -1,4 +1,3 @@
-#if IMNODES
 namespace ImSharp.ImNodes;
 
 public static partial class ImNodes
@@ -15,4 +14,3 @@ public static partial class ImNodes
     public static NodeEditorDisposable NodeEditor()
         => new(true);
 }
-#endif

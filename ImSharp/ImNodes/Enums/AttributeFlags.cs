@@ -1,4 +1,3 @@
-#if IMNODES
 namespace ImSharp.ImNodes;
 
 /// <summary> Flags controlling the behavior of attribute pins. </summary>
@@ -41,4 +40,3 @@ public static class AttributeFlagsExtensions
             => condition ? new ImNodes.AttributeFlagDisposable().Push(flag) : new ImNodes.AttributeFlagDisposable();
     }
 }
-#endif

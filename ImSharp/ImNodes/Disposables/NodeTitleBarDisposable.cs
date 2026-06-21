@@ -1,4 +1,3 @@
-#if IMNODES
 namespace ImSharp.ImNodes;
 
 public static partial class ImNodes
@@ -15,7 +14,7 @@ public static partial class ImNodes
         /// <remarks> This has to be called before adding any attributes to the node. </remarks>
         internal NodeTitleBarDisposable(bool _)
         {
-            Native.Methods.Node.BeginNodeTitleBar();
+            Api.BeginNodeTitleBar();
             Alive = true;
         }
 
@@ -25,9 +24,8 @@ public static partial class ImNodes
             if (!Alive)
                 return;
 
-            Native.Methods.Node.EndNodeTitleBar();
+            Api.EndNodeTitleBar();
             Alive = false;
         }
     }
 }
-#endif

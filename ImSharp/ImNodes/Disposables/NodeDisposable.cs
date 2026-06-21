@@ -1,4 +1,3 @@
-#if IMNODES
 namespace ImSharp.ImNodes;
 
 public static partial class ImNodes
@@ -23,7 +22,7 @@ public static partial class ImNodes
         [MethodImpl(ImSharpConfiguration.OptInl)]
         internal NodeDisposable(NodeId id)
         {
-            Native.Methods.Node.BeginNode(id);
+            Api.BeginNode(id);
             Id    = id;
             Alive = true;
         }
@@ -41,7 +40,7 @@ public static partial class ImNodes
         /// <param name="draggable"> Whether the node should be draggable or not. </param>
         [MethodImpl(ImSharpConfiguration.OptInl)]
         public readonly void SetDraggable(bool draggable)
-            => Native.Methods.Node.SetNodeDraggable(Id, draggable);
+            => Api.SetNodeDraggable(Id, draggable);
 
         /// <inheritdoc cref="NodeTitleBarDisposable(bool)"/>
         public readonly NodeTitleBarDisposable TitleBar()
@@ -54,7 +53,7 @@ public static partial class ImNodes
             get
             {
                 ImVec2 ret;
-                Native.Methods.Node.GetNodeDimensions(&ret, Id);
+                Api.GetNodeDimensions(&ret, Id);
                 return ret;
             }
         }
@@ -66,11 +65,11 @@ public static partial class ImNodes
             get
             {
                 ImVec2 ret;
-                Native.Methods.Node.GetNodeScreenSpacePos(&ret, Id);
+                Api.GetNodeScreenSpacePos(&ret, Id);
                 return ret;
             }
             [MethodImpl(ImSharpConfiguration.OptInl)]
-            set => Native.Methods.Node.SetNodeScreenSpacePos(Id, value);
+            set => Api.SetNodeScreenSpacePos(Id, value);
         }
 
         /// <summary> Get or set the position of this node in the editor coordinate system, i.e. relative to the upper left corner of the containing node editor. </summary>
@@ -80,11 +79,11 @@ public static partial class ImNodes
             get
             {
                 ImVec2 ret;
-                Native.Methods.Node.GetNodeEditorSpacePos(&ret, Id);
+                Api.GetNodeEditorSpacePos(&ret, Id);
                 return ret;
             }
             [MethodImpl(ImSharpConfiguration.OptInl)]
-            set => Native.Methods.Node.SetNodeEditorSpacePos(Id, value);
+            set => Api.SetNodeEditorSpacePos(Id, value);
         }
 
         /// <summary> Get or set the position of this node in the grid coordinate system, i.e. relative to the upper left corner of the containing node editor translated by the current panning (see <seealso cref="ImNodes.EditorContext.Panning"/>). </summary>
@@ -94,17 +93,17 @@ public static partial class ImNodes
             get
             {
                 ImVec2 ret;
-                Native.Methods.Node.GetNodeGridSpacePos(&ret, Id);
+                Api.GetNodeGridSpacePos(&ret, Id);
                 return ret;
             }
             [MethodImpl(ImSharpConfiguration.OptInl)]
-            set => Native.Methods.Node.SetNodeGridSpacePos(Id, value);
+            set => Api.SetNodeGridSpacePos(Id, value);
         }
 
         /// <summary> Snap this node's origin to the grid if <seealso cref="ImNodesStyleFlags.GridSnapping"/> is enabled. </summary>
         [MethodImpl(ImSharpConfiguration.OptInl)]
         public readonly void SnapToGrid()
-            => Native.Methods.Node.SnapNodeToGrid(Id);
+            => Api.SnapNodeToGrid(Id);
 
         /// <summary> Get whether this node is currently hovered by the mouse cursor. </summary>
         /// <remarks> Use after disposing the <seealso cref="NodeEditorDisposable"/>. </remarks>
@@ -114,7 +113,7 @@ public static partial class ImNodes
             get
             {
                 NodeId id;
-                if (!Native.Methods.Node.IsNodeHovered(&id))
+                if (!Api.IsNodeHovered(&id))
                     return false;
 
                 return id == Id;
@@ -126,14 +125,14 @@ public static partial class ImNodes
         public readonly bool Selected
         {
             [MethodImpl(ImSharpConfiguration.OptInl)]
-            get => Native.Methods.Node.IsNodeSelected(Id);
+            get => Api.IsNodeSelected(Id);
             [MethodImpl(ImSharpConfiguration.OptInl)]
             set
             {
                 if (value)
-                    Native.Methods.Node.SelectNode(Id);
+                    Api.SelectNode(Id);
                 else
-                    Native.Methods.Node.ClearNodeSelection(Id);
+                    Api.ClearNodeSelection(Id);
             }
         }
 
@@ -144,10 +143,8 @@ public static partial class ImNodes
             if (!Alive)
                 return;
 
-            Native.Methods.Node.EndNode();
+            Api.EndNode();
             Alive = false;
         }
     }
 }
-
-#endif

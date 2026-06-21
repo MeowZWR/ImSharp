@@ -1,5 +1,3 @@
-#if IMNODES
-
 namespace ImSharp.ImNodes;
 
 public static partial class ImNodes
@@ -26,7 +24,7 @@ public static partial class ImNodes
         [OverloadResolutionPriority(100)]
         public ColorDisposable Push(ImNodesColor type, Rgba32 color)
         {
-            Native.Methods.Stacks.PushColorStyle(type, color.Color);
+            Api.PushColorStyle(type, color.Color);
             ++Count;
             return this;
         }
@@ -50,7 +48,7 @@ public static partial class ImNodes
             num   =  Math.Min(num, Count);
             Count -= num;
             while (num-- > 0)
-                Native.Methods.Stacks.PopColorStyle();
+                Api.PopColorStyle();
             return this;
         }
 
@@ -60,4 +58,3 @@ public static partial class ImNodes
             => Pop(Count);
     }
 }
-#endif

@@ -1,4 +1,3 @@
-#if IMNODES
 namespace ImSharp.ImNodes;
 
 public static partial class ImNodes
@@ -8,7 +7,7 @@ public static partial class ImNodes
     public sealed unsafe class EditorContext : IDisposable
     {
         /// <summary> The address of the native object. </summary>
-        public Native.Internal.EditorContext* Pointer { get; private set; } = Native.Methods.Editor.Create();
+        public Internal.EditorContext* Pointer { get; private set; } = Api.EditorContextCreate();
 
         /// <inheritdoc/>
         [MethodImpl(ImSharpConfiguration.OptInl)]
@@ -17,7 +16,7 @@ public static partial class ImNodes
             if (Pointer is null)
                 return;
 
-            Native.Methods.Editor.Free(Pointer);
+            Api.EditorContextFree(Pointer);
             GC.SuppressFinalize(this);
             Pointer = null;
         }
@@ -29,14 +28,14 @@ public static partial class ImNodes
         /// <summary> Set the current editor context to this. </summary>
         [MethodImpl(ImSharpConfiguration.OptInl)]
         public void Set()
-            => Native.Methods.Editor.Set(Pointer);
+            => Api.EditorContextSet(Pointer);
 
         /// <summary> Obtain an unowned UTF8 configuration string of this editor context. </summary>
         [MethodImpl(ImSharpConfiguration.OptInl)]
         public ReadOnlySpan<byte> IniString()
         {
             ulong size;
-            var   text = Native.Methods.Editor.SaveEditorStateToIniString(Pointer, &size);
+            var   text = Api.SaveEditorStateToIniString(Pointer, &size);
             return new ReadOnlySpan<byte>(text, (int)size);
         }
 
@@ -54,26 +53,26 @@ public static partial class ImNodes
         /// <param name="text"> The configuration string as text. Does not have to be null-terminated. </param>
         [MethodImpl(ImSharpConfiguration.OptInl)]
         public void LoadIniString(Utf8TextHandler text)
-            => Native.Methods.Editor.LoadEditorStateFromIniString(Pointer, text.Start(out var end), (ulong)(end - text.Begin));
+            => Api.LoadEditorStateFromIniString(Pointer, text.Start(out var end), (ulong)(end - text.Begin));
 
         /// <summary> Save the configuration string of this editor context to a file. </summary>
         /// <param name="file"> The path to the file to save to as text. If this is a UTF8 string, it HAS to be null-terminated. </param>
         [MethodImpl(ImSharpConfiguration.OptInl)]
         public void SaveToFile(Utf8LabelHandler file)
-            => Native.Methods.Editor.SaveEditorStateToIniFile(Pointer, file.Start());
+            => Api.SaveEditorStateToIniFile(Pointer, file.Start());
 
         /// <summary> Load a configuration string from a file into this editor context. </summary>
         /// <param name="file"> The path to the file to load from as text. If this is a UTF8 string, it HAS to be null-terminated. </param>
         [MethodImpl(ImSharpConfiguration.OptInl)]
         public void LoadFromFile(Utf8LabelHandler file)
-            => Native.Methods.Editor.LoadEditorStateFromIniFile(Pointer, file.Start());
+            => Api.LoadEditorStateFromIniFile(Pointer, file.Start());
 
         /// <summary> Obtain an unowned UTF8 configuration string of the current editor context. </summary>
         [MethodImpl(ImSharpConfiguration.OptInl)]
         public static ReadOnlySpan<byte> CurrentIniString()
         {
             ulong size;
-            var   text = Native.Methods.Editor.SaveCurrentEditorStateToIniString(&size);
+            var   text = Api.SaveCurrentEditorStateToIniString(&size);
             return new ReadOnlySpan<byte>(text, (int)size);
         }
 
@@ -91,19 +90,19 @@ public static partial class ImNodes
         /// <param name="text"> The configuration string as text. Does not have to be null-terminated. </param>
         [MethodImpl(ImSharpConfiguration.OptInl)]
         public static void LoadCurrentIniString(Utf8TextHandler text)
-            => Native.Methods.Editor.LoadCurrentEditorStateFromIniString(text.Start(out var end), (ulong)(end - text.Begin));
+            => Api.LoadCurrentEditorStateFromIniString(text.Start(out var end), (ulong)(end - text.Begin));
 
         /// <summary> Save the configuration string of the current editor context to a file. </summary>
         /// <param name="file"> The path to the file to save to as text. If this is a UTF8 string, it HAS to be null-terminated. </param>
         [MethodImpl(ImSharpConfiguration.OptInl)]
         public static void SaveCurrentToFile(Utf8LabelHandler file)
-            => Native.Methods.Editor.SaveCurrentEditorStateToIniFile(file.Start());
+            => Api.SaveCurrentEditorStateToIniFile(file.Start());
 
         /// <summary> Load a configuration string from a file into the current editor context. </summary>
         /// <param name="file"> The path to the file to load from as text. If this is a UTF8 string, it HAS to be null-terminated. </param>
         [MethodImpl(ImSharpConfiguration.OptInl)]
         public static void LoadCurrentFromFile(Utf8LabelHandler file)
-            => Native.Methods.Editor.LoadCurrentEditorStateFromIniFile(file.Start());
+            => Api.LoadCurrentEditorStateFromIniFile(file.Start());
 
         /// <summary> Get or set the panning value of the current editor context. </summary>
         public static Vector2 Panning
@@ -112,19 +111,17 @@ public static partial class ImNodes
             get
             {
                 ImVec2 ret;
-                Native.Methods.Editor.GetPanning(&ret);
+                Api.GetPanning(&ret);
                 return ret;
             }
             [MethodImpl(ImSharpConfiguration.OptInl)]
-            set => Native.Methods.Editor.ResetPanning(value);
+            set => Api.ResetPanning(value);
         }
 
         /// <summary> Move the view of the current editor context to a given node. </summary>
         /// <param name="id"> The ID of the node to move to. </param>
         [MethodImpl(ImSharpConfiguration.OptInl)]
         public static void MoveToNode(NodeId id)
-            => Native.Methods.Editor.MoveToNode(id);
+            => Api.MoveToNode(id);
     }
 }
-
-#endif

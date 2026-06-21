@@ -1,4 +1,3 @@
-#if IMNODES
 namespace ImSharp.ImNodes;
 
 /// <summary> Style Variables that use float values used internally by ImNodes. </summary>
@@ -102,5 +101,3 @@ public static class ImNodesStyleExtensions
             => new ImNodes.StyleDisposable().PushY(type, value);
     }
 }
-
-#endif

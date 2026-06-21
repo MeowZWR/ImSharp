@@ -1,4 +1,3 @@
-#if IMNODES
 namespace ImSharp.ImNodes;
 
 public static partial class ImNodes
@@ -6,34 +5,34 @@ public static partial class ImNodes
     /// <summary> Wrapper class for methods related to attributes. </summary>
     public static class Attribute
     {
-        /// <inheritdoc cref="AttributeDisposable(AttributeId,PinShape,bool)"/>
+        /// <inheritdoc cref="AttributeDisposable(ImSharp.ImNodes.AttributeId,PinShape,Internal.AttributeType)"/>
         public static AttributeDisposable Input(AttributeId id, PinShape shape = PinShape.CircleFilled)
-            => new(id, shape, true);
+            => new(id, shape, Internal.AttributeType.Input);
 
-        /// <inheritdoc cref="AttributeDisposable(AttributeId,PinShape)"/>
+        /// <inheritdoc cref="AttributeDisposable(ImSharp.ImNodes.AttributeId,PinShape,Internal.AttributeType)"/>
         public static AttributeDisposable Output(AttributeId id, PinShape shape = PinShape.CircleFilled)
-            => new(id, shape);
+            => new(id, shape, Internal.AttributeType.Output);
 
-        /// <inheritdoc cref="AttributeDisposable(AttributeId)"/>
+        /// <inheritdoc cref="AttributeDisposable(ImSharp.ImNodes.AttributeId,PinShape,Internal.AttributeType)"/>
         public static AttributeDisposable Static(AttributeId id)
-            => new(id);
+            => new(id, default, Internal.AttributeType.Static);
 
-        /// <inheritdoc cref="AttributeDisposable(AttributeId,bool)"/>
+        /// <inheritdoc cref="AttributeDisposable(ImSharp.ImNodes.AttributeId,PinShape,Internal.AttributeType)"/>
         public static AttributeDisposable Reference(AttributeId id)
-            => new(id, true);
+            => new(id, default, Internal.AttributeType.None);
 
         /// <summary> Get whether any attribute is currently active. </summary>
         public static unsafe bool AnyActive
         {
             [MethodImpl(ImSharpConfiguration.Inl)]
-            get => Native.Methods.Attribute.IsAnyAttributeActive(null);
+            get => Api.IsAnyAttributeActive(null);
         }
 
         /// <summary> Get whether the last drawn attribute is currently active. </summary>
         public static bool LastAttributeActive
         {
             [MethodImpl(ImSharpConfiguration.Inl)]
-            get => Native.Methods.Attribute.IsAttributeActive();
+            get => Api.IsAttributeActive();
         }
 
         /// <summary> Get whether any attribute pin is currently hovered. </summary>
@@ -42,7 +41,7 @@ public static partial class ImNodes
         public static unsafe bool AnyPinHovered()
         {
             AttributeId id = 0;
-            return Native.Methods.Attribute.IsPinHovered(&id);
+            return Api.IsPinHovered(&id);
         }
 
         /// <inheritdoc cref="AttributeFlagDisposable.Push(AttributeFlags)"/>
@@ -62,8 +61,7 @@ public static partial class ImNodes
         public static void PopFlagUnsafe(int num = 1)
         {
             while (num-- > 0)
-                Native.Methods.Stacks.PopAttribute();
+                Api.PopAttributeFlag();
         }
     }
 }
-#endif
