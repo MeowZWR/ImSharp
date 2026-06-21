@@ -16,8 +16,7 @@ public enum TableFlags
     /// <summary> Columns can be hidden by the user with the right-click context menu. </summary>
     Hideable = 1 << 2,
 
-    // TODO reference
-    /// <summary> Columns can be sorted. This does not do any sorting of data, it just allows to query <seealso cref="Im.Table.TableSortSpecifications"/> and the users to see and change sort state. </summary>
+    /// <summary> Columns can be sorted. This does not do any sorting of data, it just allows to query <seealso cref="Im.TableSortSpecifications"/> and the users to see and change sort state. </summary>
     Sortable = 1 << 3,
 
     /// <summary> Disable persisting the column order, width and sort settings when saving to .ini files. </summary>

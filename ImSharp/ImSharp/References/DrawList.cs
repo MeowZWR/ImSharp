@@ -72,6 +72,13 @@ public static partial class Im
             get => Pointer->VertexCurrentIndex;
         }
 
+        /// <summary> Get the current draw list splitter for this draw list. </summary>
+        public DrawListSplitter Splitter
+        {
+            [MethodImpl(ImSharpConfiguration.OptInl)]
+            get => new(&Pointer->Splitter, this);
+        }
+
         /// <summary> Get the current clipping rectangle of this draw list. </summary>
         /// <returns> The clipping rectangle. </returns>
         [MethodImpl(ImSharpConfiguration.OptInl)]

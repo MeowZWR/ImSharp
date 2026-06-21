@@ -3,6 +3,12 @@ namespace ImSharp;
 /// <summary> The internally used ID type. </summary>
 public readonly record struct ImGuiId(uint Id) : ISpanFormattable, IUtf8SpanFormattable
 {
+    /// <summary> An invalid ID. </summary>
+    public const uint InvalidId = uint.MaxValue;
+
+    /// <summary> An invalid ID. </summary>
+    public static readonly ImGuiId Invalid = new(InvalidId);
+
     [MethodImpl(ImSharpConfiguration.OptInl)]
     public static implicit operator ImGuiId(uint v)
         => new(v);
@@ -43,7 +49,7 @@ public readonly record struct ImGuiId(uint Id) : ISpanFormattable, IUtf8SpanForm
         ReadOnlySpan<char> format, IFormatProvider? provider)
         => Id.TryFormat(destination, out bytesWritten, format, provider);
 
-    
+
     /// <summary> Whether a widget with this ID is currently active. </summary>
     public bool Active
     {

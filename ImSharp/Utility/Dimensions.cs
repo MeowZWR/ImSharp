@@ -1,5 +1,3 @@
-using Dalamud.Interface.Animation.EasingFunctions;
-
 namespace ImSharp;
 
 /// <summary> An integral pair of dimensions in 2 dimensions. </summary>

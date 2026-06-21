@@ -13,6 +13,14 @@ public static partial class Im
         public static implicit operator StateStorage(Native.Storage* pointer)
             => new(pointer);
 
+
+        /// <summary> Obtain the number of stored data points. </summary>
+        public int Count
+        {
+            [MethodImpl(ImSharpConfiguration.Inl)]
+            get { return Pointer->Data.Count; }
+        }
+
         /// <summary> Get the state associated with an ID as an integer. </summary>
         /// <param name="id"> The ID to query. </param>
         /// <param name="defaultValue"> The default value to insert if this ID does not have an associated state yet. </param>

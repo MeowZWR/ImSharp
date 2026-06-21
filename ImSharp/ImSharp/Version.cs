@@ -33,18 +33,6 @@ public static partial class Im
         public const bool HasImPlot = false;
 #endif
 
-#if IMNODES
-
-        /// <summary> The ImNodes DLL name to invoke. </summary>
-        public const string CImNodesLibrary = "cimnodes";
-
-        /// <summary> Whether the auxiliary library ImNodes is included in this ImGui version. </summary>
-        public const bool HasImNodes = true;
-#else
-        /// <summary> Whether the auxiliary library ImNodes is included in this ImGui version. </summary>
-        public const bool HasImNodes = false;
-#endif
-
         /// <summary> The DLL name to invoke. </summary>
         public const string CImGuiLibrary = "cimgui";
 

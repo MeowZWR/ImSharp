@@ -10,21 +10,23 @@ public static class ImUtility
     /// <returns> The modified index. </returns>
     /// <remarks>
     ///   Scrolling downwards increases the index, upwards decreases the index.
-    ///   If the index is negative (invalid), it is treated as no starting point so scrolling up yields <c>count - 1</c> and down yields <c>0</c> if the delta is 1 or -1.</remarks>
+    ///   If the index is negative (invalid), it is treated as no starting point so scrolling up yields <c>count - 1</c> and down yields <c>0</c> if the delta is 1 or -1.
+    /// </remarks>
     public static int ApplyMouseWheelDelta(int delta, int index, int count)
     {
-        if (count is 0)
-            return -1;
-        if (count is 1)
-            return 0;
-
-        delta = (-delta) % count;
-        return delta switch
+        switch (count)
         {
-            < 0 when index < 0 => count + delta,
-            < 0                => (index + count + delta) % count,
-            > 0 when index < 0 => delta - 1,
-            _                  => (index + delta) % count,
-        };
+            case 0: return -1;
+            case 1: return 0;
+            default:
+                delta = -delta % count;
+                return delta switch
+                {
+                    < 0 when index < 0 => count + delta,
+                    < 0                => (index + count + delta) % count,
+                    > 0 when index < 0 => delta - 1,
+                    _                  => (index + delta) % count,
+                };
+        }
     }
 }
