@@ -18,7 +18,7 @@ public static unsafe partial class Internal
         // to allow nested splits. The main modification is that we only create new ImDrawChannel
         // instances after splitter._Count, instead of over the whole splitter._Channels array like
         // the regular ImDrawListSplitter::Split method does.
-        var oldCapacity   = splitter.Pointer->Channels.Capacity;
+        var oldCapacity   = splitter.Pointer->Channels.Size;
         var oldCount      = splitter.Count;
         var requiredCount = numChannels + oldCount;
         if (oldCapacity < requiredCount)
@@ -37,9 +37,7 @@ public static unsafe partial class Internal
             // Else, we need to construct new draw channels.
             else
             {
-                // This should be placement-new, but we don't have that. This should ensure that stuff is set to 0.
-                channel.IndexBuffer.Free<TrivialTypeInformation<ImDrawIdx>>();
-                channel.CommandBuffer.Free<TrivialTypeInformation<ImDrawCmd>>();
+                DrawChannelType.PlacementNew(Unsafe.AsPointer(ref channel));
             }
 
             // Maybe verify that this is zeroed correctly?

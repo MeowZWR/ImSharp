@@ -2,13 +2,13 @@ namespace ImSharp.ImNodes;
 
 public static partial class Internal
 {
-    public unsafe struct Io
+    public unsafe struct Io()
     {
         public ImBool*     EmulateThreeButtonMouse;
         public ImBool*     LinkDetachWithModifierClick;
         public ImBool*     MultipleSelectModifier;
-        public MouseButton AltMouseButton;
-        public float       AutoPanningSpeed;
+        public MouseButton AltMouseButton   = MouseButton.Middle;
+        public float       AutoPanningSpeed = 1000;
 
         public readonly bool AltMouseClicked
         {

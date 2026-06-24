@@ -13,7 +13,7 @@ public static partial class ImNodes
         /// <param name="flag"> The attribute flag to push. </param>
         /// <param name="condition"> If this is false, the attribute flag is not pushed. </param>
         /// <returns> A disposable object that can be used to push further attribute flags and pops those flags after leaving scope. Use with using. </returns>
-        /// <remarks> If you need to keep attribute flags pushed longer than the current scope, use without using and use <seealso cref="ImNodes.PopAttributeFlagUnsafe"/>. </remarks>
+        /// <remarks> If you need to keep attribute flags pushed longer than the current scope, use without using and use <seealso cref="PopUnsafe"/>. </remarks>
         [MethodImpl(ImSharpConfiguration.OptInl)]
         public AttributeFlagDisposable Push(AttributeFlags flag, bool condition)
             => condition ? Push(flag) : this;

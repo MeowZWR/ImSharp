@@ -1,6 +1,8 @@
+using static ImSharp.ImNodes.ImNodes;
+
 namespace ImSharp.ImNodes;
 
-/// <summary> The internally used ID type for ImNodes nodes. </summary>
+/// <summary> The ID type for ImNodes nodes. </summary>
 public readonly record struct NodeId(uint Id) : IAdditionOperators<NodeId, int, NodeId>, ISubtractionOperators<NodeId, int, NodeId>,
     IIncrementOperators<NodeId>, IDecrementOperators<NodeId>, ISpanFormattable, IUtf8SpanFormattable
 {
@@ -12,6 +14,37 @@ public readonly record struct NodeId(uint Id) : IAdditionOperators<NodeId, int, 
     {
         [MethodImpl(ImSharpConfiguration.OptInl)]
         get { return Id is not uint.MaxValue; }
+    }
+
+    /// <summary> Get whether this node is currently hovered by the mouse cursor. </summary>
+    /// <remarks> Use after disposing the <seealso cref="NodeEditor"/>. </remarks>
+    public unsafe bool Hovered
+    {
+        [MethodImpl(ImSharpConfiguration.OptInl)]
+        get
+        {
+            NodeId id;
+            if (!Api.IsNodeHovered(&id))
+                return false;
+
+            return id == Id;
+        }
+    }
+
+    /// <summary> Get or set the selection state of this node. </summary>
+    /// <remarks> Selecting an already selected node, or unselecting an unselected node, is an error. </remarks>
+    public bool Selected
+    {
+        [MethodImpl(ImSharpConfiguration.OptInl)]
+        get => Api.IsNodeSelected(Id);
+        [MethodImpl(ImSharpConfiguration.OptInl)]
+        set
+        {
+            if (value)
+                Api.SelectNode(Id);
+            else
+                Api.ClearNodeSelection(Id);
+        }
     }
 
     [MethodImpl(ImSharpConfiguration.OptInl)]

@@ -4,7 +4,11 @@ public static partial class ImNodes
 {
     public static unsafe partial class Api
     {
+        [MethodImpl(ImSharpConfiguration.OptInl)]
         public static void BeginNode(NodeId nodeId)
+            => BeginNodeInternal(nodeId);
+
+        internal static ref Internal.NodeData BeginNodeInternal(NodeId nodeId)
         {
             ref var context   = ref Internal.Scope.Editor.Check(Internal.Scope.Node);
             ref var editor    = ref *Editor;
@@ -23,6 +27,7 @@ public static partial class ImNodes
 
             Im.Id.Push(data.Id);
             Im.Group();
+            return ref data;
         }
 
         public static void EndNode()

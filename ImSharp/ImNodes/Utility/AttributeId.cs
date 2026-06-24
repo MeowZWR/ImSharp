@@ -1,6 +1,8 @@
+using static ImSharp.ImNodes.ImNodes;
+
 namespace ImSharp.ImNodes;
 
-/// <summary> The internally used ID type for ImNodes attributes. </summary>
+/// <summary> The ID type for ImNodes attributes. </summary>
 public readonly record struct AttributeId(uint Id) : IAdditionOperators<AttributeId, int, AttributeId>,
     ISubtractionOperators<AttributeId, int, AttributeId>, IIncrementOperators<AttributeId>, IDecrementOperators<AttributeId>,
     ISpanFormattable, IUtf8SpanFormattable
@@ -13,6 +15,35 @@ public readonly record struct AttributeId(uint Id) : IAdditionOperators<Attribut
     {
         [MethodImpl(ImSharpConfiguration.OptInl)]
         get { return Id is not uint.MaxValue; }
+    }
+
+    /// <summary> Get whether this attribute's pin is currently hovered by the mouse cursor. </summary>
+    /// <remarks> Use after disposing the <seealso cref="NodeEditor"/>. </remarks>
+    public unsafe bool Hovered
+    {
+        [MethodImpl(ImSharpConfiguration.OptInl)]
+        get
+        {
+            AttributeId id;
+            if (!Api.IsPinHovered(&id))
+                return false;
+
+            return id == Id;
+        }
+    }
+
+    /// <summary> Get whether this attribute is currently active. </summary>
+    public unsafe bool Active
+    {
+        [MethodImpl(ImSharpConfiguration.OptInl)]
+        get
+        {
+            AttributeId id;
+            if (!Api.IsAnyAttributeActive(&id))
+                return false;
+
+            return id == Id;
+        }
     }
 
     [MethodImpl(ImSharpConfiguration.OptInl)]

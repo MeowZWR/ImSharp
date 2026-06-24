@@ -6,7 +6,11 @@ public static partial class ImNodes
     {
         [MethodImpl(ImSharpConfiguration.Inl)]
         public static Internal.EditorContext* EditorContextCreate()
-            => Im.Main.Alloc<Internal.EditorContext>();
+        {
+            var ret = Im.Main.Alloc<Internal.EditorContext>();
+            *ret = new Internal.EditorContext();
+            return ret;
+        }
 
         [MethodImpl(ImSharpConfiguration.Inl)]
         public static void EditorContextFree(Internal.EditorContext* editor)
@@ -41,7 +45,7 @@ public static partial class ImNodes
         public static void BeginNodeEditor()
         {
             ref var context = ref Internal.Scope.None.Check(Internal.Scope.Editor);
-            ref var editor = ref *Editor;
+            ref var editor  = ref *Editor;
             editor.AutoPanningDelta  = Vector2.Zero;
             editor.GridContentBounds = new Rectangle(new Vector2(float.MaxValue), new Vector2(float.MinValue));
             editor.MiniMap.Enabled   = false;

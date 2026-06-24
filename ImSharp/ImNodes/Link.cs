@@ -3,39 +3,8 @@ namespace ImSharp.ImNodes;
 /// <summary> The internally used ID type for ImNodes links. </summary>
 public static partial class ImNodes
 {
-    public readonly record struct Link(LinkId Id)
+    public static class Link
     {
-        /// <summary> Get whether this link is currently hovered by the mouse cursor. </summary>
-        /// <remarks> Use after disposing the <seealso cref="NodeEditorDisposable"/>. </remarks>
-        public unsafe bool Hovered
-        {
-            [MethodImpl(ImSharpConfiguration.OptInl)]
-            get
-            {
-                LinkId id;
-                if (!Api.IsLinkHovered(&id))
-                    return false;
-
-                return id == Id;
-            }
-        }
-
-        /// <summary> Get or set the selection state of this link. </summary>
-        /// <remarks> Selecting an already selected link, or unselecting an unselected link, is an error. </remarks>
-        public bool Selected
-        {
-            [MethodImpl(ImSharpConfiguration.OptInl)]
-            get => Api.IsLinkSelected(Id);
-            [MethodImpl(ImSharpConfiguration.OptInl)]
-            set
-            {
-                if (value)
-                    Api.SelectLink(Id);
-                else
-                    Api.ClearLinkSelection(Id);
-            }
-        }
-
         /// <summary> Returns true if the user started dragging a new link from any pin. </summary>
         /// <param name="startPin"> The pin the user started dragging from, if any. </param>
         /// <returns> True if the user is creating a new link. </returns>
@@ -92,21 +61,10 @@ public static partial class ImNodes
         /// <summary> Returns true if the user detached an existing link from a pin. </summary>
         /// <param name="id"> The ID of the detached link, if any. </param>
         /// <returns> True if the user detached an existing link from a pin. </returns>
-        public static unsafe bool LinkDestroyed(out Link id)
+        public static unsafe bool LinkDestroyed(out LinkId id)
         {
-            id = new Link(0);
+            id = LinkId.Invalid;
             return Api.IsLinkDestroyed((LinkId*)Unsafe.AsPointer(ref id));
-        }
-
-        /// <summary> Create a link between two attributes. </summary>
-        /// <param name="id"> The desired unique ID of the new link. Can be any integer except for <seealso cref="int.MinValue"/>. </param>
-        /// <param name="start"> The ID of one of the attributes. This attribute has to have a pin and be created beforehand. </param>
-        /// <param name="end"> The ID of the other of the attributes. This attribute has to have a pin and be created beforehand. </param>
-        [MethodImpl(ImSharpConfiguration.OptInl)]
-        public static Link Create(LinkId id, AttributeId start, AttributeId end)
-        {
-            Api.CreateLink(id, start, end);
-            return new Link(id);
         }
     }
 }

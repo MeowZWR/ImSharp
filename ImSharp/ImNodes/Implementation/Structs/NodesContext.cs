@@ -81,6 +81,8 @@ public static partial class Internal
             DefaultEditorContext       = ImNodes.Api.EditorContextCreate();
             EditorContext              = DefaultEditorContext;
             CurrentAttributeFlags      = AttributeFlags.None;
+            Style                      = new Style();
+            Io                         = new Io();
             AttributeFlagStack.Add<TrivialTypeInformation<AttributeFlags>>(AttributeFlags.None);
             ImNodes.Api.StyleColorsDark((Style*)Unsafe.AsPointer(ref Style));
         }

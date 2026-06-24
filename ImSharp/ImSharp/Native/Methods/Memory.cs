@@ -24,7 +24,7 @@ public static partial class Im
                 [MethodImpl(ImSharpConfiguration.Inl)]
                 public static partial void* MemAlloc(ulong size);
 
-                [LibraryImport(Version.CImGuiLibrary, EntryPoint = "igMemAlloc")]
+                [LibraryImport(Version.CImGuiLibrary, EntryPoint = "igMemFree")]
                 [MethodImpl(ImSharpConfiguration.Inl)]
                 public static partial void MemFree(void* ptr);
             }

@@ -1,3 +1,5 @@
+using ImSharp.ImNodes;
+
 namespace ImSharp;
 
 /// <summary> The internally used ID type. </summary>
@@ -24,6 +26,14 @@ public readonly record struct ImGuiId(uint Id) : ISpanFormattable, IUtf8SpanForm
     [MethodImpl(ImSharpConfiguration.OptInl)]
     public static explicit operator int(ImGuiId v)
         => (int)v.Id;
+
+    [MethodImpl(ImSharpConfiguration.OptInl)]
+    public static ImGuiId operator ++(ImGuiId id)
+        => new(id.Id + 1);
+
+    [MethodImpl(ImSharpConfiguration.OptInl)]
+    public static ImGuiId operator --(ImGuiId id)
+        => new(id.Id - 1);
 
     /// <inheritdoc/>
     [MethodImpl(ImSharpConfiguration.OptInl)]

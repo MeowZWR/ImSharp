@@ -17,7 +17,7 @@ public static partial class ImNodes
             => attribute.Id;
 
         /// <summary> Begin a new attribute inside the current node. </summary>
-        /// <param name="id"> The desired unique ID of the new input attribute. Can be any integer except for <seealso cref="int.MinValue"/>. </param>
+        /// <param name="id"> The desired unique ID of the new input attribute. Can be any integer except for <seealso cref="AttributeId.Invalid"/>. </param>
         /// <param name="shape"> The shape of the pin rendered next to the attribute. Links are created between pins. </param>
         /// <param name="type"> The type of the attribute. </param>
         /// <returns> A disposable object that ends the input attribute on disposal. Use with using. </returns>
@@ -32,35 +32,6 @@ public static partial class ImNodes
                 case Internal.AttributeType.Input:  Api.BeginInputAttribute(id, shape); break;
                 case Internal.AttributeType.Output: Api.BeginOutputAttribute(id, shape); break;
                 case Internal.AttributeType.Static: Api.BeginStaticAttribute(id); break;
-            }
-        }
-
-        /// <summary> Get whether this attribute's pin is currently hovered by the mouse cursor. </summary>
-        /// <remarks> Use after disposing the <seealso cref="NodeEditorDisposable"/>. </remarks>
-        public unsafe bool PinHovered
-        {
-            [MethodImpl(ImSharpConfiguration.OptInl)]
-            get
-            {
-                AttributeId id;
-                if (!Api.IsPinHovered(&id))
-                    return false;
-
-                return id == Id;
-            }
-        }
-
-        /// <summary> Get whether this attribute is currently active. </summary>
-        public unsafe bool Active
-        {
-            [MethodImpl(ImSharpConfiguration.OptInl)]
-            get
-            {
-                AttributeId id;
-                if (!Api.IsAnyAttributeActive(&id))
-                    return false;
-
-                return id == Id;
             }
         }
 

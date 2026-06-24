@@ -12,6 +12,7 @@ public static partial class ImNodes
         public static Internal.NodesContext* CreateContext()
         {
             var ret = Im.Main.Alloc<Internal.NodesContext>();
+            *ret = new Internal.NodesContext();
             if (Context is null)
                 SetCurrentContext(ret);
             ret->Initialize();

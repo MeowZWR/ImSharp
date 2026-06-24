@@ -73,8 +73,10 @@ public unsafe struct ImVector<T> : IReadOnlyList<T>
     public void Add<TTypeInformation>(in T value) where TTypeInformation : ITypeInformation<T>
     {
         var oldSize = Size;
-        Resize<TTypeInformation>(oldSize + 1);
+        if (Capacity == oldSize)
+            Reserve<TTypeInformation>(CapacityGrowth(oldSize + 1, Capacity));
         Data[oldSize] = value;
+        ++Size;
     }
 
     /// <summary> Clear all data from the vector. </summary>
@@ -89,14 +91,31 @@ public unsafe struct ImVector<T> : IReadOnlyList<T>
     [MethodImpl(ImSharpConfiguration.Opt)]
     public void Resize<TTypeInformation>(int newSize) where TTypeInformation : ITypeInformation<T>
     {
-        if (newSize > Capacity)
-            Reserve<TTypeInformation>(CapacityGrowth(newSize, Capacity));
-        if (!TTypeInformation.TriviallyConstructible)
+        if (newSize < Size)
         {
-            var ptr = Data + Size;
+            if (!TTypeInformation.TriviallyDestructible)
+            {
+                var end = Data + newSize;
+                for (var ptr = Data + Size - 1; end >= ptr; --ptr)
+                    TTypeInformation.Destroy(ptr);
+            }
+        }
+        else
+        {
+            if (newSize > Capacity)
+                Reserve<TTypeInformation>(CapacityGrowth(newSize, Capacity));
 
-            for (var end = Data + newSize; ptr < end; ++ptr)
-                TTypeInformation.PlacementNew(ptr);
+            if (TTypeInformation.TriviallyConstructible)
+            {
+                new Span<T>(Data + Size, newSize - Size).Clear();
+            }
+            else
+            {
+                var ptr = Data + Size;
+
+                for (var end = Data + newSize; ptr < end; ++ptr)
+                    TTypeInformation.PlacementNew(ptr);
+            }
         }
 
         Size = newSize;
@@ -114,8 +133,11 @@ public unsafe struct ImVector<T> : IReadOnlyList<T>
         CheckMovable<TTypeInformation>();
         var newData = Im.Main.Alloc<T>(newCapacity);
         if (Data is not null)
+        {
             new ReadOnlySpan<T>(Data, Size).CopyTo(new Span<T>(newData, newCapacity));
-        Im.Main.Free(Data);
+            Im.Main.Free(Data);
+        }
+
         Data     = newData;
         Capacity = newCapacity;
     }

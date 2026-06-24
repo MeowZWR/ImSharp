@@ -3,7 +3,7 @@ namespace ImSharp.ImNodes;
 public static partial class ImNodes
 {
     /// <summary> Get the number of selected nodes in the last node editor. </summary>
-    /// <remarks> Use after disposing the <seealso cref="NodeEditorDisposable"/>. </remarks>
+    /// <remarks> Use after disposing the <seealso cref="ImSharp.ImNodes.NodeEditor"/>. </remarks>
     public static int SelectedNodeCount
     {
         [MethodImpl(ImSharpConfiguration.Inl)]
@@ -11,7 +11,7 @@ public static partial class ImNodes
     }
 
     /// <summary> Get the number of selected links in the last node editor. </summary>
-    /// <remarks> Use after disposing the <seealso cref="NodeEditorDisposable"/>. </remarks>
+    /// <remarks> Use after disposing the <seealso cref="ImSharp.ImNodes.NodeEditor"/>. </remarks>
     public static int SelectedLinkCount
     {
         [MethodImpl(ImSharpConfiguration.Inl)]
@@ -20,7 +20,7 @@ public static partial class ImNodes
 
     /// <summary> Get the IDs of selected nodes in the last node editor. </summary>
     /// <returns> A newly allocated array of the IDs of all selected nodes. </returns>
-    /// <remarks> Use after disposing the <seealso cref="NodeEditorDisposable"/>. </remarks>
+    /// <remarks> Use after disposing the <seealso cref="ImSharp.ImNodes.NodeEditor"/>. </remarks>
     [MethodImpl(ImSharpConfiguration.OptInl)]
     public static unsafe NodeId[] GetSelectedNodes()
     {
@@ -36,7 +36,7 @@ public static partial class ImNodes
 
     /// <summary> Get the IDs of selected links in the last node editor. </summary>
     /// <returns> A newly allocated array of the IDs of all selected links. </returns>
-    /// <remarks> Use after disposing the <seealso cref="NodeEditorDisposable"/>. </remarks>
+    /// <remarks> Use after disposing the <seealso cref="ImSharp.ImNodes.NodeEditor"/>. </remarks>
     [MethodImpl(ImSharpConfiguration.OptInl)]
     public static unsafe LinkId[] GetSelectedLinks()
     {
@@ -53,7 +53,7 @@ public static partial class ImNodes
     /// <summary> Try to write the IDs of selected nodes in the last node editor into the given span. </summary>
     /// <param name="target"> A contiguous array to write the IDs to. If this is not large enough, it is not filled at all. </param>
     /// <returns> The number of selected nodes. </returns>
-    /// <remarks> Use after disposing the <seealso cref="NodeEditorDisposable"/>. </remarks>
+    /// <remarks> Use after disposing the <seealso cref="ImSharp.ImNodes.NodeEditor"/>. </remarks>
     [MethodImpl(ImSharpConfiguration.OptInl)]
     public static unsafe int TryGetSelectedNodes(Span<NodeId> target)
     {
@@ -72,7 +72,7 @@ public static partial class ImNodes
     /// <summary> Try to write the IDs of selected links in the last node editor into the given span. </summary>
     /// <param name="target"> A contiguous array to write the IDs to. If this is not large enough, it is not filled at all. </param>
     /// <returns> The number of selected links. </returns>
-    /// <remarks> Use after disposing the <seealso cref="NodeEditorDisposable"/>. </remarks>
+    /// <remarks> Use after disposing the <seealso cref="ImSharp.ImNodes.NodeEditor"/>. </remarks>
     [MethodImpl(ImSharpConfiguration.OptInl)]
     public static unsafe bool TryGetSelectedLinks(Span<LinkId> target)
     {
@@ -89,13 +89,13 @@ public static partial class ImNodes
     }
 
     /// <summary> Clear all selected nodes in the last node editor. </summary>
-    /// <remarks> Use after disposing the <seealso cref="NodeEditorDisposable"/>. </remarks>
+    /// <remarks> Use after disposing the <seealso cref="ImSharp.ImNodes.NodeEditor"/>. </remarks>
     [MethodImpl(ImSharpConfiguration.OptInl)]
     public static void ClearSelectedNodes()
         => Api.ClearNodeSelection();
 
     /// <summary> Clear all selected links in the last node editor. </summary>
-    /// <remarks> Use after disposing the <seealso cref="NodeEditorDisposable"/>. </remarks>
+    /// <remarks> Use after disposing the <seealso cref="ImSharp.ImNodes.NodeEditor"/>. </remarks>
     [MethodImpl(ImSharpConfiguration.OptInl)]
     public static void ClearSelectedLinks()
         => Api.ClearLinkSelection();

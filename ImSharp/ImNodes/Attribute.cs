@@ -5,22 +5,6 @@ public static partial class ImNodes
     /// <summary> Wrapper class for methods related to attributes. </summary>
     public static class Attribute
     {
-        /// <inheritdoc cref="AttributeDisposable(ImSharp.ImNodes.AttributeId,PinShape,Internal.AttributeType)"/>
-        public static AttributeDisposable Input(AttributeId id, PinShape shape = PinShape.CircleFilled)
-            => new(id, shape, Internal.AttributeType.Input);
-
-        /// <inheritdoc cref="AttributeDisposable(ImSharp.ImNodes.AttributeId,PinShape,Internal.AttributeType)"/>
-        public static AttributeDisposable Output(AttributeId id, PinShape shape = PinShape.CircleFilled)
-            => new(id, shape, Internal.AttributeType.Output);
-
-        /// <inheritdoc cref="AttributeDisposable(ImSharp.ImNodes.AttributeId,PinShape,Internal.AttributeType)"/>
-        public static AttributeDisposable Static(AttributeId id)
-            => new(id, default, Internal.AttributeType.Static);
-
-        /// <inheritdoc cref="AttributeDisposable(ImSharp.ImNodes.AttributeId,PinShape,Internal.AttributeType)"/>
-        public static AttributeDisposable Reference(AttributeId id)
-            => new(id, default, Internal.AttributeType.None);
-
         /// <summary> Get whether any attribute is currently active. </summary>
         public static unsafe bool AnyActive
         {
@@ -36,7 +20,7 @@ public static partial class ImNodes
         }
 
         /// <summary> Get whether any attribute pin is currently hovered. </summary>
-        /// <remarks> Use after disposing the <seealso cref="NodeEditorDisposable"/>. </remarks>
+        /// <remarks> Use after disposing the <seealso cref="NodeEditor"/>. </remarks>
         [MethodImpl(ImSharpConfiguration.Inl)]
         public static unsafe bool AnyPinHovered()
         {

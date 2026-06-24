@@ -1,6 +1,8 @@
+using static ImSharp.ImNodes.ImNodes;
+
 namespace ImSharp.ImNodes;
 
-/// <summary> The internally used ID type for ImNodes links. </summary>
+/// <summary> The ID type for ImNodes links. </summary>
 public readonly record struct LinkId(uint Id) : IAdditionOperators<LinkId, int, LinkId>, ISubtractionOperators<LinkId, int, LinkId>,
     IIncrementOperators<LinkId>, IDecrementOperators<LinkId>, ISpanFormattable, IUtf8SpanFormattable
 {
@@ -12,6 +14,37 @@ public readonly record struct LinkId(uint Id) : IAdditionOperators<LinkId, int, 
     {
         [MethodImpl(ImSharpConfiguration.OptInl)]
         get { return Id is not uint.MaxValue; }
+    }
+
+    /// <summary> Get whether this link is currently hovered by the mouse cursor. </summary>
+    /// <remarks> Use after disposing the <seealso cref="ImSharp.ImNodes.NodeEditor"/>. </remarks>
+    public unsafe bool Hovered
+    {
+        [MethodImpl(ImSharpConfiguration.OptInl)]
+        get
+        {
+            LinkId id;
+            if (!Api.IsLinkHovered(&id))
+                return false;
+
+            return id == Id;
+        }
+    }
+
+    /// <summary> Get or set the selection state of this link. </summary>
+    /// <remarks> Selecting an already selected link, or unselecting an unselected link, is an error. </remarks>
+    public bool Selected
+    {
+        [MethodImpl(ImSharpConfiguration.OptInl)]
+        get => Api.IsLinkSelected(Id);
+        [MethodImpl(ImSharpConfiguration.OptInl)]
+        set
+        {
+            if (value)
+                Api.SelectLink(Id);
+            else
+                Api.ClearLinkSelection(Id);
+        }
     }
 
     [MethodImpl(ImSharpConfiguration.OptInl)]
