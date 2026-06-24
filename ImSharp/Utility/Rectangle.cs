@@ -97,7 +97,7 @@ public readonly record struct Rectangle(Vector2 Minimum, Vector2 Maximum)
     public Vector2 Center
     {
         [MethodImpl(ImSharpConfiguration.OptInl)]
-        get => (Maximum - Minimum) / 2;
+        get => (Maximum + Minimum) / 2;
     }
 
     /// <summary> Check whether this rectangle overlaps the given rectangle. </summary>
