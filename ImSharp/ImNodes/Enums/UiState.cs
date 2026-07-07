@@ -17,5 +17,12 @@ public static partial class Internal
 
         /// <summary> A dragged link was finalized. </summary>
         LinkCreated = 1 << 3,
+
+        // CUSTOM
+        /// <summary> Disable selection in the editor. </summary>
+        NoSelection = 1 << 30,
+
+        /// <summary> Disable hover-interactions in the editor. </summary>
+        NoHovering = 1u << 31,
     }
 }

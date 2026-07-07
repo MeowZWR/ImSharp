@@ -17,6 +17,31 @@ public ref struct NodeEditor : IDisposable
         Api.BeginNodeEditor();
     }
 
+    /// <summary> Disable hover interactions over nodes, links and pins in this editor. </summary>
+    /// <remarks> Uses custom non-ImNodes functionality. </remarks>
+    public readonly unsafe void DisableHoverInteraction(bool value)
+    {
+        Context->ImNodesUiState =
+            value ? Context->ImNodesUiState | Internal.UiState.NoHovering : Context->ImNodesUiState & ~Internal.UiState.NoHovering;
+    }
+
+    /// <summary> Disable selection of nodes and links in this editor. </summary>
+    /// <remarks> Uses custom non-ImNodes functionality. </remarks>
+    public readonly unsafe void DisableSelection(bool value)
+    {
+        if (value)
+        {
+            Context->ImNodesUiState |= Internal.UiState.NoSelection;
+            Editor->SelectedLinkIndices.Clear<Internal.LinkIndex>();
+            Editor->SelectedNodeIndices.Clear<Internal.NodeIndex>();
+            Editor->SelectedNodeOffsets.Clear<TrivialTypeInformation<Vector2>>();
+        }
+        else
+        {
+            Context->ImNodesUiState &= ~Internal.UiState.NoSelection;
+        }
+    }
+
     /// <summary> End the node editor on leaving scope. </summary>
     [MethodImpl(ImSharpConfiguration.OptInl)]
     public void Dispose()

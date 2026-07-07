@@ -182,12 +182,8 @@ public static unsafe partial class Internal
 
     public static void BeginPinAttribute(AttributeId id, AttributeType type, PinShape shape, NodeIndex nodeIndex)
     {
-        ref var context = ref *ImNodes.Context;
-        if (context.CurrentScope is not Scope.Node)
-            throw new InvalidOperationException("Can not begin a Pin while not currently in a node.");
-
-        ref var editor = ref *ImNodes.Editor;
-        context.CurrentScope = Scope.Attribute;
+        ref var context = ref Scope.Node.Check(Scope.Node | Scope.Attribute);
+        ref var editor  = ref *ImNodes.Editor;
 
         Im.Group();
         Im.Id.Push(id.Id);
@@ -207,14 +203,10 @@ public static unsafe partial class Internal
 
     public static void EndPinAttribute()
     {
-        ref var context = ref *ImNodes.Context;
-        if (context.CurrentScope is not Scope.Attribute)
-            throw new InvalidOperationException("Can not end a Pin without beginning one.");
-
-        context.CurrentScope = Scope.Node;
+        ref var context = ref Scope.Attribute.Check(Scope.Node);
         Im.IdDisposable.PopUnsafe();
         Im.GroupDisposable.EndUnsafe();
-        if (Im.Item.Active)
+        if (Im.Item.Active && !context.CurrentAttributeFlags.IsDisabled)
         {
             context.ActiveAttribute   = true;
             context.ActiveAttributeId = context.CurrentAttributeId;

@@ -50,6 +50,10 @@ public static unsafe partial class Internal
         if (editor.ClickInteraction.Type is not ClickInteractionType.None)
             return;
 
+        // CUSTOM
+        if (ImNodes.Context->ImNodesUiState.HasFlag(UiState.NoSelection))
+            return;
+
         editor.ClickInteraction.Type = ClickInteractionType.Node;
         // If the node is not already contained in the selection, then we want only
         // the interaction node to be selected, effective immediately.
@@ -90,6 +94,10 @@ public static unsafe partial class Internal
     [MethodImpl(ImSharpConfiguration.OptInl)]
     public static void BeginLinkSelection(ref EditorContext editor, LinkIndex linkIndex)
     {
+        // CUSTOM
+        if (ImNodes.Context->ImNodesUiState.HasFlag(UiState.NoSelection))
+            return;
+
         editor.ClickInteraction.Type = ClickInteractionType.Link;
         editor.SelectedNodeIndices.Clear<NodeIndex>();
         editor.SelectedLinkIndices.Clear<LinkIndex>();
@@ -491,7 +499,11 @@ public static unsafe partial class Internal
             if (occludedPins.Contains(pin))
                 continue;
 
-            var position        = pins.Get(pin).Position;
+            ref readonly var pinData = ref pins.Get(pin);
+            if (pinData.Flags.IsDisabled)
+                continue;
+
+            var position        = pinData.Position;
             var distanceSquared = (position - ImNodes.Context->MousePosition).LengthSquared();
 
             // td: GImNodes->Style.PinHoverRadius needs to be copied into pin data and the pin-local

@@ -94,10 +94,7 @@ public static partial class ImNodes
 
         public static void EndNodeEditor()
         {
-            ref var context = ref *Context;
-            Debug.Assert(context.CurrentScope is Internal.Scope.Editor);
-
-            context.CurrentScope = Internal.Scope.None;
+            ref var context       = ref Internal.Scope.Editor.Check(Internal.Scope.None);
             ref var editor        = ref *Editor;
             var     noGridContent = editor.GridContentBounds.IsInverted;
             if (noGridContent)
@@ -114,22 +111,25 @@ public static partial class ImNodes
             // its an *overlay* with its own interaction behavior and must have precedence during mouse
             // interaction.
             if (editor.ClickInteraction.Type is Internal.ClickInteractionType.None or Internal.ClickInteractionType.LinkCreation
-             && Internal.MouseInCanvas()
-             && !Internal.MiniMapHovered)
+             && Internal.MouseInCanvas() && !Internal.MiniMapHovered )
             {
-                // Pins needs some special care. We need to check the depth stack to see which pins are
-                // being occluded by other nodes.
-                Internal.ResolveOccludedPins(editor, ref context.OccludedPinIndices);
+                // CUSTOM
+                if (!context.ImNodesUiState.HasFlag(Internal.UiState.NoHovering))
+                {
+                    // Pins needs some special care. We need to check the depth stack to see which pins are
+                    // being occluded by other nodes.
+                    Internal.ResolveOccludedPins(editor, ref context.OccludedPinIndices);
 
-                context.HoveredPinIndex = Internal.ResolveHoveredPin(editor.Pins, context.OccludedPinIndices);
-                // Resolve which node is actually on top and being hovered using the depth stack.
-                if (!context.HoveredPinIndex.IsValid)
-                    context.HoveredNodeIndex = Internal.ResolveHoveredNode(editor.NodeDepthOrder);
+                    context.HoveredPinIndex = Internal.ResolveHoveredPin(editor.Pins, context.OccludedPinIndices);
+                    // Resolve which node is actually on top and being hovered using the depth stack.
+                    if (!context.HoveredPinIndex.IsValid)
+                        context.HoveredNodeIndex = Internal.ResolveHoveredNode(editor.NodeDepthOrder);
 
-                // We don't check for hovered pins here, because if we want to detach a link by clicking and
-                // dragging, we need to have both a link and pin hovered.
-                if (!context.HoveredNodeIndex.IsValid)
-                    context.HoveredLinkIndex = Internal.ResolveHoveredLink(editor.Links, editor.Pins);
+                    // We don't check for hovered pins here, because if we want to detach a link by clicking and
+                    // dragging, we need to have both a link and pin hovered.
+                    if (!context.HoveredNodeIndex.IsValid)
+                        context.HoveredLinkIndex = Internal.ResolveHoveredLink(editor.Links, editor.Pins);
+                }
             }
 
             for (var nodeIndex = 0; nodeIndex < editor.Nodes.FullCount; ++nodeIndex)

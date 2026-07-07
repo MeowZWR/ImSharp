@@ -23,9 +23,7 @@ public static partial class ImNodes
         [MethodImpl(ImSharpConfiguration.Inl)]
         public static void BeginStaticAttribute(AttributeId id)
         {
-            ref var context = ref *Context;
-            Debug.Assert(context.CurrentScope is Internal.Scope.Node);
-            context.CurrentScope       = Internal.Scope.Attribute;
+            ref var context = ref Internal.Scope.Node.Check(Internal.Scope.Node | Internal.Scope.Attribute);
             context.CurrentAttributeId = id;
             Im.Group();
             Im.Id.Push(id.Id);
@@ -34,12 +32,10 @@ public static partial class ImNodes
         [MethodImpl(ImSharpConfiguration.Inl)]
         public static void EndStaticAttribute()
         {
-            ref var context = ref *Context;
-            Debug.Assert(context.CurrentScope is Internal.Scope.Attribute);
-            context.CurrentScope = Internal.Scope.Node;
+            ref var context = ref Internal.Scope.Attribute.Check(Internal.Scope.Node);
             Im.IdDisposable.PopUnsafe();
             Im.GroupDisposable.EndUnsafe();
-            if (Im.Item.Active)
+            if (Im.Item.Active && !context.CurrentAttributeFlags.IsDisabled)
             {
                 context.ActiveAttribute   = true;
                 context.ActiveAttributeId = context.CurrentAttributeId;
@@ -49,8 +45,7 @@ public static partial class ImNodes
         [MethodImpl(ImSharpConfiguration.Inl)]
         public static ImBool IsAttributeActive()
         {
-            ref readonly var context = ref *Context;
-            Debug.Assert(context.CurrentScope.HasFlag(Internal.Scope.Node));
+            ref readonly var context = ref Internal.Scope.Node.Check();
             return context.ActiveAttribute && context.ActiveAttributeId == context.CurrentAttributeId;
         }
 
@@ -70,8 +65,7 @@ public static partial class ImNodes
         [MethodImpl(ImSharpConfiguration.Inl)]
         public static ImBool IsPinHovered(AttributeId* hovered)
         {
-            ref var context = ref *Context;
-            Debug.Assert(context.CurrentScope is Internal.Scope.None);
+            ref var context = ref Internal.Scope.None.Check();
             var anyHovered = context.HoveredPinIndex.IsValid;
             if (anyHovered && hovered is not null)
                 *hovered = Editor->Pins.Get(context.HoveredPinIndex).Id;
