@@ -1,3 +1,5 @@
+using ImSharp.Internal;
+
 namespace ImSharp;
 
 public static partial class Im
@@ -72,6 +74,23 @@ public static partial class Im
         [MethodImpl(ImSharpConfiguration.OptInl)]
         internal static PopupDisposable Modal(scoped ref Utf8LabelHandler title, WindowFlags flags = WindowFlags.None)
             => new(Native.Methods.Popup.BeginPopupModal(title.Start(), null, flags));
+
+        /// <summary> Begin a resizable popup and end it on leaving scope. </summary>
+        /// <param name="id"> The ID of the popup as text. If this is a UTF8 string, it HAS to be null-terminated. </param>
+        /// <param name="flags"> Flags to forward to the popup window creation. </param>
+        /// <returns> A disposable object that evaluates to true if the begun popup is currently open. Use with using. </returns>
+        internal static PopupDisposable Resizable(scoped ref Utf8LabelHandler id, WindowFlags flags = WindowFlags.None)
+        {
+            // Copy implementation of BeginPopup.
+            if (Context.Pointer->OpenPopupStack.Size <= Context.Pointer->BeginPopupStack.Size)
+            {
+                Context.Pointer->NextWindowData.Flags = NextWindowDataFlags.None;
+                return new PopupDisposable(false);
+            }
+
+            flags |= WindowFlags.NoTitleBar | WindowFlags.NoSavedSettings;
+            return new PopupDisposable(Native.Methods.Internal.BeginPopupEx(Id.Get(ref id), flags));
+        }
 
         [MethodImpl(ImSharpConfiguration.OptInl)]
         private PopupDisposable(bool success)

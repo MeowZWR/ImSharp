@@ -26,7 +26,7 @@ public ref struct NodeEditor : IDisposable
     }
 
     /// <summary> Disable selection of nodes and links in this editor. </summary>
-    /// <remarks> Uses custom non-ImNodes functionality. </remarks>
+    /// <remarks> Uses custom non-ImNodes functionality. This also allows window movement with the left mouse-button. </remarks>
     public readonly unsafe void DisableSelection(bool value)
     {
         if (value)

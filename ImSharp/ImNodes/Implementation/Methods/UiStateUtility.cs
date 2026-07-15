@@ -193,6 +193,10 @@ public static unsafe partial class Internal
         }
         else if (context.LeftMouseClicked)
         {
+            // CUSTOM
+            if (context.ImNodesUiState.HasFlag(UiState.NoSelection))
+                return;
+
             editor.ClickInteraction.Type = ClickInteractionType.BoxSelection;
             editor.ClickInteraction.BoxSelector = editor.ClickInteraction.BoxSelector with
             {

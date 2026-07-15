@@ -60,24 +60,27 @@ public static partial class ImNodes
             context.SnapLinkIndex    = Internal.LinkIndex.Invalid;
 
             context.NodeIndicesOverlappingWithMouse.Clear<Internal.NodeIndex>();
-            context.ImNodesUiState         = Internal.UiState.None;
-            context.MousePosition          = Im.Mouse.Position;
-            context.LeftMouseClicked       = Im.Mouse.IsClicked(MouseButton.Left);
-            context.LeftMouseReleased      = Im.Mouse.IsReleased(MouseButton.Left);
-            context.LeftMouseDragging      = Im.Mouse.IsDragging(MouseButton.Left, 0);
-            context.AltMouseClicked        = context.Io.AltMouseClicked;
-            context.AltMouseDragging       = context.Io.AltMouseDragging;
-            context.AltMouseScrollDelta    = Im.Io.MouseWheel;
-            context.MultipleSelectModifier = context.Io.MultipleSelectActive;
+            context.ImNodesUiState         &= ~(Internal.UiState.LinkStarted | Internal.UiState.LinkCreated | Internal.UiState.LinkDropped);
+            context.MousePosition          =  Im.Mouse.Position;
+            context.LeftMouseClicked       =  Im.Mouse.IsClicked(MouseButton.Left);
+            context.LeftMouseReleased      =  Im.Mouse.IsReleased(MouseButton.Left);
+            context.LeftMouseDragging      =  Im.Mouse.IsDragging(MouseButton.Left, 0);
+            context.AltMouseClicked        =  context.Io.AltMouseClicked;
+            context.AltMouseDragging       =  context.Io.AltMouseDragging;
+            context.AltMouseScrollDelta    =  Im.Io.MouseWheel;
+            context.MultipleSelectModifier =  context.Io.MultipleSelectActive;
 
             context.ActiveAttribute = false;
 
+            var flags = WindowFlags.NoScrollbar | WindowFlags.NoScrollWithMouse;
+            // CUSTOM
+            if (!context.ImNodesUiState.HasFlag(Internal.UiState.NoSelection))
+                flags |= WindowFlags.NoMove;
             Im.Group();
             Im.ColorStyle().Push(ImStyleDouble.FramePadding, Vector2.One)
                 .Push(ImStyleDouble.WindowPadding, Vector2.Zero)
                 .Push(ImGuiColor.ChildBackground,  Style[ImNodesColor.GridBackground]);
-            Im.Child.Begin("scrolling_region"u8, Vector2.Zero, true,
-                WindowFlags.NoScrollbar | WindowFlags.NoMove | WindowFlags.NoScrollWithMouse);
+            Im.Child.Begin("scrolling_region"u8, Vector2.Zero, true, flags);
             context.CanvasOriginScreenSpace = Im.Cursor.ScreenPosition;
 
             // NOTE: we have to fetch the canvas draw list *after* we call
@@ -111,8 +114,8 @@ public static partial class ImNodes
             // its an *overlay* with its own interaction behavior and must have precedence during mouse
             // interaction.
             if (editor.ClickInteraction.Type is Internal.ClickInteractionType.None or Internal.ClickInteractionType.LinkCreation
-             && Internal.MouseInCanvas() && !Internal.MiniMapHovered )
-            {
+             && Internal.MouseInCanvas()
+             && !Internal.MiniMapHovered)
                 // CUSTOM
                 if (!context.ImNodesUiState.HasFlag(Internal.UiState.NoHovering))
                 {
@@ -130,7 +133,6 @@ public static partial class ImNodes
                     if (!context.HoveredNodeIndex.IsValid)
                         context.HoveredLinkIndex = Internal.ResolveHoveredLink(editor.Links, editor.Pins);
                 }
-            }
 
             for (var nodeIndex = 0; nodeIndex < editor.Nodes.FullCount; ++nodeIndex)
             {
