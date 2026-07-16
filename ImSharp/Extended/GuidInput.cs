@@ -2,20 +2,28 @@ namespace ImSharp;
 
 public static partial class ImEx
 {
+    /// <summary> Get the optimal width for a GUID input field. </summary>
+    public static float GuidInputWidth
+        => 36 * Im.Font.Mono.GetCharacterAdvance('0') + 2 * Im.Style.FramePadding.X;
+
     /// <summary> Draw a text input field that only accepts valid GUID input and shows a format hint for it. </summary>
     /// <param name="label"> The label of the input as text. Does not have to be null-terminated. </param>
     /// <param name="initialText"> Optional initial text entered into the input as text. Does not have to be null-terminated. </param>
     /// <param name="guid"> The parsed and returned GUID if the current input is valid, otherwise an empty GUID. </param>
-    /// <param name="width"> The width for the input in pixels. If this is 0, the default width for text input widgets will be used. </param>
+    /// <param name="width"> The width for the input in pixels. If this is 0, <see cref="GuidInputWidth"/> will be used. </param>
     /// <returns> True if the item is deactivated after being edited and the parsed GUID is valid, false otherwise. </returns>
     public static unsafe bool GuidInput(Utf8LabelHandler label, Utf8TextHandler initialText, out Guid guid, float width = 0)
     {
-        if (width is not 0)
-            Im.Item.SetNextWidth(width);
+        if (!SplitLabel(ref label, out var visible, out var labelId))
+        {
+            guid = Guid.Empty;
+            return false;
+        }
 
-        using var _      = Im.Id.Push(ref label);
+        Im.Item.SetNextWidth(width is 0 ? GuidInputWidth : width);
+        using var _      = Im.Id.Push(labelId);
         using var group  = Im.Group();
-        var       id     = Im.Id.Get(""u8);
+        var       id     = Im.Id.Current;
         var       buffer = InputStringHandlerBuffer.Buffer;
         var       size   = (ulong)InputStringHandlerBuffer.Size;
         if (!id.Active)
@@ -69,7 +77,11 @@ public static partial class ImEx
             ret  = false;
         }
 
-        TextLabel(ref label);
+        if (!visible.IsEmpty)
+        {
+            Im.Line.SameInner();
+            TextFrameAligned(visible);
+        }
 
         return ret;
     }
