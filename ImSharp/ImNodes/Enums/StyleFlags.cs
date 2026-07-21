@@ -1,4 +1,3 @@
-#if IMNODES
 namespace ImSharp.ImNodes;
 
 /// <summary> Flags that govern the style of ImNode. </summary>
@@ -20,4 +19,3 @@ public enum ImNodesStyleFlags : uint
     /// <summary> Whether objects should snap to the grid. </summary>
     GridSnapping = 1 << 4,
 }
-#endif

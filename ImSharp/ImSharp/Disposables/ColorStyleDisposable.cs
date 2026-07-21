@@ -25,7 +25,7 @@ public static partial class Im
                 else
                     Native.Methods.Stacks.PushStyleVar(styleMod.VarIdx, styleMod.BackupVec);
             }
-            
+
             ColorCount = Context.ColorStackSize;
             for (var idx = ColorCount - 1; idx >= 0; --idx)
             {

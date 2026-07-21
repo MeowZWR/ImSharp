@@ -4,10 +4,24 @@ public static partial class Im
 {
     /// <summary> A wrapper around ID pushing. </summary>
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public unsafe sealed class IdDisposable : IDisposable
+    public sealed unsafe class IdDisposable : IDisposable
     {
         /// <summary> The number of IDs currently pushed using this disposable. </summary>
         public int Count { get; private set; }
+
+        /// <summary> A monotonously increasing counter used for <see cref="PushNext"/>. </summary>
+        public int MonotoneCounter { get; private set; }
+
+        /// <summary> Push a monotonously increasing numerical ID to the ID stack and pop it on leaving scope. The next ID is stored in this object and incremented on every call of this method. </summary>
+        /// <returns> A disposable object that counts the number of pushes and can be used to push further IDs. Use with using. </returns>
+        /// <remarks> If you need to keep IDs pushed longer than the current scope, use without using and use <seealso cref="PopUnsafe"/>. </remarks>
+        [MethodImpl(ImSharpConfiguration.OptInl)]
+        public IdDisposable PushNext()
+        {
+            ++Count;
+            Native.Methods.IdStack.PushId(MonotoneCounter++);
+            return this;
+        }
 
         /// <summary> Push a numerical ID to the ID stack and pop it on leaving scope. </summary>
         /// <param name="id"> The ID. </param>

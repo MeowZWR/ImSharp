@@ -4,6 +4,10 @@ public static partial class Im
 {
     public static class Id
     {
+        /// <summary> Create a new, empty <see cref="IdDisposable"/> </summary>
+        public static IdDisposable Empty()
+            => new();
+
         /// <inheritdoc cref="IdDisposable.Push(ImGuiId)"/>
         [MethodImpl(ImSharpConfiguration.OptInl)]
         [OverloadResolutionPriority(100)]

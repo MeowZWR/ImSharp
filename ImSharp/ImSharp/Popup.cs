@@ -84,5 +84,10 @@ public static partial class Im
         /// <inheritdoc cref="PopupDisposable.Modal(ref Utf8LabelHandler,WindowFlags)"/>
         public static PopupDisposable BeginModal(Utf8LabelHandler id, WindowFlags flags = WindowFlags.None)
             => PopupDisposable.Modal(ref id, flags);
+
+        /// <inheritdoc cref="PopupDisposable.Resizable(ref Utf8LabelHandler,WindowFlags)"/>
+        [MethodImpl(ImSharpConfiguration.OptInl)]
+        public static PopupDisposable BeginResizable(Utf8LabelHandler id, WindowFlags flags = WindowFlags.None)
+            => PopupDisposable.Resizable(ref id, flags);
     }
 }

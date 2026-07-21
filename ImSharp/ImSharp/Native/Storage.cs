@@ -8,63 +8,63 @@ public static partial class Im
         {
             public ImVector<StoragePair> Data;
 
-            [LibraryImport(Im.Version.CImGuiLibrary, EntryPoint = "ImGuiStorage_Clear")]
+            [LibraryImport(Version.CImGuiLibrary, EntryPoint = "ImGuiStorage_Clear")]
             [MethodImpl(ImSharpConfiguration.Inl)]
             public static partial void Clear(Storage* self);
 
-            [LibraryImport(Im.Version.CImGuiLibrary, EntryPoint = "ImGuiStorage_GetInt")]
+            [LibraryImport(Version.CImGuiLibrary, EntryPoint = "ImGuiStorage_GetInt")]
             [MethodImpl(ImSharpConfiguration.Inl)]
             public static partial int GetInt(Storage* self, ImGuiId id, int defaultValue);
 
-            [LibraryImport(Im.Version.CImGuiLibrary, EntryPoint = "ImGuiStorage_SetInt")]
+            [LibraryImport(Version.CImGuiLibrary, EntryPoint = "ImGuiStorage_SetInt")]
             [MethodImpl(ImSharpConfiguration.Inl)]
             public static partial void SetInt(Storage* self, ImGuiId id, int value);
 
-            [LibraryImport(Im.Version.CImGuiLibrary, EntryPoint = "ImGuiStorage_GetBool")]
+            [LibraryImport(Version.CImGuiLibrary, EntryPoint = "ImGuiStorage_GetBool")]
             [MethodImpl(ImSharpConfiguration.Inl)]
             public static partial ImBool GetBool(Storage* self, ImGuiId id, ImBool defaultValue);
 
-            [LibraryImport(Im.Version.CImGuiLibrary, EntryPoint = "ImGuiStorage_SetBool")]
+            [LibraryImport(Version.CImGuiLibrary, EntryPoint = "ImGuiStorage_SetBool")]
             [MethodImpl(ImSharpConfiguration.Inl)]
             public static partial void SetBool(Storage* self, ImGuiId id, ImBool value);
 
-            [LibraryImport(Im.Version.CImGuiLibrary, EntryPoint = "ImGuiStorage_GetFloat")]
+            [LibraryImport(Version.CImGuiLibrary, EntryPoint = "ImGuiStorage_GetFloat")]
             [MethodImpl(ImSharpConfiguration.Inl)]
             public static partial float GetFloat(Storage* self, ImGuiId id, float defaultValue);
 
-            [LibraryImport(Im.Version.CImGuiLibrary, EntryPoint = "ImGuiStorage_SetFloat")]
+            [LibraryImport(Version.CImGuiLibrary, EntryPoint = "ImGuiStorage_SetFloat")]
             [MethodImpl(ImSharpConfiguration.Inl)]
             public static partial void SetFloat(Storage* self, ImGuiId id, float value);
 
-            [LibraryImport(Im.Version.CImGuiLibrary, EntryPoint = "ImGuiStorage_GetVoidPtr")]
+            [LibraryImport(Version.CImGuiLibrary, EntryPoint = "ImGuiStorage_GetVoidPtr")]
             [MethodImpl(ImSharpConfiguration.Inl)]
             public static partial nint GetPointer(Storage* self, ImGuiId id, nint defaultValue);
 
-            [LibraryImport(Im.Version.CImGuiLibrary, EntryPoint = "ImGuiStorage_SetVoidPtr")]
+            [LibraryImport(Version.CImGuiLibrary, EntryPoint = "ImGuiStorage_SetVoidPtr")]
             [MethodImpl(ImSharpConfiguration.Inl)]
             public static partial void SetPointer(Storage* self, ImGuiId id, nint value);
 
-            [LibraryImport(Im.Version.CImGuiLibrary, EntryPoint = "ImGuiStorage_GetIntRef")]
+            [LibraryImport(Version.CImGuiLibrary, EntryPoint = "ImGuiStorage_GetIntRef")]
             [MethodImpl(ImSharpConfiguration.Inl)]
             public static partial int* GetIntRef(Storage* self, ImGuiId id, int defaultValue);
 
-            [LibraryImport(Im.Version.CImGuiLibrary, EntryPoint = "ImGuiStorage_GetBoolRef")]
+            [LibraryImport(Version.CImGuiLibrary, EntryPoint = "ImGuiStorage_GetBoolRef")]
             [MethodImpl(ImSharpConfiguration.Inl)]
             public static partial ImBool* GetBoolRef(Storage* self, ImGuiId id, ImBool defaultValue);
 
-            [LibraryImport(Im.Version.CImGuiLibrary, EntryPoint = "ImGuiStorage_GetFloatRef")]
+            [LibraryImport(Version.CImGuiLibrary, EntryPoint = "ImGuiStorage_GetFloatRef")]
             [MethodImpl(ImSharpConfiguration.Inl)]
             public static partial float* GetFloatRef(Storage* self, ImGuiId id, float defaultValue);
 
-            [LibraryImport(Im.Version.CImGuiLibrary, EntryPoint = "ImGuiStorage_GetVoidPtrRef")]
+            [LibraryImport(Version.CImGuiLibrary, EntryPoint = "ImGuiStorage_GetVoidPtrRef")]
             [MethodImpl(ImSharpConfiguration.Inl)]
             public static partial nint* GetPointerRef(Storage* self, ImGuiId id, nint defaultValue);
 
-            [LibraryImport(Im.Version.CImGuiLibrary, EntryPoint = "ImGuiStorage_SetAllInt")]
+            [LibraryImport(Version.CImGuiLibrary, EntryPoint = "ImGuiStorage_SetAllInt")]
             [MethodImpl(ImSharpConfiguration.Inl)]
             public static partial void SetAllInt(Storage* self, int value);
 
-            [LibraryImport(Im.Version.CImGuiLibrary, EntryPoint = "ImGuiStorage_BuildSortByKey")]
+            [LibraryImport(Version.CImGuiLibrary, EntryPoint = "ImGuiStorage_BuildSortByKey")]
             [MethodImpl(ImSharpConfiguration.Inl)]
             public static partial void BuildSortByKey(Storage* self);
         }

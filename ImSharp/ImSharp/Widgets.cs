@@ -3,6 +3,11 @@ namespace ImSharp;
 
 public static partial class Im
 {
+    /// <summary> Create an empty disposable that can be used for both color and style pushing. </summary>
+    [MethodImpl(ImSharpConfiguration.OptInl)]
+    public static ColorStyleDisposable ColorStyle()
+        => new();
+
     /// <summary> A one pixel separator line. Generally horizontal, except when in menu bars or other horizontal layouts, where it is vertical. </summary>
     [MethodImpl(ImSharpConfiguration.OptInl)]
     public static void Separator()

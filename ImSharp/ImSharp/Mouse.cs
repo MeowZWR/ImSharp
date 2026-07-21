@@ -117,9 +117,8 @@ public static partial class Im
             }
         }
 
-        // TODO Reference
         /// <summary> Get or set the current cursor type. </summary>
-        /// <remarks> This is updated during the frame and reset in <seealso cref="NewFrame"/>. If you use software rendering, ImGui will render the cursor for you. </remarks>
+        /// <remarks> This is updated during the frame and reset in <seealso cref="Main.NewFrame"/>. If you use software rendering, ImGui will render the cursor for you. </remarks>
         public static MouseCursor Cursor
         {
             [MethodImpl(ImSharpConfiguration.OptInl)]

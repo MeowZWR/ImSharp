@@ -1,12 +1,10 @@
-#if IMNODES
-
 namespace ImSharp.ImNodes;
 
 public static partial class ImNodes
 {
     /// <summary> A wrapper around ImNodes color pushing. </summary>
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public ref struct ColorDisposable : IDisposable
+    public sealed class ColorDisposable : IDisposable
     {
         /// <summary> The number of ImNodes colors currently pushed using this disposable. </summary>
         public int Count { get; private set; }
@@ -23,9 +21,10 @@ public static partial class ImNodes
 
         /// <inheritdoc cref="Push(ImNodesColor,Rgba32,bool)"/>
         [MethodImpl(ImSharpConfiguration.OptInl)]
+        [OverloadResolutionPriority(100)]
         public ColorDisposable Push(ImNodesColor type, Rgba32 color)
         {
-            Native.Methods.Stacks.PushColorStyle(type, color.Color);
+            Api.PushColorStyle(type, color.Color);
             ++Count;
             return this;
         }
@@ -37,18 +36,20 @@ public static partial class ImNodes
         /// <returns> A disposable object that can be used to push further colors and pops those colors after leaving scope. Use with using. </returns>
         /// <remarks> If you need to keep colors pushed longer than the current scope, use without using and use <seealso cref="PopUnsafe"/>. </remarks>
         [MethodImpl(ImSharpConfiguration.OptInl)]
-        public ColorDisposable Push(ImNodesColor type, Rgba32? color)
-            => color.HasValue ? Push(type, color.Value) : this;
+        [OverloadResolutionPriority(50)]
+        public ColorDisposable Push(ImNodesColor type, ColorParameter color)
+            => color.IsDefault ? this : Push(type, color.Color!.Value);
 
         /// <summary> Pop a number of colors. </summary>
         /// <param name="num"> The number of colors to pop. This is clamped to the number of colors pushed by this object. </param>
         [MethodImpl(ImSharpConfiguration.OptInl)]
-        public void Pop(int num = 1)
+        public ColorDisposable Pop(int num = 1)
         {
             num   =  Math.Min(num, Count);
             Count -= num;
             while (num-- > 0)
-                Native.Methods.Stacks.PopColorStyle();
+                Api.PopColorStyle();
+            return this;
         }
 
         /// <summary> Pop all pushed colors. </summary>
@@ -57,4 +58,3 @@ public static partial class ImNodes
             => Pop(Count);
     }
 }
-#endif

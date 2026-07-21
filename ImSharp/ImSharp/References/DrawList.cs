@@ -72,6 +72,13 @@ public static partial class Im
             get => Pointer->VertexCurrentIndex;
         }
 
+        /// <summary> Get the current draw list splitter for this draw list. </summary>
+        public DrawListSplitter Splitter
+        {
+            [MethodImpl(ImSharpConfiguration.OptInl)]
+            get => new(&Pointer->Splitter, this);
+        }
+
         /// <summary> Get the current clipping rectangle of this draw list. </summary>
         /// <returns> The clipping rectangle. </returns>
         [MethodImpl(ImSharpConfiguration.OptInl)]
@@ -631,7 +638,7 @@ public static partial class Im
                 }
             }
 
-            /// <summary> Add a cubic Bézier curve spanned by four points. </summary>
+            /// <summary> Add a cubic BÃ©zier curve spanned by four points. </summary>
             /// <param name="point1"> The first point in screen coordinates. </param>
             /// <param name="point2"> The second point in screen coordinates. </param>
             /// <param name="point3"> The third point in screen coordinates. </param>
@@ -645,7 +652,7 @@ public static partial class Im
                 => Native.ImDrawList.AddBezierCubic(pointer, point1, point2, point3, point4, color.CheckDefault(Rgba32.White), thickness,
                     numSegments);
 
-            /// <summary> Add a quadratic Bézier curve spanned by three points. </summary>
+            /// <summary> Add a quadratic BÃ©zier curve spanned by three points. </summary>
             /// <param name="point1"> The first point in screen coordinates. </param>
             /// <param name="point2"> The second point in screen coordinates. </param>
             /// <param name="point3"> The third point in screen coordinates. </param>
@@ -665,14 +672,20 @@ public static partial class Im
             /// <param name="position"> The new position in screen coordinates. </param>
             /// <remarks> If this is the first point in a new path, this just sets the start position. </remarks>
             [MethodImpl(ImSharpConfiguration.OptInl)]
-            public void LineTo(Vector2 position)
-                => Native.ImDrawList.PathLineTo(pointer, position);
+            public DrawListPath LineTo(Vector2 position)
+            {
+                Native.ImDrawList.PathLineTo(pointer, position);
+                return this;
+            }
 
             /// <summary> Add a from the current position line to a new point, but merge it with the prior point if it is the same. </summary>
             /// <param name="position"> The new position in screen coordinates. </param>
             [MethodImpl(ImSharpConfiguration.OptInl)]
-            public void LineToMergeDuplicate(Vector2 position)
-                => Native.ImDrawList.PathLineToMergeDuplicate(pointer, position);
+            public DrawListPath LineToMergeDuplicate(Vector2 position)
+            {
+                Native.ImDrawList.PathLineToMergeDuplicate(pointer, position);
+                return this;
+            }
 
             /// <summary> Add an arc as a section of the given circle. </summary>
             /// <param name="center"> The center of the circle in screen coordinates. </param>
@@ -681,8 +694,11 @@ public static partial class Im
             /// <param name="maximumAngle"> The end angle of the circle segment to draw. </param>
             /// <param name="numSegments"> Use 0 to automatically calculate tesselation (recommended) or specify the number of segments </param>
             [MethodImpl(ImSharpConfiguration.OptInl)]
-            public void ArcTo(Vector2 center, float radius, float minimumAngle, float maximumAngle, int numSegments = 0)
-                => Native.ImDrawList.PathArcTo(pointer, center, radius, minimumAngle, maximumAngle, numSegments);
+            public DrawListPath ArcTo(Vector2 center, float radius, float minimumAngle, float maximumAngle, int numSegments = 0)
+            {
+                Native.ImDrawList.PathArcTo(pointer, center, radius, minimumAngle, maximumAngle, numSegments);
+                return this;
+            }
 
             /// <summary> Add a more efficient arc as a section of the given circle given by clock positions. </summary>
             /// <param name="center"> The center of the circle in screen coordinates. </param>
@@ -690,25 +706,34 @@ public static partial class Im
             /// <param name="minimumClockPosition"> The start clock position of the circle segment in [0, 11]. </param>
             /// <param name="maximumClockPosition"> The end clock position of the circle segment in [0, 11]. </param>
             [MethodImpl(ImSharpConfiguration.OptInl)]
-            public void ArcToFast(Vector2 center, float radius, int minimumClockPosition, int maximumClockPosition)
-                => Native.ImDrawList.PathArcToFast(pointer, center, radius, minimumClockPosition, maximumClockPosition);
+            public DrawListPath ArcToFast(Vector2 center, float radius, int minimumClockPosition, int maximumClockPosition)
+            {
+                Native.ImDrawList.PathArcToFast(pointer, center, radius, minimumClockPosition, maximumClockPosition);
+                return this;
+            }
 
-            /// <summary> Add a cubic Bézier curve from the current position using three other points. </summary>
+            /// <summary> Add a cubic BÃ©zier curve from the current position using three other points. </summary>
             /// <param name="point2"> The second control point in screen coordinates. </param>
             /// <param name="point3"> The third control point in screen coordinates. </param>
             /// <param name="point4"> The fourth control point in screen coordinates. </param>
             /// <param name="numSegments"> Use 0 to automatically calculate tesselation (recommended) or specify the number of segments </param>
             [MethodImpl(ImSharpConfiguration.OptInl)]
-            public void BezierCubicCurveTo(Vector2 point2, Vector2 point3, Vector2 point4, int numSegments = 0)
-                => Native.ImDrawList.PathBezierCubicCurveTo(pointer, point2, point3, point4, numSegments);
+            public DrawListPath BezierCubicCurveTo(Vector2 point2, Vector2 point3, Vector2 point4, int numSegments = 0)
+            {
+                Native.ImDrawList.PathBezierCubicCurveTo(pointer, point2, point3, point4, numSegments);
+                return this;
+            }
 
-            /// <summary> Add a quadratic Bézier curve from the current position using two other points. </summary>
+            /// <summary> Add a quadratic BÃ©zier curve from the current position using two other points. </summary>
             /// <param name="point2"> The second control point in screen coordinates. </param>
             /// <param name="point3"> The third control point in screen coordinates. </param>
             /// <param name="numSegments"> Use 0 to automatically calculate tesselation (recommended) or specify the number of segments </param>
             [MethodImpl(ImSharpConfiguration.OptInl)]
-            public void BezierQuadraticCurveTo(Vector2 point2, Vector2 point3, int numSegments = 0)
-                => Native.ImDrawList.PathBezierQuadraticCurveTo(pointer, point2, point3, numSegments);
+            public DrawListPath BezierQuadraticCurveTo(Vector2 point2, Vector2 point3, int numSegments = 0)
+            {
+                Native.ImDrawList.PathBezierQuadraticCurveTo(pointer, point2, point3, numSegments);
+                return this;
+            }
 
             /// <summary> Add a rectangle. </summary>
             /// <param name="minimum"> The top-left corner of the rectangle in screen coordinates. </param>
@@ -716,14 +741,21 @@ public static partial class Im
             /// <param name="rounding"> The rounding of the corners in pixels. </param>
             /// <param name="flags"> Which corners to round. </param>
             [MethodImpl(ImSharpConfiguration.OptInl)]
-            public void Rectangle(Vector2 minimum, Vector2 maximum, float rounding = 0, ImDrawFlagsRectangle flags = ImDrawFlagsRectangle.None)
-                => Native.ImDrawList.PathRect(pointer, minimum, maximum, rounding, flags);
+            public DrawListPath Rectangle(Vector2 minimum, Vector2 maximum, float rounding = 0,
+                ImDrawFlagsRectangle flags = ImDrawFlagsRectangle.None)
+            {
+                Native.ImDrawList.PathRect(pointer, minimum, maximum, rounding, flags);
+                return this;
+            }
 
             /// <param name="rectangle"> The rectangle in screen coordinates. </param>
             /// <inheritdoc cref="Rectangle(Vector2,Vector2,float,ImDrawFlagsRectangle)"/>>
             [MethodImpl(ImSharpConfiguration.OptInl)]
-            public void Rectangle(in Rectangle rectangle, float rounding = 0, ImDrawFlagsRectangle flags = ImDrawFlagsRectangle.None)
-                => Native.ImDrawList.PathRect(pointer, rectangle.Minimum, rectangle.Maximum, rounding, flags);
+            public DrawListPath Rectangle(in Rectangle rectangle, float rounding = 0, ImDrawFlagsRectangle flags = ImDrawFlagsRectangle.None)
+            {
+                Native.ImDrawList.PathRect(pointer, rectangle.Minimum, rectangle.Maximum, rounding, flags);
+                return this;
+            }
 
             /// <summary> Connect the current path and draw the actual lines. </summary>
             /// <param name="color"> The color of the lines, default is white. </param>

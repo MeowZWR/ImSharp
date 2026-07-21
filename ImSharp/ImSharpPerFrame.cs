@@ -5,7 +5,7 @@ namespace ImSharp;
 public static unsafe class ImSharpPerFrame
 {
     internal static Action? Update;
-    private static  int     _frameRan;
+    private static  int     _frameRan = -1;
 
     public static void OnUpdate()
     {
@@ -20,11 +20,6 @@ public static unsafe class ImSharpPerFrame
 
         // Reset the temporary frame storage every frame.
         InputStringHandlerBuffer.FrameStorageString = StringU8.Null;
-#if IMNODES
-        ImNodes.ImNodes.StylePointer = ImNodes.ImNodes.ImNodesStyle.Get().Pointer;
-        ImNodes.ImNodes.ContextPointer = ImNodes.ImNodes.ImNodesContext.Get().Pointer;
-        ImNodes.ImNodes.IoPointer = ImNodes.ImNodes.InputOutput.Get().Pointer;
-#endif
         if (Update is not null)
             foreach (var action in Delegate.EnumerateInvocationList(Update))
             {

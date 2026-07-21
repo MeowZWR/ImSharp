@@ -1,11 +1,10 @@
-#if IMNODES
 namespace ImSharp.ImNodes;
 
 public static partial class ImNodes
 {
     /// <summary> A wrapper around ImNodes attribute flag pushing. </summary>
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public ref struct AttributeFlagDisposable : IDisposable
+    public sealed class AttributeFlagDisposable : IDisposable
     {
         /// <summary> The number of ImNodes attribute flags currently pushed using this disposable. </summary>
         public int Count { get; private set; }
@@ -14,7 +13,7 @@ public static partial class ImNodes
         /// <param name="flag"> The attribute flag to push. </param>
         /// <param name="condition"> If this is false, the attribute flag is not pushed. </param>
         /// <returns> A disposable object that can be used to push further attribute flags and pops those flags after leaving scope. Use with using. </returns>
-        /// <remarks> If you need to keep attribute flags pushed longer than the current scope, use without using and use <seealso cref="ImNodes.PopAttributeFlagUnsafe"/>. </remarks>
+        /// <remarks> If you need to keep attribute flags pushed longer than the current scope, use without using and use <seealso cref="PopUnsafe"/>. </remarks>
         [MethodImpl(ImSharpConfiguration.OptInl)]
         public AttributeFlagDisposable Push(AttributeFlags flag, bool condition)
             => condition ? Push(flag) : this;
@@ -23,7 +22,7 @@ public static partial class ImNodes
         [MethodImpl(ImSharpConfiguration.OptInl)]
         public AttributeFlagDisposable Push(AttributeFlags flag)
         {
-            Native.Methods.Stacks.PushAttribute(flag);
+            Api.PushAttributeFlag(flag);
             ++Count;
             return this;
         }
@@ -36,7 +35,7 @@ public static partial class ImNodes
             num   =  Math.Min(num, Count);
             Count -= num;
             while (num-- > 0)
-                Native.Methods.Stacks.PopAttribute();
+                Api.PopAttributeFlag();
         }
 
         /// <summary> Pop all pushed attribute flags. </summary>
@@ -45,4 +44,3 @@ public static partial class ImNodes
             => Pop(Count);
     }
 }
-#endif

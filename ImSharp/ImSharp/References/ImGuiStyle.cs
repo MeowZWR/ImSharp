@@ -380,6 +380,11 @@ public static partial class Im
             };
         }
 
+        /// <summary> Create a new, empty <see cref="StyleDisposable"/> to push colors to. </summary>
+        [MethodImpl(ImSharpConfiguration.OptInl)]
+        public StyleDisposable Empty()
+            => new();
+
         /// <inheritdoc cref="StyleDisposable.Push(ImStyleSingle,float,bool)"/>
         [MethodImpl(ImSharpConfiguration.OptInl)]
         public StyleDisposable Push(ImStyleSingle type, float value, bool condition)

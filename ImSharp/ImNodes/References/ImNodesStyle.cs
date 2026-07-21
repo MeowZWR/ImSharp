@@ -1,29 +1,28 @@
-#if IMNODES
 namespace ImSharp.ImNodes;
 
 public static partial class ImNodes
 {
     /// <summary> A read-only reference to style data for ImNodes. </summary>
     /// <param name="pointer"> The native pointer to the style. </param>
-    public readonly unsafe ref struct ImNodesStyle(Native.Style* pointer)
+    public readonly unsafe ref struct ImNodesStyle(Internal.Style* pointer)
     {
         /// <summary> The address of the native object. </summary>
-        public readonly Native.Style* Pointer = pointer;
+        public readonly Internal.Style* Pointer = pointer;
 
         [MethodImpl(ImSharpConfiguration.OptInl)]
-        public static implicit operator ImNodesStyle(Native.Style* pointer)
+        public static implicit operator ImNodesStyle(Internal.Style* pointer)
             => new(pointer);
 
         /// <summary> Obtain a read-only reference to the current ImNodes style container. </summary>
         [MethodImpl(ImSharpConfiguration.Inl)]
         public static ImNodesStyle Get()
-            => Native.Methods.Style.GetStyle();
+            => Api.GetStyle();
 
         /// <summary> Obtain a writeable reference to this style.</summary>
         /// <remarks> Generally avoid writing to the style and use Push/Pull methods instead. </remarks>
         [MethodImpl(ImSharpConfiguration.Inl)]
         public ImNodesStyleWritable AsWritable()
-            => Pointer;
+            => new(Pointer);
 
         /// <inheritdoc cref="ImNodesStyleFlags"/>
         public ImNodesStyleFlags Flags
@@ -184,7 +183,14 @@ public static partial class ImNodes
         {
             [MethodImpl(ImSharpConfiguration.Inl)]
             get => Pointer->Colors[(int)color];
+            [MethodImpl(ImSharpConfiguration.Inl)]
+            private set => Pointer->Colors[(int)color] = value;
         }
+
+        /// <summary> Create a new, empty <see cref="StyleDisposable"/> to push colors to. </summary>
+        [MethodImpl(ImSharpConfiguration.OptInl)]
+        public StyleDisposable Empty()
+            => new();
 
         /// <inheritdoc cref="StyleDisposable.Push(ImNodesStyleSingle,float)"/>
         public StyleDisposable Push(ImNodesStyleSingle type, float value)
@@ -223,7 +229,6 @@ public static partial class ImNodes
         /// <remarks> Avoid using this function, and styles across scopes, as much as possible. </remarks>
         [MethodImpl(ImSharpConfiguration.OptInl)]
         public void PopUnsafe(int num = 1)
-            => Native.Methods.Stacks.PopStyle(num);
+            => Api.PopStyle(num);
     }
 }
-#endif

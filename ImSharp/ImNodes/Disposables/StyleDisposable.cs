@@ -1,11 +1,10 @@
-#if IMNODES
 namespace ImSharp.ImNodes;
 
 public static partial class ImNodes
 {
     /// <summary> A wrapper around ImNodes style pushing. </summary>
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public ref struct StyleDisposable : IDisposable
+    public sealed class StyleDisposable : IDisposable
     {
         /// <summary> The number of ImNodes styles currently pushed using this disposable. </summary>
         public int Count { get; private set; }
@@ -29,7 +28,7 @@ public static partial class ImNodes
         [MethodImpl(ImSharpConfiguration.OptInl)]
         public StyleDisposable Push(ImNodesStyleSingle type, float value)
         {
-            Native.Methods.Stacks.PushStyle(type, value);
+            Api.PushStyleVar(type, value);
             ++Count;
             return this;
         }
@@ -38,7 +37,7 @@ public static partial class ImNodes
         [MethodImpl(ImSharpConfiguration.OptInl)]
         public StyleDisposable Push(ImNodesStyleDouble type, Vector2 value)
         {
-            Native.Methods.Stacks.PushStyle(type, value);
+            Api.PushStyleVar(type, value);
             ++Count;
             return this;
         }
@@ -68,7 +67,6 @@ public static partial class ImNodes
         public StyleDisposable PushX(ImNodesStyleDouble type, float value)
             => Push(type, Style[type] with { X = value });
 
-        // TODO
         /// <inheritdoc cref="PushY(ImNodesStyleDouble,float,bool)"/>
         [MethodImpl(ImSharpConfiguration.OptInl)]
         public StyleDisposable PushY(ImNodesStyleDouble type, float value)
@@ -77,11 +75,12 @@ public static partial class ImNodes
         /// <summary> Pop a number of ImNodes style variables. </summary>
         /// <param name="num"> The number of style variables to pop. This is clamped to the number of style variables pushed by this object. </param>
         [MethodImpl(ImSharpConfiguration.OptInl)]
-        public void Pop(int num = 1)
+        public StyleDisposable Pop(int num = 1)
         {
             num   =  Math.Min(num, Count);
             Count -= num;
-            Native.Methods.Stacks.PopStyle(num);
+            Api.PopStyle(num);
+            return this;
         }
 
         /// <summary> Pop all pushed styles. </summary>
@@ -90,4 +89,3 @@ public static partial class ImNodes
             => Pop(Count);
     }
 }
-#endif

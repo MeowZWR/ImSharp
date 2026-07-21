@@ -215,6 +215,41 @@ public static partial class ImEx
             return Im.Button(icon.Span, size, flags);
         }
 
+        /// <summary> Draw a button with flexible corner rounding with the given icon as label. </summary>
+        /// <typeparam name="T"> The icon type. </typeparam>
+        /// <param name="icon"> The icon. </param>
+        /// <param name="size"> The desired size for the button. If (0, 0), it will be frame size. </param>
+        /// <param name="corners"> Which corners to round. </param>
+        /// <param name="tooltip"> A tooltip shown when hovering the button regardless of whether it is disabled or not as text. Does not have to be null-terminated. </param>
+        /// <param name="disabled"> Whether the button should be disabled or not. </param>
+        /// <param name="flags"> Additional flags to control the button's behaviour. </param>
+        /// <returns> True if the button has been clicked in this frame. </returns>
+        /// <remarks> The tooltip is always evaluated. If this is expensive, prefer leaving it empty and using <seealso cref="Im.Tooltip.OnHover(HoveredFlags,ref HoverUtf8StringHandler,bool,Im.Font)"/> manually. </remarks>
+        [OverloadResolutionPriority(200)]
+        public static bool ButtonCorners<T>(T icon, Corners corners, Utf8TextHandler tooltip = default, bool disabled = false,
+            Vector2 size = default, ButtonFlags flags = ButtonFlags.None) where T : IIconStandIn
+        {
+            var ret = ButtonCorners(icon, corners, disabled, size, flags);
+            if (tooltip.GetSpan(out var span))
+                Im.Tooltip.OnHover(HoveredFlags.AllowWhenDisabled, span, true);
+            return ret;
+        }
+
+        /// <inheritdoc cref="ButtonCorners{T}(T,Corners,Utf8TextHandler,bool,Vector2,ButtonFlags)"/>
+        public static bool ButtonCorners<T>(T icon, Corners corners, bool disabled = false, Vector2 size = default,
+            ButtonFlags flags = ButtonFlags.None)
+            where T : IIconStandIn
+        {
+            if (size.X is 0)
+                size.X = Im.Style.FrameHeight;
+            if (size.Y is 0)
+                size.Y = Im.Style.FrameHeight;
+            using var _     = Im.Disabled(disabled);
+            using var font  = T.Font.Push();
+            using var style = ImStyleDouble.FramePadding.PushX(Im.Style.FramePadding.Y);
+            return ImEx.ButtonCorners(icon.Span, size, flags, corners);
+        }
+
         /// <summary> Draw a button with the given icon and label. </summary>
         /// <typeparam name="T"> The icon type. </typeparam>
         /// <param name="icon"> The icon. </param>
@@ -240,7 +275,7 @@ public static partial class ImEx
                 using var style = config.PushColorStyle();
                 using (PushButtonLabelAlign(icon, size.X, labelWidth, iconFlags))
                 {
-                    ret = ButtonCorners(label, size, config.Flags, corners);
+                    ret = ImEx.ButtonCorners(label, size, config.Flags, corners);
                 }
 
                 DrawLabeledButtonIcon(icon, labelWidth, iconFlags);
@@ -298,7 +333,7 @@ public static partial class ImEx
             bool      ret;
             using (PushButtonLabelAlign(icon, size.X, labelWidth, iconFlags))
             {
-                ret = ButtonCorners(label, size, config.Flags, corners);
+                ret = ImEx.ButtonCorners(label, size, config.Flags, corners);
             }
 
             DrawLabeledButtonIcon(icon, labelWidth, iconFlags);
@@ -355,7 +390,7 @@ public static partial class ImEx
                     .Push(ImGuiColor.Text, textColor);
                 using (PushButtonLabelAlign(icon, size.X, labelWidth, iconFlags))
                 {
-                    ret = ButtonCorners(label, size, flags, corners);
+                    ret = ImEx.ButtonCorners(label, size, flags, corners);
                 }
 
                 DrawLabeledButtonIcon(icon, labelWidth, iconFlags);
@@ -406,7 +441,7 @@ public static partial class ImEx
             {
                 using (PushButtonLabelAlign(icon, size.X, labelWidth, iconFlags))
                 {
-                    ret = ButtonCorners(label, size, flags, corners);
+                    ret = ImEx.ButtonCorners(label, size, flags, corners);
                 }
 
                 DrawLabeledButtonIcon(icon, labelWidth, iconFlags);
@@ -452,7 +487,7 @@ public static partial class ImEx
             bool ret;
             using (PushButtonLabelAlign(icon, size.X, labelWidth, iconFlags))
             {
-                ret = ButtonCorners(label, size, flags, corners);
+                ret = ImEx.ButtonCorners(label, size, flags, corners);
             }
 
             DrawLabeledButtonIcon(icon, labelWidth, iconFlags);
@@ -504,7 +539,7 @@ public static partial class ImEx
             bool      ret;
             using (PushButtonLabelAlign(icon, size.X, labelWidth, iconFlags))
             {
-                ret = ButtonCorners(label, size, flags, corners);
+                ret = ImEx.ButtonCorners(label, size, flags, corners);
             }
 
             DrawLabeledButtonIcon(icon, labelWidth, iconFlags);
@@ -541,7 +576,7 @@ public static partial class ImEx
             bool ret;
             using (PushButtonLabelAlign(icon, size.X, labelWidth, iconFlags))
             {
-                ret = ButtonCorners(label, size, flags, corners);
+                ret = ImEx.ButtonCorners(label, size, flags, corners);
             }
 
             DrawLabeledButtonIcon(icon, labelWidth, iconFlags);

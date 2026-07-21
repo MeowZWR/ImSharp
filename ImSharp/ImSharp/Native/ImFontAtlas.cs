@@ -47,15 +47,15 @@ public static partial class Im
 
             [MethodImpl(ImSharpConfiguration.Inl)]
             [LibraryImport(Version.CImGuiLibrary, EntryPoint = "ImFontAtlas_SetTexID")]
-            public static partial void SetTexId(ImFontAtlas* self, ImTextureId id);
+            public static partial void SetTexId(ImFontAtlas* self, int textureIndex, ImTextureId id);
 
             [MethodImpl(ImSharpConfiguration.Inl)]
             [LibraryImport(Version.CImGuiLibrary, EntryPoint = "ImFontAtlas_GetTexDataAsAlpha8")]
-            public static partial void GetTexDataAsAlpha8(ImFontAtlas* self, byte** pixels, int* width, int* height, int* bytesPerPixel);
+            public static partial void GetTexDataAsAlpha8(ImFontAtlas* self, int textureIndex, byte** pixels, int* width, int* height, int* bytesPerPixel);
 
             [MethodImpl(ImSharpConfiguration.Inl)]
             [LibraryImport(Version.CImGuiLibrary, EntryPoint = "ImFontAtlas_GetTexDataAsRGBA32")]
-            public static partial void GetTexDataAsRgba32(ImFontAtlas* self, byte** pixels, int* width, int* height, int* bytesPerPixel);
+            public static partial void GetTexDataAsRgba32(ImFontAtlas* self, int textureIndex, byte** pixels, int* width, int* height, int* bytesPerPixel);
         }
     }
 }

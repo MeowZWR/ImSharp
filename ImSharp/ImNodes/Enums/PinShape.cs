@@ -1,4 +1,3 @@
-#if IMNODES
 namespace ImSharp.ImNodes;
 
 /// <summary> Supported shapes for pins. </summary>
@@ -22,4 +21,3 @@ public enum PinShape : uint
     /// <summary> A filled square. </summary>
     SquareFilled,
 }
-#endif

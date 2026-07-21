@@ -47,7 +47,7 @@ public static partial class ImEx
     /// <param name="id"> The ID computed from the full text, or the part after a '###' (including).</param>
     /// <returns> True if the text could be obtained. </returns>
     [MethodImpl(ImSharpConfiguration.OptInl)]
-    internal static bool SplitLabel<T>(ref Utf8StringHandler<T> text, out ReadOnlySpan<byte> visibleText, out ImGuiId id)
+    public static bool SplitLabel<T>(ref Utf8StringHandler<T> text, out ReadOnlySpan<byte> visibleText, out ImGuiId id)
         where T : IStringHandlerBuffer
     {
         if (!text.GetSpan(out visibleText))
@@ -77,7 +77,7 @@ public static partial class ImEx
     /// <param name="visibleText"> The visible part of the text before any occurence of '##'. </param>
     /// <returns> True if the text could be obtained. </returns>
     [MethodImpl(ImSharpConfiguration.OptInl)]
-    internal static bool VisibleLabel<T>(ref Utf8StringHandler<T> text, out ReadOnlySpan<byte> visibleText)
+    public static bool VisibleLabel<T>(ref Utf8StringHandler<T> text, out ReadOnlySpan<byte> visibleText)
         where T : IStringHandlerBuffer
     {
         if (!text.GetSpan(out visibleText))

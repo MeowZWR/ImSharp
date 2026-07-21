@@ -31,6 +31,10 @@ public static unsafe class ImSharpConfiguration
 
             if (imguiContext is not null && imguiContext->WithinFrameScope)
                 throw new Exception("Can not set a new context while in a frame.");
+
+            if (context->Version is not ImSharpContext.CurrentVersion)
+                throw new Exception(
+                    $"Can not set a context of version {context->Version}, at least version {ImSharpContext.CurrentVersion} is required.");
         }
 
         if (_contextOwned && Context is not null)
@@ -39,6 +43,7 @@ public static unsafe class ImSharpConfiguration
         _contextOwned = owned;
         Context       = context is null ? ImSharpContext.EmptyPointer : context;
         Logger.LogDebug("Set ImSharp context to {Context:l}.", context is null ? "Empty Context" : $"0x{(nint)context:X}");
+        ImNodes.ImNodes.Api.SetCurrentContext(context is null ? null : (ImNodes.Internal.NodesContext*)context->ImNodesContext);
     }
 
     /// <summary> Set or remove a global logger for ImSharp. </summary>

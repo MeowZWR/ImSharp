@@ -18,7 +18,6 @@
 
         <!--<DefineConstants>STATECHECKS;$(DefineConstants)</DefineConstants>-->
         <DefineConstants>IMPLOT;$(DefineConstants)</DefineConstants>
-        <!--<DefineConstants>IMNODES;$(DefineConstants)</DefineConstants>-->
     </PropertyGroup>
 
     <ItemGroup>
@@ -36,12 +35,5 @@
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
             <TargetPath>cimnodes.dll</TargetPath>
         </None>
-    </ItemGroup>
-
-    <ItemGroup>
-        <None Include="Resources\include\*.hlsli" />
-        <None Include="Resources\*.hlsl" />
-        <None Include="Build-Shaders.ps1" />
-        <EmbeddedResource Include="Resources\*.dxbc" Condition="$(DefineConstants.Contains(HAS_TERRAFX))" />
     </ItemGroup>
 </Project>

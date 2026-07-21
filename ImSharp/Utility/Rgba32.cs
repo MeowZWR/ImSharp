@@ -66,7 +66,7 @@ public readonly record struct Rgba32(uint Color) : ISpanFormattable, IUtf8SpanFo
     [MethodImpl(ImSharpConfiguration.OptInl)]
     [OverloadResolutionPriority(100)]
     public Rgba32(byte r, byte g, byte b, byte a = 0xFF)
-        : this(r | ((uint) g << 8) | ((uint) b << 16) | ((uint) a << 24))
+        : this(r | ((uint)g << 8) | ((uint)b << 16) | ((uint)a << 24))
     { }
 
     /// <summary> Convert byte values for colors into a single RGBA32 color. </summary>
@@ -154,8 +154,15 @@ public readonly record struct Rgba32(uint Color) : ISpanFormattable, IUtf8SpanFo
 
     /// <summary> Get this color with specified alpha in [0, 1]. </summary>
     [MethodImpl(ImSharpConfiguration.Inl)]
+    [OverloadResolutionPriority(0)]
     public Rgba32 WithAlpha(float alpha)
         => (Color & 0x00FFFFFFu) | (uint)((byte)(Math.Clamp(alpha, 0, 1) * 0xFF) << 24);
+
+    /// <summary> Get this color with specified alpha in [0, 1]. </summary>
+    [MethodImpl(ImSharpConfiguration.Inl)]
+    [OverloadResolutionPriority(100)]
+    public Rgba32 WithAlpha(byte alpha)
+        => (Color & 0x00FFFFFFu) | ((uint)alpha << 24);
 
     /// <summary> Obtain an approximation of the intensity of a color without taking into consideration the alpha value. </summary>
     /// <param name="color"> The color. </param>
