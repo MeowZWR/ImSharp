@@ -167,46 +167,54 @@ public enum ImGuiColor : uint
 
     /// <summary> Tint for the entire screen behind a modal window. </summary>
     ModalWindowDimBackground,
-
-    /// <summary> The count of pre-defined colors used by ImGui. </summary>
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    Count,
 }
 
 public static class ImGuiColorExtensions
 {
-    /// <inheritdoc cref="Im.ColorDisposable.Push(ImGuiColor,Rgba32,bool)"/>
-    [MethodImpl(ImSharpConfiguration.OptInl)]
-    public static Im.ColorDisposable Push(this ImGuiColor type, Rgba32 color, bool condition)
-        => new Im.ColorDisposable().Push(type, color, condition);
+    public const int ColorCount = (int)ImGuiColor.ModalWindowDimBackground + 1;
 
-    /// <inheritdoc cref="Im.ColorDisposable.Push(ImGuiColor,ColorParameter)"/>
-    [MethodImpl(ImSharpConfiguration.OptInl)]
-    public static Im.ColorDisposable Push(this ImGuiColor type, ColorParameter color)
-        => new Im.ColorDisposable().Push(type, color);
+    extension(ImGuiColor type)
+    {
+        /// <inheritdoc cref="Im.ColorDisposable.Push(ImGuiColor,Rgba32,bool)"/>
+        [MethodImpl(ImSharpConfiguration.OptInl)]
+        public Im.ColorDisposable Push(Rgba32 color, bool condition)
+            => new Im.ColorDisposable().Push(type, color, condition);
 
-    /// <inheritdoc cref="Im.ColorDisposable.Push(ImGuiColor,Vector4,bool)"/>
-    [MethodImpl(ImSharpConfiguration.OptInl)]
-    public static Im.ColorDisposable Push(this ImGuiColor type, Vector4 color, bool condition)
-        => new Im.ColorDisposable().Push(type, color, condition);
+        /// <inheritdoc cref="Im.ColorDisposable.Push(ImGuiColor,ColorParameter)"/>
+        [MethodImpl(ImSharpConfiguration.OptInl)]
+        public Im.ColorDisposable Push(ColorParameter color)
+            => new Im.ColorDisposable().Push(type, color);
 
-    /// <inheritdoc cref="Im.ColorDisposable.Push(ImGuiColor,Rgba32)"/>
-    [MethodImpl(ImSharpConfiguration.OptInl)]
-    public static Im.ColorDisposable Push(this ImGuiColor type, Rgba32 color)
-        => new Im.ColorDisposable().Push(type, color);
+        /// <inheritdoc cref="Im.ColorDisposable.Push(ImGuiColor,Vector4,bool)"/>
+        [MethodImpl(ImSharpConfiguration.OptInl)]
+        public Im.ColorDisposable Push(Vector4 color, bool condition)
+            => new Im.ColorDisposable().Push(type, color, condition);
 
-    /// <inheritdoc cref="Im.ColorDisposable.Push(ImGuiColor,Vector4)"/>
-    [MethodImpl(ImSharpConfiguration.OptInl)]
-    public static Im.ColorDisposable Push(this ImGuiColor type, Vector4 color)
-        => new Im.ColorDisposable().Push(type, color);
+        /// <inheritdoc cref="Im.ColorDisposable.Push(ImGuiColor,Rgba32)"/>
+        [MethodImpl(ImSharpConfiguration.OptInl)]
+        public Im.ColorDisposable Push(Rgba32 color)
+            => new Im.ColorDisposable().Push(type, color);
 
-    /// <inheritdoc cref="Im.ColorDisposable.PushDefault(ImGuiColor)"/>
-    [MethodImpl(ImSharpConfiguration.OptInl)]
-    public static Im.ColorDisposable PushDefault(this ImGuiColor type)
-        => new Im.ColorDisposable().PushDefault(type);
+        /// <inheritdoc cref="Im.ColorDisposable.Push(ImGuiColor,Vector4)"/>
+        [MethodImpl(ImSharpConfiguration.OptInl)]
+        public Im.ColorDisposable Push(Vector4 color)
+            => new Im.ColorDisposable().Push(type, color);
 
-    /// <inheritdoc cref="Im.Color.Get"/>
-    [MethodImpl(ImSharpConfiguration.OptInl)]
-    public static Rgba32 Get(this ImGuiColor type, float alphaMultiplier = 1.0f)
-        => Im.Color.Get(type, alphaMultiplier);
+        /// <inheritdoc cref="Im.ColorDisposable.PushDefault(ImGuiColor)"/>
+        [MethodImpl(ImSharpConfiguration.OptInl)]
+        public Im.ColorDisposable PushDefault()
+            => new Im.ColorDisposable().PushDefault(type);
+
+        /// <inheritdoc cref="Im.Color.Get"/>
+        [MethodImpl(ImSharpConfiguration.OptInl)]
+        public Rgba32 Get(float alphaMultiplier = 1.0f)
+            => Im.Color.Get(type, alphaMultiplier);
+
+        /// <summary> Get the number of available ImGui colors. </summary>
+        public static int Count
+        {
+            [MethodImpl(ImSharpConfiguration.OptInl)]
+            get => ColorCount;
+        }
+    }
 }

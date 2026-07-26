@@ -6,9 +6,27 @@ namespace ImSharp;
 /// <remarks> Any object of this type will subscribe its update function to <seealso cref="ImSharpPerFrame.Update"/>. </remarks>
 public class CacheManager : IDisposable
 {
+    private record CacheData(IManagedCache Cache, DateTime Time, int LastRequest)
+    {
+        public DateTime Time        { get; set; } = Time;
+        public int      LastRequest { get; set; } = LastRequest;
+    }
+
     /// <summary> The default cache manager that internal objects can use. </summary>
     /// <remarks> It is possible to set the logger and service provider of this instance. </remarks>
     public static readonly CacheManager Instance = new(null);
+
+    /// <inheritdoc cref="GetOrCreateCache"/>
+    [MethodImpl(ImSharpConfiguration.OptInl)]
+    public static TResult GetOrCreateGlobalCache<TResult>(ImGuiId id, Func<TResult> factory)
+        where TResult : class, IManagedCache
+        => Instance.GetOrCreateCache(id, factory);
+
+    /// <inheritdoc cref="TryGetCache"/>
+    [MethodImpl(ImSharpConfiguration.OptInl)]
+    public static bool TryGetGlobalCache<TResult>(ImGuiId id, [NotNullWhen(true)] out TResult? result)
+        where TResult : class, IManagedCache
+        => Instance.TryGetCache(id, out result);
 
     /// <summary> A custom logger to set when the manager should not use the global logger. </summary>
     public ILogger? CustomLogger
@@ -24,8 +42,8 @@ public class CacheManager : IDisposable
     /// <summary> The logger the internal functions write to. </summary>
     public ILogger Logger { get; private set; }
 
-    private readonly Dictionary<ImGuiId, (IManagedCache Cache, DateTime Time)> _caches     = [];
-    private readonly Dictionary<ImGuiId, object>                               _storedData = [];
+    private readonly Dictionary<ImGuiId, CacheData> _caches     = [];
+    private readonly Dictionary<ImGuiId, object>    _storedData = [];
 
     /// <summary> Invoked when the cache manager is requested to set font dirty flags on all caches. </summary>
     public event Action? OnFontDirty;
@@ -56,7 +74,9 @@ public class CacheManager : IDisposable
     {
         if (_caches.TryGetValue(id, out var cache) && cache.Cache is TResult c)
         {
-            result = c;
+            cache.LastRequest = Im.State.FrameCount;
+            cache.Time        = NextDeletion(cache.Cache.KeepAliveDuration);
+            result            = c;
             return true;
         }
 
@@ -76,30 +96,30 @@ public class CacheManager : IDisposable
     public TResult GetOrCreateCache<TResult>(ImGuiId id, Func<TResult> factory)
         where TResult : class, IManagedCache
     {
-        if (!_caches.TryGetValue(id, out var pair))
+        if (!_caches.TryGetValue(id, out var tuple))
         {
             var cache = factory();
             if (_storedData.TryGetValue(id, out var data))
                 cache.ApplyStoredData(data);
             cache.Update();
-            _caches.Add(id, (cache, NextDeletion(cache.KeepAliveDuration)));
+            _caches.Add(id, new CacheData(cache, NextDeletion(cache.KeepAliveDuration), Im.State.FrameCount));
             Logger.LogDebug("[CacheManager] Created new cache of type {Type:l} for ID {ID}.", typeof(TResult).Name, id.Id);
             return cache;
         }
 
-        if (CheckAndUpdateCache<TResult>(id, pair.Cache) is { } existingCache)
+        if (CheckAndUpdateCache<TResult>(id, tuple) is { } existingCache)
             return existingCache;
 
-        if (pair.Cache.SaveStoredData() is { } obj)
+        if (tuple.Cache.SaveStoredData() is { } obj)
             _storedData[id] = obj;
-        (pair.Cache as IDisposable)?.Dispose();
+        (tuple.Cache as IDisposable)?.Dispose();
         var newCache = factory();
         newCache.Update();
         if (_storedData.TryGetValue(id, out var newData))
             newCache.ApplyStoredData(newData);
-        _caches[id] = (newCache, NextDeletion(newCache.KeepAliveDuration));
+        _caches[id] = new CacheData(newCache, NextDeletion(newCache.KeepAliveDuration), Im.State.FrameCount);
         Logger.LogInformation("[CacheManager] Replaced existing cache of type {OldType:l} with new type {NewType:l} for ID {ID}.",
-            new TypeWrapper(pair.Cache),
+            new TypeWrapper(tuple.Cache),
             typeof(TResult).Name, id.Id);
         return newCache;
     }
@@ -109,7 +129,7 @@ public class CacheManager : IDisposable
     protected void CheckCaches()
     {
         var now = DateTime.UtcNow;
-        foreach (var (id, (cache, time)) in _caches)
+        foreach (var (id, (cache, time, _)) in _caches)
         {
             if (time >= now)
                 continue;
@@ -151,7 +171,7 @@ public class CacheManager : IDisposable
     {
         Logger.LogTrace("[CacheManager] Set font size dirty flag for all caches.");
         OnFontDirty?.Invoke();
-        foreach (var (cache, _) in _caches.Values)
+        foreach (var (cache, _, _) in _caches.Values)
             cache.Dirty |= IManagedCache.DirtyFlags.Font;
     }
 
@@ -160,7 +180,7 @@ public class CacheManager : IDisposable
     {
         Logger.LogTrace("[CacheManager] Set style dirty flag for all caches.");
         OnStyleDirty?.Invoke();
-        foreach (var (cache, _) in _caches.Values)
+        foreach (var (cache, _, _) in _caches.Values)
             cache.Dirty |= IManagedCache.DirtyFlags.Style;
     }
 
@@ -169,7 +189,7 @@ public class CacheManager : IDisposable
     {
         Logger.LogTrace("[CacheManager] Set colors dirty flag for all caches.");
         OnColorsDirty?.Invoke();
-        foreach (var (cache, _) in _caches.Values)
+        foreach (var (cache, _, _) in _caches.Values)
             cache.Dirty |= IManagedCache.DirtyFlags.Style;
     }
 
@@ -183,7 +203,7 @@ public class CacheManager : IDisposable
     /// <summary> Dispose and remove all stored caches. </summary>
     protected virtual void Dispose(bool disposing)
     {
-        foreach (var (cache, _) in _caches.Values)
+        foreach (var (cache, _, _) in _caches.Values)
             (cache as IDisposable)?.Dispose();
         _caches.Clear();
         ImSharpPerFrame.Update             -= CheckCaches;
@@ -211,14 +231,17 @@ public class CacheManager : IDisposable
 
     /// <summary> Check a pre-existing cache to be the correct type and update it if it is. </summary>
     [MethodImpl(ImSharpConfiguration.OptInl)]
-    private TResult? CheckAndUpdateCache<TResult>(ImGuiId id, IManagedCache cache)
+    private TResult? CheckAndUpdateCache<TResult>(ImGuiId id, CacheData cache)
         where TResult : class, IManagedCache
     {
-        if (cache is not TResult res)
+        if (cache.Cache is not TResult res)
             return null;
 
+        if (cache.LastRequest < Im.State.FrameCount - 1)
+            res.SkippedRequests();
         res.Update();
-        _caches[id] = (res, NextDeletion(res.KeepAliveDuration));
+        cache.Time        = NextDeletion(res.KeepAliveDuration);
+        cache.LastRequest = Im.State.FrameCount;
         return res;
     }
 

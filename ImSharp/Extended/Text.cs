@@ -13,10 +13,8 @@ public static partial class ImEx
     public static void TextFramed(Utf8TextHandler text, Vector2 size = default, ColorParameter frameColor = default,
         ColorParameter textColor = default, ColorParameter borderColor = default)
     {
-        var textSize = CalcAndUpdateSize(ref text, ref size);
-        var rect     = Im.Cursor.ScreenRectangle(size);
-        Im.Render.Frame(rect, frameColor.CheckDefault(ImGuiColor.FrameBackground), Im.Style.FrameRounding,
-            borderColor.CheckDefault(ImGuiColor.Border));
+        var       textSize = CalcAndUpdateSize(ref text, ref size);
+        var       rect     = Frame(size, frameColor, borderColor);
         using var color    = Im.Color.Push(ImGuiColor.Text, textColor);
         var       textRect = new Rectangle(rect.Minimum + Im.Style.FramePadding, rect.Maximum - Im.Style.FramePadding);
         Im.DrawList.Window.TextClipped(textRect, ref text, textSize, Im.Style.ButtonTextAlignment);
@@ -40,6 +38,28 @@ public static partial class ImEx
         Im.DrawList.Window.TextClipped(textRect, ref text, textSize, Im.Style.ButtonTextAlignment);
         Im.Item.SetSize(rect.Size, Im.Style.FramePadding.Y);
         Im.Item.Add(rect, 0, ItemFlags.ReadOnly | ItemFlags.NoNavigation);
+    }
+
+    /// <summary> Draw a frame of the given size using the default frame rounding and the given colors. </summary>
+    /// <param name="size"> The desired size of the frame. </param>
+    /// <param name="frameColor"> The color of the frame. If this is <see cref="ColorParameter.Default"/>, <see cref="ImGuiColor.FrameBackground"/> is used. </param>
+    /// <param name="borderColor"> The color of the border. If this is <see cref="ColorParameter.Default"/>, <see cref="ImGuiColor.FrameBackground"/> is used. </param>
+    /// <param name="borderThickness"> The thickness of the border. If this is null, <see cref="ImStyleSingle.FrameBorderThickness"/> is used. </param>
+    /// <returns> The drawn rectangle. </returns>
+    public static Rectangle Frame(Vector2 size, ColorParameter frameColor = default, ColorParameter borderColor = default,
+        float? borderThickness = null)
+    {
+        if (size.X <= 0 || size.Y <= 0)
+            return Rectangle.Zero;
+
+        var rect      = Im.Cursor.ScreenRectangle(size);
+        var style     = Im.Style.AsWritable();
+        var oldBorder = style.FrameBorderThickness;
+        style.FrameBorderThickness = borderThickness ?? oldBorder;
+        Im.Render.Frame(rect, frameColor.CheckDefault(ImGuiColor.FrameBackground), Im.Style.FrameRounding,
+            borderColor.CheckDefault(ImGuiColor.Border));
+        style.FrameBorderThickness = oldBorder;
+        return rect;
     }
 
     /// <summary> Draw text aligned to the frame, i.e. offset by <seealso cref="Im.ImGuiStyle.FramePadding"/>.Y </summary>

@@ -13,6 +13,10 @@ public static unsafe partial class ImNodes
     public static NodeEditor NodeEditor()
         => new(true);
 
+    /// <summary> Get whether the ImNodes context is initialized. </summary>
+    public static bool Initialized
+        => Context is not null;
+
     /// <summary> The current style data used by ImNodes. </summary>
     public static ImNodesStyle Style
     {

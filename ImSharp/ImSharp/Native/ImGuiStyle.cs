@@ -48,7 +48,7 @@ public static partial class Im
             public float      CircleTessellationMaxError;
             public ColorArray Colors;
 
-            [InlineArray((int)ImGuiColor.Count)]
+            [InlineArray(ImGuiColorExtensions.ColorCount)]
             public struct ColorArray
             {
                 private ImVec4 _element;
