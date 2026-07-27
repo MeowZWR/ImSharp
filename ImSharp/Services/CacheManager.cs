@@ -190,7 +190,7 @@ public class CacheManager : IDisposable
         Logger.LogTrace("[CacheManager] Set colors dirty flag for all caches.");
         OnColorsDirty?.Invoke();
         foreach (var (cache, _, _) in _caches.Values)
-            cache.Dirty |= IManagedCache.DirtyFlags.Style;
+            cache.Dirty |= IManagedCache.DirtyFlags.Colors;
     }
 
     /// <summary> Dispose and remove all stored caches. </summary>
