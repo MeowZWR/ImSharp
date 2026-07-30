@@ -22,6 +22,25 @@ public static partial class ImEx
         Im.Item.Add(rect, 0, ItemFlags.ReadOnly | ItemFlags.NoNavigation);
     }
 
+    /// <summary> Draw the given text framed as if it were a button but without interactivity. </summary>
+    /// <param name="text"> The given text. Does not have to be null-terminated. </param>
+    /// <param name="frameColor"> The background color of the frame. If this is <see cref="ColorParameter.Default"/>, <see cref="ImGuiColor.FrameBackground"/> is used. </param>
+    /// <param name="textColor"> The color of the text. If this is <see cref="ColorParameter.Default"/>, <see cref="ImGuiColor.Text"/> is used. </param>
+    /// <param name="borderColor"> The color of the frame border. If this is <see cref="ColorParameter.Default"/>, <see cref="ImGuiColor.Text"/> is used. </param>
+    /// <param name="size"> The size of the frame. If 0, the text size is used. Otherwise, Text is aligned according to ButtonTextAlign and corners are rounded according to style. </param>
+    /// <param name="alignmentSpace"> The rectangle the text is aligned in. This should be a subset of the rectangle spanned by (0, 0) and <paramref name="size"/>. </param>
+    public static void TextFramed(Utf8TextHandler text, Vector2 size, in Rectangle alignmentSpace, ColorParameter frameColor = default,
+        ColorParameter textColor = default, ColorParameter borderColor = default)
+    {
+        var       textSize = CalcAndUpdateSize(ref text, ref size);
+        var       rect     = Frame(size, frameColor, borderColor);
+        using var color    = Im.Color.Push(ImGuiColor.Text, textColor);
+        var       textRect = new Rectangle(alignmentSpace.Minimum + rect.Minimum, rect.Minimum + alignmentSpace.Maximum);
+        Im.DrawList.Window.TextClipped(textRect, ref text, textSize, Im.Style.ButtonTextAlignment);
+        Im.Item.SetSize(rect.Size, Im.Style.FramePadding.Y);
+        Im.Item.Add(rect, 0, ItemFlags.ReadOnly | ItemFlags.NoNavigation);
+    }
+
     /// <summary> Draw the given text bordered as if it were a button with a border and no background but without interactivity. </summary>
     /// <param name="text"> The given text. Does not have to be null-terminated. </param>
     /// <param name="textColor"> The color of the text. If this is <see cref="ColorParameter.Default"/>, <see cref="ImGuiColor.Text"/> is used. </param>
