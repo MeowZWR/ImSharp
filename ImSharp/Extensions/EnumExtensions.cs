@@ -186,6 +186,14 @@ public static class EnumExtensions
         /// <summary> Get the first name of the given value in the enumeration as a UTF8 string. </summary>
         public StringU8 StringU8
             => TextU8<T>.Data.TryGetValue(v, out var t) ? t : new StringU8($"{v}");
+
+        /// <summary> Whether the enumeration is marked as flags. </summary>
+        public static bool IsFlags
+            => Flags<T>.IsFlags;
+
+        /// <summary> Whether the value only consists of defined flags. </summary>
+        public bool FlagsDefined
+            => Flags<T>.IsFlags ? EqualityComparer<T>.Default.Equals(Flags<T>.All.Or(v), Flags<T>.All) : v.Defined;
     }
 
     [MethodImpl(ImSharpConfiguration.OptInl)]
@@ -321,6 +329,15 @@ public static class EnumExtensions
 #pragma warning disable
         public static readonly FrozenDictionary<T, StringU8> Data = NamesAndValuesU8<T>.Data.DistinctBy(p => p.Value)
             .ToFrozenDictionary(p => p.Value, p => p.Name);
+#pragma warning restore
+    }
+
+    /// <summary> The static container for the data is only initialized when used. </summary>
+    private static class Flags<T> where T : unmanaged, Enum
+    {
+#pragma warning disable
+        public static readonly bool IsFlags = typeof(T).GetCustomAttributes(typeof(FlagsAttribute), false).Any();
+        public static readonly T    All     = IsFlags ? Values<T>.Data.Or() : default;
 #pragma warning restore
     }
 }
