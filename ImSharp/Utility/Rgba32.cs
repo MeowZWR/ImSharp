@@ -275,9 +275,99 @@ public readonly record struct Rgba32(uint Color) : ISpanFormattable, IUtf8SpanFo
         return true;
     }
 
+    /// <summary> Try to read a color value from a UTF8 string as formatted by our own output, i.e. #rrggbbaa. </summary>
+    /// <param name="source"> The source span. </param>
+    /// <param name="value"> The returned value on success. </param>
+    /// <param name="allowNoAlpha"> Whether a shortened format #rrggbb is allowed for full alpha. </param>
+    /// <returns> True on success. </returns>
+    public static bool TryRead(ReadOnlySpan<byte> source, out Rgba32 value, bool allowNoAlpha = true)
+    {
+        if (source.Length is not 9 && (!allowNoAlpha || source.Length is not 7) || source[0] is not (byte)'#')
+        {
+            value = default;
+            return false;
+        }
+
+        var ret = 0u;
+        if (!Append(source[1], ref ret, 4)
+         || !Append(source[2], ref ret, 0)
+         || !Append(source[3], ref ret, 12)
+         || !Append(source[4], ref ret, 8)
+         || !Append(source[5], ref ret, 20)
+         || !Append(source[6], ref ret, 16))
+        {
+            value = default;
+            return false;
+        }
+
+        if (source.Length is 7)
+        {
+            value = ret | 0xFF000000;
+            return true;
+        }
+
+        if (!Append(source[7], ref ret, 28)
+         || !Append(source[8], ref ret, 24))
+        {
+            value = default;
+            return false;
+        }
+
+        value = ret;
+        return true;
+    }
+
+
     private static ReadOnlySpan<char> HexU16
         => "0123456789ABCDEF";
 
     private static ReadOnlySpan<byte> HexU8
         => "0123456789ABCDEF"u8;
+
+    [MethodImpl(ImSharpConfiguration.OptInl)]
+    private static bool Append(byte character, ref uint value, int shift)
+    {
+        if (!CheckCharacter(character, out var partialValue))
+            return false;
+
+        value |= partialValue << shift;
+        return true;
+    }
+
+    [MethodImpl(ImSharpConfiguration.OptInl)]
+    private static bool CheckCharacter(byte character, out uint value)
+    {
+        if (character > 'f')
+        {
+            value = 0xFF;
+            return false;
+        }
+
+        value = NumericalHex[character];
+        return value is not 0xFF;
+    }
+
+    private static ReadOnlySpan<byte> NumericalHex
+        =>
+        [
+            0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+            0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+            0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+            0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+            0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+            0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+
+            // 0x30–0x3F: '0'–'9'
+            0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
+            0x08, 0x09, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+
+            // 0x40–0x4F: 'A'–'F'
+            0xFF, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F, 0xFF,
+            0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+            0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+            0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+
+            // 0x60–0x6F: 'a'–'f' also accepted
+            0xFF, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F,
+        ];
 }

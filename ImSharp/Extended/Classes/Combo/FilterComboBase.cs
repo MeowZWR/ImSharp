@@ -214,12 +214,16 @@ public abstract class FilterComboBase<TCacheItem> : FilterComboBase
     protected virtual bool DrawCombo(ref Utf8LabelHandler label, ref Utf8HintHandler preview, ref Utf8TextHandler tooltip, float previewWidth,
         [NotNullWhen(true)] out TCacheItem? ret)
     {
-        using var style = Im.Style.PushDefault(ImStyleDouble.ItemSpacing);
+        var       currentItemSpacing = Im.Style.ItemSpacing.Y;
+        using var style              = Im.Style.PushDefault(ImStyleDouble.ItemSpacing);
+        var       offset             = currentItemSpacing - Im.Style.ItemSpacing.Y;
         // Draw the combo itself.
         PreDrawCombo(previewWidth);
         Im.Item.SetNextWidth(previewWidth);
         var flags = Flags.CheckAny(ComboFlags.HeightMask) ? Flags : Flags | ComboFlags.HeightLarge;
         Im.Combo.DrawPreview(label, preview, out var id, out var boundingBox, flags, PreviewAlignment);
+        if (offset is not 0)
+            Im.Cursor.Y += offset;
         PostDrawCombo(previewWidth);
 
         // Draw the tooltip if not empty.

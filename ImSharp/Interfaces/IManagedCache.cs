@@ -36,6 +36,9 @@ public interface IManagedCache
     /// <summary> Update the caches state. This should handle the individual <seealso cref="DirtyFlags"/> sensibly and should set <seealso cref="Dirty"/> to <seealso cref="DirtyFlags.Clean"/> when finished. </summary>
     public void Update();
 
+    /// <summary> Invoked when the cache has not been requested for at least one frame since the last time it has been requested. </summary>
+    public void SkippedRequests();
+
     /// <summary> Apply data that should be stored even if the cache is removed from the cache manager. Called by the manager when a new cache object is created, before Update is called, if data for this ID already exists. </summary>
     public void ApplyStoredData(object existingData);
 
@@ -62,8 +65,14 @@ public abstract class BasicCache() : IManagedCache, IDisposable
     /// <inheritdoc/>
     public TimeSpan KeepAliveDuration { get; set; } = TimeSpan.FromSeconds(5);
 
+    public int LastRequestedFrame { get; set; } = -1;
+
     /// <inheritdoc/>
     public abstract void Update();
+
+    /// <inheritdoc/>
+    public virtual void SkippedRequests()
+    { }
 
     /// <inheritdoc/>
     public void Dispose()
