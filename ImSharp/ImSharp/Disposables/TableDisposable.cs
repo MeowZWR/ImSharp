@@ -74,6 +74,15 @@ public static partial class Im
             return true;
         }
 
+        /// <summary> Draw a horizontal separator for the current cell. </summary>
+        public readonly void DrawHorizontalSeparator()
+        {
+            using var clip = Drawing.PushClipRect(Rectangle.FromSize(Window.Position, Window.Size));
+            Window.DrawList.Shape.Line(Cursor.ScreenPosition.AddY(-Style.CellPadding.Y),
+                Cursor.ScreenPosition + new Vector2(Window.Width, -Style.CellPadding.Y),
+                ImGuiColor.Separator.Get(), Style.GlobalScale);
+        }
+
         /// <summary> Go to the next column and draw frame-aligned text in it. </summary>
         /// <param name="text"> The text. Does not have to be null-terminated. </param>
         /// <returns> True if the column is visible. </returns>
