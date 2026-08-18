@@ -171,7 +171,7 @@ public static partial class Im
                 public PayloadBuffer                 DragDropPayloadBufferLocal;
                 public int                           ClipperTempDataStacked;
                 public ImVector<ListClipperData>     ClipperTempData;
-                public TableDisposable*                   CurrentTable;
+                public Table*                        CurrentTable;
                 public int                           TablesTempDataStacked;
                 public ImVector<TableTempData>       TablesTempData;
                 public ImPool<Table>                 Tables;

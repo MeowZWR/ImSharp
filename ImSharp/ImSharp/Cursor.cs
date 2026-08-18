@@ -55,7 +55,7 @@ public static partial class Im
         public static unsafe Vector2 PositionPreviousLine
         {
             [MethodImpl(ImSharpConfiguration.OptInl)]
-            get => Window.Current.Pointer->TempData.CursorPositionPreviousLine;
+            get => (Vector2)Window.Current.Pointer->TempData.CursorPositionPreviousLine - Window.Current.Pointer->Position;
         }
 
         /// <summary> Get or set the horizontal cursor position in window coordinates. </summary>
@@ -101,6 +101,14 @@ public static partial class Im
             }
             [MethodImpl(ImSharpConfiguration.OptInl)]
             set => Native.Methods.Layout.SetCursorScreenPos(value);
+        }
+
+        /// <summary> Get the cursor position of the last line in screen coordinates. </summary>
+        /// <remarks> Skips having to call <see cref="Im.Line.NoSpacing"/> before getting a horizontal cursor position. </remarks>
+        public static unsafe Vector2 ScreenPositionPreviousLine
+        {
+            [MethodImpl(ImSharpConfiguration.OptInl)]
+            get => (Vector2)Window.Current.Pointer->TempData.CursorPositionPreviousLine;
         }
 
         /// <summary> Get a rectangle of the given size starting the current cursor position. </summary>
