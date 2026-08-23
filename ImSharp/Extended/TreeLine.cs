@@ -15,6 +15,9 @@ public interface IFlattenedTreeNode
     /// <summary> The indentation depth, or depth inside the tree, of this node. Or the number of ancestors. </summary>
     public int IndentationDepth { get; set; }
 
+    /// <summary> An override for the default line color. Only used when <see cref="StartsLineTo"/> is non-negative.</summary>
+    public ColorParameter LineColor { get; set; }
+
     /// <summary> Draw this node. Should not indent itself. </summary>
     /// <param name="flattenedIndex"> The index of the object. </param>
     public void Draw(int flattenedIndex);
@@ -22,16 +25,18 @@ public interface IFlattenedTreeNode
 
 public static class TreeLine
 {
-    /// <inheritdoc cref="Draw(IReadOnlyList{IFlattenedTreeNode},Rgba32,float,float)"/>
-    public static void Draw(IReadOnlyList<IFlattenedTreeNode> list, Rgba32 lineColor)
-        => Draw(list, lineColor, Im.Style.TextHeight, 2 * Im.Style.GlobalScale);
+    /// <inheritdoc cref="Draw(IReadOnlyList{IFlattenedTreeNode},Rgba32,float,float,ColorParameter)"/>
+    public static void Draw(IReadOnlyList<IFlattenedTreeNode> list, Rgba32 lineColor, ColorParameter alternatingLineColor = default)
+        => Draw(list, lineColor, Im.Style.TextHeight, 2 * Im.Style.GlobalScale, alternatingLineColor);
 
     /// <summary> Draw a tree structure with a child-associating line from a flattened tree node list. </summary>
     /// <param name="list"> The list of flattened nodes, expected to have a valid and sensible structure. </param>
-    /// <param name="lineColor"> The color to draw the associative line in. </param>
+    /// <param name="lineColor"> The color to draw the associative line in if not overwritten by the folder node for lines in odd depth. </param>
+    /// <param name="alternatingLineColor"> The color to draw the associative line in if not overwritten by the folder node for lines in even depth. If this is default, <paramref name="lineColor"/> is used. </param>
     /// <param name="itemHeight"> The height of each node in the tree WITHOUT spacing. For regular tree nodes, this should be <see cref="Im.ImGuiStyle.TextHeight"/>. </param>
     /// <param name="lineWidth"> The width of the line to draw in pixels. Should generally be 1, 2, or 3 at most. Possibly scaled by the <see cref="Im.ImGuiStyle.GlobalScale"/>. Default is 2 scaled.  </param>
-    public static void Draw(IReadOnlyList<IFlattenedTreeNode> list, Rgba32 lineColor, float itemHeight, float lineWidth)
+    public static void Draw(IReadOnlyList<IFlattenedTreeNode> list, Rgba32 lineColor, float itemHeight, float lineWidth,
+        ColorParameter alternatingLineColor = default)
     {
         if (list.Count is 0)
             return;
@@ -48,9 +53,9 @@ public static class TreeLine
         // The general offset for the vertical line from the cursor point. The -0.5 is for optimizing DX line rendering.
         var lineOffset = new Vector2(spacing - 0.5f, itemHeight);
         // The general offset for the horizontal line from the cursor point. The -0.5 is for optimizing DX line rendering.
-        var horizontalOffset = new Vector2(spacing - lineOffset.X, itemHeight / 2 - 0.5f);
-
-        var drawList = Im.Window.DrawList.Shape;
+        var horizontalOffset  = new Vector2(spacing - lineOffset.X, itemHeight / 2 - 0.5f);
+        var actualAlternating = alternatingLineColor.CheckDefault(lineColor);
+        var drawList          = Im.Window.DrawList.Shape;
 
         // Clip the list, despite the continuous lines.
         using var clipper = new Im.ListClipper(list.Count, itemHeightWithSpacing);
@@ -111,7 +116,8 @@ public static class TreeLine
                     ? currentDepth - list[item.ParentIndex].IndentationDepth
                     : 1;
                 var end = start with { X = start.X - diff * indentationWidth + lineOffset.X };
-                drawList.Line(start, end,                            lineColor, lineWidth);
+                drawList.Line(start, end, parent.LineColor.CheckDefault(int.IsOddInteger(currentDepth) ? lineColor : actualAlternating),
+                    lineWidth);
             }
 
             // If this node starts a line, draw it. 
@@ -154,6 +160,7 @@ public static class TreeLine
             start.X += lineOffset.X;
             var end = start;
             end.Y += Im.Window.Size.Y;
+            var currentIndex = firstIndex;
             do
             {
                 var s = start with { X = start.X + (hasMissingParents - 1) * indentationWidth };
@@ -161,9 +168,12 @@ public static class TreeLine
 #if TESTING
                 drawList.Line(s, e, Rgba32.Green.HalfTransparent(), lineWidth);
 #else
-                drawList.Line(s, e, lineColor, lineWidth);
-#endif
+                currentIndex = list[currentIndex].ParentIndex;
+                var parent = list[currentIndex];
+                drawList.Line(s, e, parent.LineColor.CheckDefault(int.IsOddInteger(hasMissingParents) ? lineColor : actualAlternating),
+                    lineWidth);
                 --hasMissingParents;
+#endif
             } while (hasMissingParents > 0);
         }
 
@@ -179,7 +189,8 @@ public static class TreeLine
             var start = startPosition + lineOffset;
             // End is at the center of the last horizontal line.
             var end = start with { Y = start.Y + (node.StartsLineTo - nodeIndex) * itemHeightWithSpacing - lineOffset.Y / 2 };
-            drawList.Line(start, end, lineColor, lineWidth);
+            drawList.Line(start, end, node.LineColor.CheckDefault(int.IsEvenInteger(node.IndentationDepth) ? lineColor : actualAlternating),
+                lineWidth);
         }
     }
 }
