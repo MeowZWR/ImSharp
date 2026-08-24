@@ -116,6 +116,8 @@ public static class TreeLine
                     ? currentDepth - list[item.ParentIndex].IndentationDepth
                     : 1;
                 var end = start with { X = start.X - diff * indentationWidth + lineOffset.X };
+                while (parent.StartsLineTo < 0)
+                    parent = list[parent.ParentIndex];
                 drawList.Line(start, end, parent.LineColor.CheckDefault(int.IsOddInteger(currentDepth) ? lineColor : actualAlternating),
                     lineWidth);
             }
