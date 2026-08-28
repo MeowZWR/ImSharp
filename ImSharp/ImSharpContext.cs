@@ -59,8 +59,10 @@ public unsafe struct ImSharpContext : IDisposable
         Marshal.FreeHGlobal((nint)context->LabelBuffer);
         Marshal.FreeHGlobal((nint)context->TextBuffer);
         Marshal.FreeHGlobal((nint)context->InputBuffer);
-        Marshal.FreeHGlobal((nint)context);
         ((ImNodes.ImNodes.ImNodesContext)context->ImNodesContext).Destroy();
+
+        context->Dispose();
+        Marshal.FreeHGlobal((nint)context);
     }
 
     public void Dispose()
