@@ -13,7 +13,7 @@ public enum NavigationMoveFlags : uint
     /// <summary> On a failed request, start from the opposite vertical side. </summary>
     LoopY = 1 << 1,
 
-    /// <summary> On a failed request, start from the opposite horizontal side but move one vertical line in the corresponding direction. </summary>gggggg
+    /// <summary> On a failed request, start from the opposite horizontal side but move one vertical line in the corresponding direction. </summary>
     WrapX = 1 << 2,
 
     /// <summary> On a failed request, start from the opposite vertical side but move one horizontal column in the corresponding direction. </summary>
