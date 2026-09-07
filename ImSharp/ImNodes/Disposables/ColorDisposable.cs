@@ -14,7 +14,7 @@ public static partial class ImNodes
         /// <param name="color"> The color to change it to. </param>
         /// <param name="condition"> If this is false, the color is not pushed. </param>
         /// <returns> A disposable object that can be used to push further colors and pops those colors after leaving scope. Use with using. </returns>
-        /// <remarks> If you need to keep colors pushed longer than the current scope, use without using and use <seealso cref="PopUnsafe"/>. </remarks>
+        /// <remarks> If you need to keep colors pushed longer than the current scope, use without using and use <seealso cref="Im.ColorDisposable.PopUnsafe"/>. </remarks>
         [MethodImpl(ImSharpConfiguration.OptInl)]
         public ColorDisposable Push(ImNodesColor type, Rgba32 color, bool condition)
             => condition ? Push(type, color) : this;
@@ -29,12 +29,11 @@ public static partial class ImNodes
             return this;
         }
 
-        // TODO references
         /// <summary> Push a color to the ImNodes color stack. </summary>
         /// <param name="type"> The type of ImNodes color to change. </param>
         /// <param name="color"> The color to change it to. If this is null, no color will be set. </param>
         /// <returns> A disposable object that can be used to push further colors and pops those colors after leaving scope. Use with using. </returns>
-        /// <remarks> If you need to keep colors pushed longer than the current scope, use without using and use <seealso cref="PopUnsafe"/>. </remarks>
+        /// <remarks> If you need to keep colors pushed longer than the current scope, use without using and use <seealso cref="Im.ColorDisposable.PopUnsafe"/>. </remarks>
         [MethodImpl(ImSharpConfiguration.OptInl)]
         [OverloadResolutionPriority(50)]
         public ColorDisposable Push(ImNodesColor type, ColorParameter color)
