@@ -190,7 +190,8 @@ public abstract class FilterComboBase<TCacheItem> : FilterComboBase
 
         ImEx.SplitLabel(ref label, out _, out var idSeed);
         var popupId     = Im.Id.Calculate("##ComboPopup"u8, idSeed);
-        var returnValue = HandleComboPopup(popupWidth, popupId, Im.Item.Bounds, out _, out ret!);
+        var flags       = Flags.CheckAny(ComboFlags.HeightMask) ? Flags : Flags | ComboFlags.HeightLarge;
+        var returnValue = HandleComboPopup(popupWidth, popupId, Im.Item.Bounds, flags, out _, out ret!);
         if (DrawMouseWheelHandling(out var ret2))
         {
             ret         = ret2;
@@ -233,7 +234,7 @@ public abstract class FilterComboBase<TCacheItem> : FilterComboBase
             Im.Tooltip.OnHover(tooltipSpan, true);
         }
 
-        var returnValue = HandleComboPopup(previewWidth, id, boundingBox, out var exit, out ret);
+        var returnValue = HandleComboPopup(previewWidth, id, boundingBox, flags, out var exit, out ret);
         if (exit)
             return returnValue;
 
@@ -251,7 +252,7 @@ public abstract class FilterComboBase<TCacheItem> : FilterComboBase
     /// <param name="exit"> True if <see cref="DrawCombo"/> shall exit immediately after this function returns. </param>
     /// <param name="ret"> If true is returned, a newly selected item. </param>
     /// <returns> True if a new item is selected by any means, false otherwise. </returns>
-    protected virtual bool HandleComboPopup(float width, ImGuiId id, Rectangle boundingBox, out bool exit, [NotNullWhen(true)] out TCacheItem? ret)
+    protected virtual bool HandleComboPopup(float width, ImGuiId id, Rectangle boundingBox, ComboFlags flags, out bool exit, [NotNullWhen(true)] out TCacheItem? ret)
     {
         // If the combo is expanded, draw the filter and list.
         if (Im.Popup.IsOpen(id))
@@ -259,7 +260,7 @@ public abstract class FilterComboBase<TCacheItem> : FilterComboBase
             SetPopupWindowSize(width);
             using var style = Im.Style.PushX(ImStyleDouble.FramePadding, 0).Push(ImStyleDouble.WindowPadding, Vector2.Zero)
                 .Push(ImStyleSingle.PopupBorderThickness, Im.Style.GlobalScale);
-            using var popup = Im.Combo.DrawPopup(id, boundingBox, Flags | ComboFlags.HeightLarge);
+            using var popup = Im.Combo.DrawPopup(id, boundingBox, flags);
             exit = true;
             return DrawComboPopup(out ret);
         }
