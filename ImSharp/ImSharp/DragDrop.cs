@@ -82,5 +82,28 @@ public static partial class Im
             payload = Native.Methods.DragDrop.AcceptDragDropPayload(type.Start(), DragDropTargetFlags.None);
             return payload.Valid;
         }
+
+        /// <summary> Scroll the window when a dragged node is near the top or bottom edge. </summary>
+        /// <param name="speed"> The number of pixels moved per second of drag. If this is non-positive, 80% of the window height is used, but speed is scaled with the actual distance from the window edge. </param>
+        /// <param name="marginHeight"> The cursor margin where scrolling starts at the top and bottom. If this is non-positive, auto scroll is disabled. </param>
+        public static void AutoScroll(float speed, float marginHeight)
+        {
+            if (marginHeight <= 0)
+                return;
+
+            var isHovered = Window.Hovered(HoveredFlags.RectOnly);
+            if (!Context.DragDropActive || !isHovered)
+                return;
+
+            var height = Window.Size.Y;
+            if (speed <= 0)
+                speed = 0.8f * height;
+
+            var localY = Io.MousePosition.Y - Window.Position.Y;
+            if (localY < marginHeight)
+                Scroll.Y -= speed * (1 - localY / marginHeight) * Io.DeltaTime;
+            else if (localY > height - marginHeight)
+                Scroll.Y += speed * (1 - (height - localY) / marginHeight) * Io.DeltaTime;
+        }
     }
 }
