@@ -38,6 +38,7 @@ public static partial class Im
             Success = Native.Methods.Tree.CollapsingHeader(text, (ImBool*)Unsafe.AsPointer(ref visible), flags);
             if (Success)
                 Native.Methods.IdStack.PushId(text);
+            Alive = true;
         }
 
         /// <summary> Conversion to bool. </summary>

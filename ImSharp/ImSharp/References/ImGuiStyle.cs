@@ -305,7 +305,7 @@ public static partial class Im
             get => Pointer->AntiAliasedFill;
         }
 
-        /// <summary> The tesselation tolerance when using Bézier curves. </summary>
+        /// <summary> The tesselation tolerance when using BÃ©zier curves. </summary>
         /// <remarks> Increase to reduce quality and increase performance.</remarks>
         public ref float CurveTessellationTolerance
         {
@@ -488,29 +488,37 @@ public static partial class Im
         /// <summary> Get the current text line height. </summary>
         public float TextHeight
         {
+            // Optimize out native function call.
             [MethodImpl(ImSharpConfiguration.OptInl)]
-            get => Native.Methods.Layout.GetTextLineHeight();
+            get => Context.FontSize;
+            // get => Native.Methods.Layout.GetTextLineHeight();
         }
 
         /// <summary> Get the current <seealso cref="TextHeight"/> + <seealso cref="ImGuiStyle.ItemSpacing"/>.Y. </summary>
         public float TextHeightWithSpacing
         {
+            // Optimize out native function call.
             [MethodImpl(ImSharpConfiguration.OptInl)]
-            get => Native.Methods.Layout.GetTextLineHeightWithSpacing();
+            get => Context.FontSize + Style.ItemSpacing.Y;
+            // get => Native.Methods.Layout.GetTextLineHeightWithSpacing();
         }
 
         /// <summary> Get the current frame height (which is <seealso cref="TextHeight"/> + 2 <seealso cref="ImGuiStyle.FramePadding"/>.Y). </summary>
         public float FrameHeight
         {
+            // Optimize out native function call.
             [MethodImpl(ImSharpConfiguration.OptInl)]
-            get => Native.Methods.Layout.GetFrameHeight();
+            get => Context.FontSize + 2f * Style.FramePadding.Y;
+            // get => Native.Methods.Layout.GetFrameHeight();
         }
 
         /// <summary> Get the current <seealso cref="FrameHeight"/> + <seealso cref="ImGuiStyle.ItemSpacing"/>.Y. </summary>
         public float FrameHeightWithSpacing
         {
+            // Optimize out native function call.
             [MethodImpl(ImSharpConfiguration.OptInl)]
-            get => Native.Methods.Layout.GetFrameHeightWithSpacing();
+            get => Context.FontSize + 2f * Style.FramePadding.Y + Style.ItemSpacing.Y;
+            // get => Native.Methods.Layout.GetFrameHeightWithSpacing();
         }
 
         /// <summary> Get the global scale applied to almost anything. </summary>

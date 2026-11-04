@@ -3,16 +3,23 @@ using Microsoft.Extensions.Logging.Abstractions;
 
 namespace ImSharp;
 
+public sealed class ImSharpColors
+{
+    public     ColorParameter ActiveFilterBorder     = ColorParameter.Default;
+    public     ColorParameter ActiveFilterBackground = 0x803030A0;
+}
+
 public static unsafe class ImSharpConfiguration
 {
     internal const MethodImplOptions Opt    = MethodImplOptions.AggressiveOptimization;
     internal const MethodImplOptions Inl    = MethodImplOptions.AggressiveInlining;
     internal const MethodImplOptions OptInl = Opt | Inl;
 
-    internal static ImSharpContext*  Context = ImSharpContext.EmptyPointer;
-    internal static ILogger          Logger  = NullLogger.Instance;
-    internal static Action<ILogger>? LoggerChanged;
-    private static  bool             _contextOwned = true;
+    public static readonly ImSharpColors    Colors  = new();
+    internal static        ImSharpContext*  Context = ImSharpContext.EmptyPointer;
+    internal static        ILogger          Logger  = NullLogger.Instance;
+    internal static        Action<ILogger>? LoggerChanged;
+    private static         bool             _contextOwned = true;
 
     /// <summary> Whether the context has been initialized. </summary>
     public static bool IsInitialized

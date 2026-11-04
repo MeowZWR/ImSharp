@@ -24,6 +24,10 @@ public abstract class TriStateFlagFilterBase<TCacheItem, TEnum> : IFilter<TCache
     /// <inheritdoc/>
     public event Action? FilterChanged;
 
+    /// <summary> An optional background color while the filter is active. </summary>
+    public virtual ColorParameter ActiveBackgroundColor
+        => ImSharpConfiguration.Colors.ActiveFilterBackground;
+
     /// <summary> Load a given value as the filter. </summary>
     /// <param name="value"> The new value for the filter. </param>
     public virtual void LoadValue(TEnum value)
@@ -117,9 +121,12 @@ public abstract class TriStateFlagFilterBase<TCacheItem, TEnum> : IFilter<TCache
         var       all   = FilterValue.HasFlag(AllFlags);
         using var style = ImStyleSingle.FrameRounding.Push(0);
         Im.Item.SetNextWidth(availableRegion.X);
-        var color = ImGuiColor.FrameBackground.Push(ImEx.Table.ActiveFilterColor, !all);
-        var combo = Im.Combo.Begin(""u8, label, ComboFlags);
-        color.Dispose();
+        Im.ComboDisposable combo;
+        using (!all ? ImGuiColor.FrameBackground.Push(ActiveBackgroundColor) : null)
+        {
+            combo = Im.Combo.Begin(""u8, label, ComboFlags);
+        }
+
         changes = OnMiddleClick();
         return combo;
     }
@@ -128,7 +135,7 @@ public abstract class TriStateFlagFilterBase<TCacheItem, TEnum> : IFilter<TCache
     /// <returns> True if the filter changed. </returns>
     protected virtual bool OnMiddleClick()
     {
-        if (FilterValue.HasFlag(AllFlags))
+        if (!FilterValue.HasFlag(AllFlags))
             Im.Tooltip.OnHover("中键点击清除筛选。\n"u8);
         if (!Im.Item.MiddleClicked())
             return false;

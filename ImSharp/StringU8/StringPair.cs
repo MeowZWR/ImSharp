@@ -3,7 +3,7 @@ namespace ImSharp;
 /// <summary> A text string encoded both in UTF16 and UTF8. </summary>
 /// <param name="utf16"> The UTF16-encoded string, or null if it is lazily computed from <paramref name="utf8"/>. </param>
 /// <param name="utf8"> The UTF8-encoded string, or <seealso cref="StringU8.Null"/> if it is lazily computed from <paramref name="utf16"/>. </param>
-public struct StringPair(string? utf16, StringU8 utf8) : ISpanFormattable, IUtf8SpanFormattable
+public struct StringPair(string? utf16, StringU8 utf8) : ISpanFormattable, IUtf8SpanFormattable, IComparable<StringPair>, IEquatable<StringPair>
 {
     private string? _utf16 = utf16;
 
@@ -112,4 +112,26 @@ public struct StringPair(string? utf16, StringU8 utf8) : ISpanFormattable, IUtf8
     /// <inheritdoc/>
     public override string ToString()
         => Utf16;
+
+    /// <inheritdoc/>
+    public int CompareTo(StringPair other)
+        => _utf16?.CompareTo(other.Utf16) ?? Utf8.CompareTo(other.Utf8);
+
+    /// <inheritdoc/>
+    public bool Equals(StringPair other)
+        => _utf16?.Equals(other.Utf16) ?? Utf8.Equals(other.Utf8);
+
+    /// <inheritdoc/>
+    public override bool Equals(object? obj)
+        => obj is StringPair other && Equals(other);
+
+    /// <inheritdoc/>
+    public override int GetHashCode()
+        => HashCode.Combine(Utf16);
+
+    public static bool operator ==(StringPair left, StringPair right)
+        => left.Equals(right);
+
+    public static bool operator !=(StringPair left, StringPair right)
+        => !left.Equals(right);
 }

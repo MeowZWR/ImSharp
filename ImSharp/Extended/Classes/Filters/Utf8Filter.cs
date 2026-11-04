@@ -19,6 +19,10 @@ public abstract class Utf8FilterBase<TCacheItem> : IFilter<TCacheItem>
         return true;
     }
 
+    /// <summary> An optional border color while the filter is active. </summary>
+    public virtual ColorParameter ActiveBorderColor
+        => ImSharpConfiguration.Colors.ActiveFilterBorder;
+
     /// <inheritdoc/>
     public virtual bool WouldBeVisible(in TCacheItem item, int globalIndex)
         => WouldBeVisible(ToFilterString(item, globalIndex));
@@ -33,8 +37,12 @@ public abstract class Utf8FilterBase<TCacheItem> : IFilter<TCacheItem>
         using var id    = Im.Id.Push(label);
         using var style = ImStyleSingle.FrameRounding.Push(0);
         Im.Item.SetNextWidth(availableRegion.X);
-        var tmp = Text;
-        var ret = Im.Input.Text("##Filter"u8, ref tmp, label) && Set(tmp);
+        var  tmp = Text;
+        bool ret;
+        using (ImStyleBorder.Frame.Push(ActiveBorderColor, Im.Style.GlobalScale, tmp.Length > 0 && !ActiveBorderColor.IsDefault))
+        {
+            ret = Im.Input.Text("##Filter"u8, ref tmp, label) && Set(tmp);
+        }
         ret |= OnMiddleClick();
         return ret;
     }

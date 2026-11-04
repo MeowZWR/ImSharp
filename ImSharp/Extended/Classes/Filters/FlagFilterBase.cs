@@ -42,6 +42,10 @@ public abstract class FlagFilterBase<TCacheItem, TEnum> : IFilter<TCacheItem>
             InvokeEvent();
     }
 
+    /// <summary> An optional background color while the filter is active. </summary>
+    public virtual ColorParameter ActiveBackgroundColor
+        => ImSharpConfiguration.Colors.ActiveFilterBackground;
+
     /// <summary> Draw a filter that expands a combo of multiple checkboxes on click. </summary>
     /// <inheritdoc/>
     public virtual bool DrawFilter(ReadOnlySpan<byte> label, Vector2 availableRegion)
@@ -69,9 +73,11 @@ public abstract class FlagFilterBase<TCacheItem, TEnum> : IFilter<TCacheItem>
         var       all   = FilterValue.HasFlag(AllFlags);
         using var style = ImStyleSingle.FrameRounding.Push(0);
         Im.Item.SetNextWidth(availableRegion.X);
-        var color = ImGuiColor.FrameBackground.Push(ImEx.Table.ActiveFilterColor, !all);
-        var combo = Im.Combo.Begin(""u8, label, ComboFlags);
-        color.Dispose();
+        Im.ComboDisposable combo;
+        using (!all ? ImGuiColor.FrameBackground.Push(ActiveBackgroundColor) : null)
+        {
+            combo = Im.Combo.Begin(""u8, label, ComboFlags);
+        }
         changes = OnMiddleClick();
 
         return combo;
@@ -91,7 +97,7 @@ public abstract class FlagFilterBase<TCacheItem, TEnum> : IFilter<TCacheItem>
     /// <returns> True if the filter changed. </returns>
     protected virtual bool OnMiddleClick()
     {
-        if (FilterValue.HasFlag(AllFlags))
+        if (!FilterValue.HasFlag(AllFlags))
             Im.Tooltip.OnHover("中键点击清除筛选。\n"u8);
         if (!Im.Item.MiddleClicked())
             return false;

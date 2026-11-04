@@ -17,6 +17,14 @@ public static partial class Im
             }
         }
 
+        /// <summary> Get the remaining available content width of the window, child, or cell considering the current cursor position, with Y set to a custom value. </summary>
+        public static Vector2 Width(float y = 0)
+            => Available with { Y = y };
+
+        /// <summary> Get the remaining available content height of the window, child, or cell considering the current cursor position, with X set to a custom value. </summary>
+        public static Vector2 Height(float x = 0)
+            => Available with { X = x };
+
         /// <summary> Get the total available content region of the current window, child, or cell in window coordinates. </summary>
         public static Vector2 Maximum
         {

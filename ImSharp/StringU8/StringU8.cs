@@ -19,6 +19,9 @@ public readonly partial struct StringU8 : IReadOnlyList<byte>, IEquatable<String
     /// <summary> The empty string. </summary>
     public static readonly StringU8 Empty = new(EmptyData);
 
+    /// <summary> The empty string in a lazy object. </summary>
+    public static readonly Lazy<StringU8> EmptyLazy = new(Empty);
+
     /// <summary> A string that is actually null and does not contain data, to not need optionals. </summary>
     public static readonly StringU8 Null = new(ReadOnlyMemory<byte>.Empty);
 

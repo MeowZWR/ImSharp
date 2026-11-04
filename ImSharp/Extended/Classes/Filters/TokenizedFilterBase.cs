@@ -32,6 +32,10 @@ public abstract class TokenizedFilter<TTokenType, TCacheItem, TToken> : IFilter<
     /// <inheritdoc/>
     public event Action? FilterChanged;
 
+    /// <summary> An optional border color while the filter is active. </summary>
+    public virtual ColorParameter ActiveBorderColor
+        => ImSharpConfiguration.Colors.ActiveFilterBorder;
+
     /// <summary> Draw a non-rounded text input using the available width and the given label as a hint. </summary>
     /// <inheritdoc/>
     public virtual bool DrawFilter(ReadOnlySpan<byte> label, Vector2 availableRegion)
@@ -39,8 +43,12 @@ public abstract class TokenizedFilter<TTokenType, TCacheItem, TToken> : IFilter<
         using var style = ImStyleSingle.FrameRounding.Push(0);
 
         Im.Item.SetNextWidth(availableRegion.X);
-        var tmp = Text;
-        var ret = Im.Input.Text("##Filter"u8, ref tmp, label) && Set(tmp);
+        var  tmp = Text;
+        bool ret;
+        using (ImStyleBorder.Frame.Push(ActiveBorderColor, Im.Style.GlobalScale, tmp.Length > 0 && !ActiveBorderColor.IsDefault))
+        {
+            ret = Im.Input.Text("##Filter"u8, ref tmp, label) && Set(tmp);
+        }
         DrawTooltip();
         ret |= OnMiddleClick();
         return ret;

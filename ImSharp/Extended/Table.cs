@@ -12,9 +12,6 @@ public static partial class ImEx
         /// <summary> The scaled width of the sorting arrow in table headers. </summary>
         public static float ArrowWidth { get; internal set; }
 
-        /// <summary> The frame background color used for highlighting active filter combos in table headers. </summary>
-        public static Vector4 ActiveFilterColor { get; set; } = new Rgba32(0x803030A0).ToVector();
-
         /// <summary> Draw a simple table with the given data using the drawRow action. </summary>
         /// <typeparam name="T"> The type of the rows to draw. </typeparam>
         /// <param name="id"> The ID for the table. If this is a UTF8 string, it HAS to be null-terminated. </param>
@@ -25,7 +22,7 @@ public static partial class ImEx
         public static void Draw<T>(Utf8LabelHandler id, IEnumerable<T> data, Action<T> drawRow, TableFlags flags = TableFlags.None,
             params ReadOnlySpan<StringU8> columnTitles)
         {
-            if (columnTitles.Length == 0)
+            if (columnTitles.Length is 0)
                 return;
 
             using var table = Im.Table.Begin(id, columnTitles.Length, flags);
@@ -66,7 +63,7 @@ public static partial class ImEx
         public static void Draw<T>(Utf8LabelHandler id, IEnumerable<T> data, Action<T> drawRow, TableFlags flags = TableFlags.None,
             params ReadOnlySpan<string> columnTitles)
         {
-            if (columnTitles.Length == 0)
+            if (columnTitles.Length is 0)
                 return;
 
             using var table = Im.Table.Begin(id, columnTitles.Length, flags);
